@@ -1,0 +1,11 @@
+--- 
+book_handler: {}
+library:
+  -
+    type: YAMLLibrary
+    uri: drlib.yml
+module: []
+
+user_info: {}
+
+version: 0.010

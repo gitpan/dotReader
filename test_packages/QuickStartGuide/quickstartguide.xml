@@ -1,0 +1,970 @@
+<?xml version="1.0"?>
+<pkg:package name="" revision="1.0"
+    xmlns:pkg="http://osoft.com/package"
+    xmlns:books="http://osoft.com/book">
+<pkg:author>Mark Carey, Gary Varnell</pkg:author>
+<pkg:publisher>Osoft</pkg:publisher>
+	<pkg:content>
+		<pkg:outlineMarker OutlineName="Quick Start Guide for ThoutReader" id="root" title="Quick Start Guide for ThoutReader" render="false">
+			
+
+<pkg:outlineMarker OutlineName="Quick Start Guide for ThoutReader" id="0" visible="false">
+<div class="sect1">
+<h1 align="center">Quick Start Guide for ThoutReader<a id="titlepage" name="titlepage"></a></h1>
+
+
+<p> </p><center><p></p><p><img src="quickstartguide_files/thoutlogo.png"  /> </p>
+<p align="center"><strong>Quick Start Guide for ThoutReader<sup><font size="2">TM</font></sup> v 1.7<br  />
+</strong><strong>Copyright 2005, OSoft, Inc. </strong></p></center>
+</div>
+</pkg:outlineMarker>
+
+<pkg:outlineMarker OutlineName="INTRODUCTION" id="1" >
+<div class="sect1">
+<h1>INTRODUCTION<a id="intro" name="intro"></a></h1>
+
+<p>The ThoutReader<sup><font size="2">TM</font></sup> is 
+  <!--StartFragment -->
+  an open source (GPL 2.0) cross-platform multi-document help system (written 
+  in Java) that organizes new and existing content. Developers can <font style="font-weight: bold;">browse, 
+  search, bookmark, and append</font> a library of their favorite reference documentation 
+  and personal code as well as reference books - from <font style="font-weight: bold;">one 
+  program, in one format, at the same time - even off-line</font>. </p>
+<p class="hint"><font color="#ff0000"><strong>Tip:</strong></font> To get the most out of the 
+  ThoutReader<sup><font size="2">TM</font></sup> please read this Quick Start 
+  Guide. </p>
+
+<pkg:outlineMarker OutlineName="Vision" id="11" >
+<div class="sect2">
+<h2>Vision<a id="intro_vision" name="intro_vision"></a></h2>
+
+<p>OSoft's vision is to train, educate, and help the open source community by 
+  providing a standardized platform through which open source documentation and 
+  training content will be delivered. This will speed development time by having 
+  all of your important references at your fingertips. Once you learn how to take 
+  full advantage of the ThoutReader<sup><font size="2">TM</font></sup>, you'll 
+  find it hard to go without it. </p>
+<p><a href="http://osoft.com/">OSoft.com</a> is a "community" where
+developers congregate to contribute information as well as sell
+training content. We provide the conduit for publishers, authors, and
+developers, through the ThoutReader<sup><font size="2">TM</font></sup>, to post their content on OSoft.com and generate royalties from units sold. </p><p><strong>Here's what you can expect from the ThoutReader<sup><font size="2">TM</font></sup>: </strong></p><strong>End Users</strong> 
+<ul>
+  <li>Reference all your documentation and access material from one place. </li>
+  <li>Save time and learn new programming languages faster with the convenience 
+    of a single, easy to use format. </li>
+  <li>Search all of your documentation at once. </li>
+  <li>You buy it you own it, no subscription fees. </li>
+  <li>Organize, bookmark and append content. </li>
+  <li> Download and/or submit public notes.</li>
+  <li>View your content off-line on practically any platform. </li>
+</ul>
+<strong>Developers/Authors </strong> 
+<ul>
+  <li>Create your own documentation.</li>
+  <li>Cross-link with other documentation to speed your own content creation. 
+  </li>
+
+  <li>ThoutReader<sup><font size="2">TM</font></sup> documentation can be generated 
+    from docbook and other popular formats. </li>
+  <li>ThoutReader<sup><font size="2">TM</font></sup> documentation is xhtml and 
+    is rendered in HTML. </li>
+  <li>Powerful creation tools available at www.osoft.com/tcreator.php make it 
+    easy to create good documentation. </li>
+  <li>Publish your content NOW at www.osoft.com. </li>
+  <li>Set your own selling price or give it away free.</li>
+  <li>Keep and maintain your own intellectual property and copyrights. </li>
+</ul>
+
+</div>
+</pkg:outlineMarker>
+
+<pkg:outlineMarker OutlineName="About Thout" id="12" >
+<div class="sect2">
+<h2>About Thout<a id="intro_about" name="intro_about"></a></h2>
+
+<div class="def"> 
+  <p><img src="quickstartguide_files/thout_logo.gif"  /> Thout 
+    (pronounced "th-out") was the ancient Egyptian God of Knowledge 
+    symbolized by the Ibis. OSoft's Thout logo depicts an ibis with chaos and 
+    confusion of binary information on one side and logic, order, and knowledge 
+    on the other. 
+  </p>
+  <p class="hint"><font color="#ff0000"><strong>Trivia: </strong></font>The binary code to 
+    the right of the ibis spells K-N-O-W-L-E-D-G-E.</p>
+
+</div>
+
+</div>
+</pkg:outlineMarker>
+
+<pkg:outlineMarker OutlineName="Open Source" id="13" >
+<div class="sect2">
+<h2>Open Source<a id="intro_os" name="intro_os"></a></h2>
+
+<p><font color="#000000"><img src="quickstartguide_files/osi_certified.gif"  /></font> 
+</p>
+<p><font color="#000000">ThoutReader&#8482; is <a href="http://www.opensource.org/">OSI 
+  Certified Open Source Software</a><font size="2">,</font> licensed under the 
+  GNU General Public License (GPL) Version 2, June 1991, ensuring broad adoption 
+  and future development of the project.</font> We welcome your suggestions on 
+  how to improve the product. Please post your comments/suggestions to our user 
+  forum at <a href="http://osoft.com/forum">www.osoft.com/forum</a>. </p>
+<div class="def">
+  <p>For licensing and version information, click<strong> Help </strong>on the 
+    menu bar as shown below.</p>
+</div>
+<p><img src="quickstartguide_files/help_menu.gif"  /><font color="#ff0000"></font></p>
+
+
+</div>
+</pkg:outlineMarker>
+
+<pkg:outlineMarker OutlineName="Credits" id="14" >
+<div class="sect2">
+<h2>Credits<a id="intro_credits" name="intro_credits"></a></h2>
+
+<p>The ThoutReader<sup><font size="2">TM</font></sup> and ThoutCreator<sup><font size="2">TM</font></sup> 
+  are open source projects. As such, we welcome volunteer assistance. The following 
+  people contributed to the development of the ThoutReader<sup><font size="2">TM</font></sup>: 
+</p>
+<p><strong>Gary Varnell - Project Leader </strong><br  />
+  Maxim Berdyugin<br  />
+  Rick Blair<br  />
+  Mark Carey<br  />
+  Peter Cooner<br  />
+  David Hadley<br  />
+  Alexander Semejonov<br  />
+  Andrew Singleton<br  />
+</p>
+<p>If you would like to contribute your talent and skills to the further development of the ThoutReader<sup><font size="2">TM</font></sup> open source project, please contact Gary Varnell <a href="mailto:gvarnell@osoft.com">gvarnell@osoft.com</a>. </p>
+<p class="note"><strong><font color="#ff0000">Note: </font>We are actively seeking 
+  authors and developers who would like to publish their content on OSoft.com 
+  via the ThoutReader<sup><font size="2">TM</font></sup>. </strong>Many potential 
+  authors would like to share their knowledge but describe the difficulty in attaining 
+  publishers for their work. Often the market is too small to justify the time 
+  and expense of producing a traditional book.</p>
+<p><strong>Key benefits of submitting work to OSoft.com: </strong></p>
+<ul>
+  <li>Publish your content now! With our conversion scripts, we can have your 
+    content up in a matter of days. </li>
+  <li>You set the selling price for your work and earn significantly higher royalties 
+    than through a traditional publisher. For example, if you wrote a small "How 
+    To" pamphlet that you believe would help others; you might sell it for 
+    as little as $5.00. We will also post it for free. We recommend, however, 
+    that you charge a small fee so that you may donate some or all of your proceeds 
+    to the open source foundation of your choice. </li>
+  <li>Keep your copyrights with our "author friendly" agreement. </li>
+  <li>Paid content is protected with DRM encryption. </li>
+  <li>Use OSoft's high site traffic to distribute your content. </li>
+</ul>
+<p><strong>Contact us at <a href="mailto:author@osoft.com">author@osoft.com</a></strong></p><a name="interface" id="interface"></a>
+
+
+</div>
+</pkg:outlineMarker>
+</div>
+</pkg:outlineMarker>
+
+<pkg:outlineMarker OutlineName="INTERFACE" id="2" >
+<div class="sect1">
+<h1>INTERFACE<a id="intro_interface" name="intro_interface"></a></h1>
+
+<p align="left">&#160;</p>
+<p align="left"><strong><img src="quickstartguide_files/layout.gif" width="600" height="434"  /></strong></p>
+<p align="left">&#160;</p>
+
+<pkg:outlineMarker OutlineName="Changing the Look and Feel" id="15" >
+<div class="sect2">
+<h2><strong>Changing the Look and Feel</strong></h2>
+
+<p><font color="#000000">The ThoutReader&#8482; comes with several skins. To change 
+  the skin, select <strong>View</strong>...<strong>Change Look and Feel</strong>... 
+  from the Menu bar and make your selection. In the future additional skins will 
+  be downloadable from <a href="http://www.osoft.com/">www.osoft.com</a>.</font></p>
+<p>&#160;</p>
+<p><font color="#ff0000"><img src="quickstartguide_files/lookandfeel.png" width="400" height="144"  /> 
+  </font></p>
+
+</div>
+</pkg:outlineMarker>
+
+<pkg:outlineMarker OutlineName="Anti-Aliasing" id="16" >
+<div class="sect2">
+<h2>Anti-Aliasing</h2>
+
+<p>By default, anti-aliasing is turned "on". This reduces the unwanted 
+  <em>jaggies</em> between the font and the background color . </p>
+<p>&#160;</p>
+<p>&#160;<img src="quickstartguide_files/aliasing.jpg"  /></p>
+<p>&#160;</p>
+<p>&#160;</p>
+<p>Turning anti-aliasing "off" may speed up the rendering of content 
+  on older/slower machines. To adjust anti-aliasing, select <strong>View</strong>...<strong>AntiAliasing</strong> 
+  from the Menu bar. Click once to turn off (no visible check mark). Click again 
+  to turn on (check mark).</p>
+<p>&#160;</p>
+<img src="quickstartguide_files/anti-alias.png" width="392" height="161"  />
+<p>&#160;</p>
+
+
+
+
+</div>
+</pkg:outlineMarker>
+</div>
+</pkg:outlineMarker>
+
+<pkg:outlineMarker OutlineName="PACKAGE MANAGEMENT" id="3" >
+<div class="sect1">
+<h1>PACKAGE MANAGEMENT<a id="pkgmgt" name="pkgmgt"></a></h1>
+
+<p>A package is defined as a collection of content that has been prepared for 
+  viewing with the ThoutReader<sup><font size="2">TM</font></sup>. For example, 
+  this Quick Start Guide is a package, as is any referenceware, book, or other 
+  content that can be viewed by the ThoutReader<sup><font size="2">TM</font></sup>. 
+</p>
+
+<pkg:outlineMarker OutlineName="Download New Packages" id="17" >
+<div class="sect2">
+<h2>Download New Packages<a id="pkgmgt_downloadnewpkg" name="pkgmgt_downloadnewpkg"></a></h2>
+
+<p>Additional packages that can be read by the ThoutReader<sup><font size="2">TM</font></sup> 
+  can be downloaded several ways<strong>: </strong></p>
+<ul>
+  <li>Go to <a href="http://osoft.com/">www.osoft.com</a> or other content provider and download 
+    directly from that site. </li>
+  <li>Click the <strong>Download Icon</strong> from the Quick Navigation Buttons 
+    in the upper right menu as shown below. This will take you directly to OSoft's 
+    content repository.</li>
+  <li>Create and install your own packages created from <a href="http://www.osoft.com/store/tcreator.php">ThoutCreator</a>&#8482; 
+    tools.</li>
+</ul>
+<img src="quickstartguide_files/download.gif"  />
+<p></p>
+<p>Many packages at <a href="http://osoft.com/">www.osoft.com</a> are free. These include all 
+  of the available open source application documentation. Top selling reference 
+  books and author contributed content are available for a reasonable price.</p>
+
+</div>
+</pkg:outlineMarker>
+
+<pkg:outlineMarker OutlineName="Re-downloading Packages" id="redownloading" >
+<div class="sect2">
+<h2>Re-downloading Packages<a name="redownloading" id="redownloading"></a></h2>
+
+<p>All packages, both commercial and free, may be re-downloaded from your OSoft 
+  user account at <a href="http://www.osoft.com/">www.osoft.com</a>. This is particularly 
+  useful if the original download was interrupted or if you choose to install 
+  your content on more than one computer owned and used by you. To do this:</p>
+<ul>
+  <li>Log-in to your OSoft.com user account.</li>
+  <li>Select <strong>Download Products</strong>...<strong>Previous Downloads</strong>...<strong>Select 
+    file(s)</strong> to re-download.</li>
+</ul>
+
+</div>
+</pkg:outlineMarker>
+
+<pkg:outlineMarker OutlineName="Installing Packages" id="18" >
+<div class="sect2">
+<h2>Installing Packages<a id="pkgmgt_pkglocation" name="pkgmgt_pkglocation"></a></h2>
+
+<p class="note"><strong><font color="#ff0000">IMPORTANT:</font></strong> In order to be visible 
+  by the ThoutReader<sup><font size="2">TM</font></sup>, packages <strong>must 
+  be installed through the ThoutReader&#8482; File Menu</strong>.</p>
+<p>&#160;</p>
+<p> To install a Thout Reader package::</p>
+<ul>
+  <li>From the Menu bar, Select <strong>File</strong>...<strong>Add Package</strong></li>
+  <li>Navigate to your downloaded or created package.</li>
+  <li>Select file(s) and click "open".</li>
+  <li>Packages will appear in the Library Window</li>
+</ul>
+    
+<p class="hint"><strong><font color="#ff0000">TIP:</font> </strong>You may install multiple 
+  files at the same time by holding CTRL and selecting the file names.</p>
+<p><img src="quickstartguide_files/file_add_package.gif"  /></p>
+
+</div>
+</pkg:outlineMarker>
+
+<pkg:outlineMarker OutlineName="Removing Packages" id="19" >
+<div class="sect2">
+<h2>Removing Packages</h2>
+
+<p>Removing a package from the ThoutReader&#8482; <strong>does not delete the 
+  package from your computer</strong>, it only removes it from the ThoutReader&#8482; 
+  library. To remove a package from the ThoutReader&#8482; library:</p>
+<ul>
+  <li>Select the Library Tab</li>
+  <li>Right-click the package you wish to remove...select Remove Package</li>
+</ul>
+
+</div>
+</pkg:outlineMarker>
+
+<pkg:outlineMarker OutlineName="Reader Registration Key" id="reader_registration" >
+<div class="sect2">
+<h2>Reader Registration Key<a name="reader_registration" id="reader_registration"></a></h2>
+
+<p>The ThoutReader&#8482; has the ability to read encrypted commercial packages. 
+  The encryption is based on the <b>user</b>, not the hardware the package is 
+  installed on. This means that you can install your content on any number of 
+  platforms/computers you own and use without restriction. Simply <a href="redownloading/#redownloading"><strong>re-download</strong></a> 
+  the content and install your Reader Registration Key into your other machines. 
+  Encryption is entirely contained within the package itself and is designed to 
+  be minimally invasive. You only need to install the registration key once per 
+  machine. After that, you can download additional commercial content from that 
+  provider without any further action. There are no ongoing log-ins, passwords, 
+  or other requirements.</p>
+<p class="note"><strong><font color="#ff0000">Note:</font></strong> The ThoutReader&#8482; 
+  Key is only required if you purchase commercial, encrypted content. No action 
+  is required for the download and use of free content.</p>
+<p class="note"><strong><font color="#ff0000">Note</font></strong><font color="#ff0000">:</font> 
+  If you receive the following error message, it means that the Reader Registration 
+  Key is not installed for that package.</p>
+<p><img src="quickstartguide_files/error_regkey.jpg"  /></p>
+<p>To add your ThoutReader&#8482; key, do the following:</p>
+<ul>
+  <li>Log in to your OSoft User Account</li>
+  <li>Select Download Reader Registration Key and download your key to your computer 
+    desktop</li>
+  <li>Open the ThoutReader</li>
+  <li>Select <strong>File</strong>...<strong>Add Key</strong>...Navigate to your 
+    OSOFT.KEY file...Install the key</li>
+  <li>You will receive a confirmation that the key was successfully installed.</li>
+  <li>You can delete the key file on your desktop.</li>
+</ul>
+<p>&#160;<img src="quickstartguide_files/file_add_key.gif"  /></p>
+<p class="note"><strong><font color="#ff0000">Note:</font></strong> You can store multiple 
+  Reader Registration Keys into the ThoutReader&#8482;. For example, each publisher 
+  that distributes content directly will generate their own User Registration 
+  Key. You need only install that key one time. </p>
+
+</div>
+</pkg:outlineMarker>
+
+<pkg:outlineMarker OutlineName="View a Package " id="20" >
+<div class="sect2">
+<h2>View a Package<a id="pkgmgt_viewpkg" name="pkgmgt_viewpkg"></a> </h2>
+
+<p>The ThoutReader<sup><font size="2">TM</font></sup> comes with one pre-installed 
+  package, this Quick Start Guide. By default, the Quick Start Guide will automatically 
+  be displayed in the Content Window<strong> </strong>the first time you open 
+  the ThoutReader<sup><font size="2">TM</font></sup>. The ThoutReader<sup><font size="2">TM</font></sup> 
+  browse view will display your last viewed package the next time you load the 
+  ThoutReader<sup><font size="2">TM</font></sup>. </p>
+<p>To View an index of all installed packages, click the <a href="librarytab"><strong>Library 
+  Tab</strong></a>. Double Click any installed package to load into the Browse 
+  window. </p>
+<br  />
+
+</div>
+</pkg:outlineMarker>
+
+<pkg:outlineMarker OutlineName="Organizing Your Packages" id="21" >
+<div class="sect2">
+<h2>Organizing Your Packages<a id="pkgmgt_organize" name="pkgmgt_organize"></a></h2>
+
+<p>The <a href="librarytab">Library Tab</a> displays all of the installed packages 
+  in the OSoft Thout Reader/Content directory. You can organize your library by 
+  creating folders; then drag and drop packages into desired folders. </p>
+<p>All of your content is depicted in the Library Root Folder.<br  />
+  To create a folder/sub-folder, select the root you want the folder to be displayed 
+in and right click anywhere in the Library pane...select Add Folder </p>
+<p><img src="quickstartguide_files/library_add_folder.gif"  /></p>
+<p>Drag and drop selected contents into the desired folder. </p>
+<p class="hint"><strong><font color="#ff0000">TIP </font></strong><font color="#ff0000">:</font> 
+  Organizing your library will speed searches by allowing you to quickly designate 
+  which file folder(s) of content to search in Advanced Search. For example: Place 
+  all of your Linux documentation in a folder called Linux. When you conduct a 
+  search, you can specify All Content or just the content in the Linux folder. 
+  See <a href="searchtab">Search Tab</a> for details. </p>
+<br  />
+<a name="library" id="library"></a>
+
+
+</div>
+</pkg:outlineMarker>
+</div>
+</pkg:outlineMarker>
+
+<pkg:outlineMarker OutlineName="LIBRARY  " id="4" >
+<div class="sect1">
+<h1>LIBRARY <a id="librarytab" name="librarytab"></a> </h1>
+
+<p>The Library Tab displays all of the installed packages in the OSoft Thout Reader/Content directory. <strong>Double-click </strong>on any package name and the index for that package will automatically display in the Browse Tab Navigation window. </p>
+<pkg:outlineMarker OutlineName="Adding Folders" id="22" >
+<div class="sect2">
+<h2>Adding Folders<a id="librarytab_addingfolders" name="librarytab_addingfolders"></a></h2>
+<p>All
+of your content is depicted in the Library Root Folder. You can
+organize your library by creating additional sub-folders; then drag and
+drop packages into desired folders. </p>
+<p>To create a new sub-folder, Right Click on the desired Parent folder and click 
+  Add Folder. Name the folder and press Enter. </p>
+<img src="quickstartguide_files/library_add_folder.gif"  />
+<p></p>
+
+</div>
+</pkg:outlineMarker>
+
+<pkg:outlineMarker OutlineName="Drag and Drop" id="23" >
+<div class="sect2">
+<h2>Drag and Drop<a id="librarytab_dragndrop" name="librarytab_dragndrop"></a></h2>
+
+<p>You can move packages around in your library. Simply drag and drop package 
+  names from one location to another. We recommend you put "vertical content" 
+  in a common folder. For example: Create a folder called MySQL. Place all your 
+  MySQL documentation packages and your favorite MySQL book packages in the MySQL 
+  folder. This will make finding and searching your content easier. </p>
+
+</div>
+</pkg:outlineMarker>
+
+<pkg:outlineMarker OutlineName="Removing Folders" id="24" >
+<div class="sect2">
+<h2>Removing Folders<a id="librarytab_deletingfolders" name="librarytab_deletingfolders"></a></h2>
+
+<p>Folders must be empty to be deleted. Right click the empty folder and select 
+  <strong>Remove Folder</strong>. </p>
+
+
+</div>
+</pkg:outlineMarker>
+
+<pkg:outlineMarker OutlineName="Renaming Folders " id="25" >
+<div class="sect2">
+<h2>Renaming Folders<a id="librarytab_renamingfolders" name="librarytab_renamingfolders"></a> </h2>
+
+<p>To rename a folder, select the desired folder, right click and click <strong>Rename 
+  Folder.</strong> Type in new name and hit enter.</p>
+<a name="browse" id="browse"></a>
+
+
+</div>
+</pkg:outlineMarker>
+</div>
+</pkg:outlineMarker>
+
+<pkg:outlineMarker OutlineName="BROWSE " id="5" >
+<div class="sect1">
+<h1>BROWSE <a id="browsetab" name="browsetab"></a></h1>
+
+<p>The Browse tab displays the index of the selected package from the
+Library. When you select a topic from the index, the content will be
+displayed in the Content Window.<br  />
+</p>
+
+<pkg:outlineMarker OutlineName="Navigating" id="26" >
+<div class="sect2">
+<h2>Navigating<a id="browsetab_navigating" name="browsetab_navigating"></a></h2>
+
+<p>Click on the desired topic you wish to see and it will be displayed in the 
+  Content Window. Click the left or right arrows on your keyboard to expand or 
+  collapse categories.</p>
+<p> <img src="quickstartguide_files/browse_tab.gif"  /></p>
+
+</div>
+</pkg:outlineMarker>
+
+<pkg:outlineMarker OutlineName="Copy and Paste" id="27" >
+<div class="sect2">
+<h2>Copy and Paste<a id="browsetab_copypaste" name="browsetab_copypaste"></a></h2>
+
+<p>Copy and paste functionality is dependent on the package and the restrictions 
+  the authors/publishers place on it. All free/open source content has no restrictions 
+  and can be copied and pasted. ALL code, regardless of the type of package, can 
+  be copied and pasted. This is invaluable for long or complicated sample code. 
+</p>
+<p>To copy non-encrypted content, select desired content with your mouse (it will 
+  turn light blue): </p>
+<ul>
+  <li>Right-click and choose Copy or </li>
+  <li>press CTRL+C </li>
+  <li>Paste into desired application. </li>
+</ul>
+<p>OSoft has made it easy to copy "clean" versions of code. To the upper 
+  left of each code block you will notice a small "copy icon". When 
+  you click on the icon, an OSoft ThoutReader Code Window opens up with the content 
+  identified by the copy icon. This content may be copied/pasted/printed as needed 
+  using any text editor or word processing program.</p>
+<img src="quickstartguide_files/copying.jpg"  />
+
+
+</div>
+</pkg:outlineMarker>
+
+<pkg:outlineMarker OutlineName="Printing" id="28" >
+<div class="sect2">
+<h2>Printing</h2>
+
+<p> The JEditPane, which renders output in the content window, does not support 
+  direct printing at this time. Once this has been resolved, the user will be 
+  able to print the content of the current node.</p>
+<p>Code - all code can be copied/pasted into a word processing program and printed.<br  />
+  Non encrypted packages - the entire package can be copied/pasted into a word 
+  processing program and printed.<br  />
+  Encrypted packages - The ability to copy/paste/print is determined by the author/publisher. 
+Some will allow it and some will not.</p>
+<p>&#160;</p>
+
+</div>
+</pkg:outlineMarker>
+
+<pkg:outlineMarker OutlineName="Keyboard Commands" id="29" >
+<div class="sect2">
+<h2>Keyboard Commands<a id="browsetab_keyboardcommands" name="browsetab_keyboardcommands"></a></h2>
+
+<p>To navigate within the Browse Tab, click on the desired topic or use the keyboard commands: <br  />
+To see a list of keyboard commands, Right-Click anywhere in the Browse Navigation Window. </p>
+<p><img src="quickstartguide_files/browse_hotkeys.gif"  /></p>
+<a name="search" id="search"></a>
+
+
+</div>
+</pkg:outlineMarker>
+</div>
+</pkg:outlineMarker>
+
+<pkg:outlineMarker OutlineName="SEARCHING" id="6" >
+<div class="sect1">
+<h1>SEARCHING<a id="searchtab" name="searchtab"></a></h1>
+
+<p>The power of the ThoutReader<sup><font size="2">TM</font></sup> is evident 
+  in its awesome search capability. Using all of the cawill speed up and enhance 
+  productivity.</p>
+<img class="figure" src="quickstartguide_files/searchtab.gif" border="1" height="79" width="248"  /> 
+
+<pkg:outlineMarker OutlineName="Normal Search" id="30" >
+<div class="sect2">
+<h2>Normal Search<a id="searchtab_normal" name="searchtab_normal"></a></h2>
+
+<p>The normal search only searches the current (open) package. To conduct a normal 
+  search: </p>
+<ul>
+  <li>Click the Search tab or </li>
+  <li>From the Menu bar select <strong>Navigation / Search</strong> or</li>
+  <li>CTRL+ S anywhere in the program</li>
+  <li>Enter search term </li>
+  <li>Choose Index (default) or All Text </li>
+  <li>Click Search </li>
+  <li>View results in the Navigation Window </li>
+</ul>
+<img class="figure" src="quickstartguide_files/search_1.gif"  /> 
+<div class="note"><strong><font color="#ff0000">NOTE: </font>We recommend you 
+  start by selecting Outline </strong>. This will search the Index for your term 
+  and speed up the search time. All Text searches the entire document for ANY 
+  INSTANCE of that word. It is much slower and could generate thousands of hits, 
+  depending on the search term and size of document.</div>
+<div class="note"><strong><font color="#ff0000">NOTE: </font></strong> While searching, the OSoft logo will spin, letting you know that it is actively searching while the status bar in the lower right corner of the Content Window keeps you informed of the search progress.<br  />
+.<img src="quickstartguide_files/search_status.gif" border="0" class="figure"  /> </div>
+<br  />
+
+
+
+</div>
+</pkg:outlineMarker>
+
+<pkg:outlineMarker OutlineName="Advanced Search" id="31" >
+<div class="sect2">
+<h2>Advanced Search<a id="searchtab_advancedsearch" name="searchtab_advancedsearch"></a></h2>
+<p>The
+Advance Search offers more options and can broaden your search to
+specific packages or all packages. To conduct an advanced search: </p><ol><li>Open the advanced search by doing one of the following 
+    <ol type="a">
+      <li>Double click on the search tab or</li>
+      <li>Click the Search tab and select Advanced OR</li>
+      <li>From the Menu bar select Navigation / Search and select the Advanced 
+        tab OR</li>
+      <li>Select CTRL + S from anywhere in the program and select the Advanced 
+        tab </li>
+    </ol>
+  </li>
+  <li>Select one or more of the following advanced options you wish to use in 
+    your search 
+    <ol><li>Exact Phrase - Matches exact phrase word for word </li><li>Match Case - Allows for case sensitive matching </li><li>Regular Expression - Allows complex matching </li><li>Outline - Allows searching all text, or only text in outline items (nodes) </li></ol></li><li>Enter search term </li>
+  <li>From the drop down box, select which packages you want the ThoutReader&#8482; 
+    to search. Note: If you select Library, all of the packages in the content 
+    folder will be searched </li>
+  <li>Click Find </li><li>View results in the Navigation Window. </li></ol><img class="figure" src="quickstartguide_files/search_advanced_options.gif" border="1"  /> 
+<p class="hint"><strong>Hint:</strong> This is where organizing your files in 
+  the library comes in handy. For example, if you create a folder in your library 
+  called PHP and place all of your PHP content in that folder, you can select 
+  that folder in Advanced Search and it will search only the contents of that 
+  folder. </p>
+
+</div>
+</pkg:outlineMarker>
+
+<pkg:outlineMarker OutlineName="Viewing Search Results" id="32" >
+<div class="sect2">
+<h2>Viewing Search Results<a id="searchtab_viewingresults" name="searchtab_viewingresults"></a></h2>
+<p>Search
+results will be rendered in the Navigation Window. When you click on a
+topic in Navigation Window, your search terms will be displayed in the
+Content Window, highlighted in yellow. <br  />
+</p>
+</div>
+</pkg:outlineMarker>
+
+<pkg:outlineMarker OutlineName="Managing Search Results" id="33" >
+<div class="sect2">
+<h2>Managing Search Results<a id="searchtab_managingresults" name="searchtab_managingresults"></a></h2>
+<p>Manage
+your search results by RIGHT-CLICKING on any search result in the
+Navigation Window and follow the menu instructions to move from one
+term to the next. Or, just use your mouse. </p><p><a name="bookmark" id="bookmark"></a></p>
+
+
+</div>
+</pkg:outlineMarker>
+</div>
+</pkg:outlineMarker>
+
+<pkg:outlineMarker OutlineName="BOOKMARKS" id="7" >
+<div class="sect1">
+<h1>BOOKMARKS<a id="bookmarktab" name="bookmarktab"></a></h1>
+
+<p>Bookmarks are global and are recorded in the Bookmark tab for all installed 
+  packages. This easy reference allows you to quickly move to important reference 
+  locations in any installed package. </p>
+<img class="figure" src="quickstartguide_files/bookmarktab.gif" border="1"  /> 
+
+<pkg:outlineMarker OutlineName="Create a Bookmark" id="34" >
+<div class="sect2">
+<h2>Create a Bookmark<a id="bookmarktab_createbookmark" name="bookmarktab_createbookmark"></a></h2>
+<p>Once you have content in the Content Window that you wish to bookmark for later retrieval, you may either: </p><ol><li>Right click the content and select Add Bookmark or </li><li>On the Menu Bar, choose Navigation - Add Bookmark. </li></ol><p>Choose a name for the Bookmark and select enter. Your bookmarked section can be retrieved from any open package. </p>
+</div>
+</pkg:outlineMarker>
+
+<pkg:outlineMarker OutlineName="Managing Bookmarks" id="35" >
+<div class="sect2">
+<h2>Managing Bookmarks<a id="bookmarktab_managingbookmarks" name="bookmarktab_managingbookmarks"></a></h2>
+<p>The ThoutReader<sup><font size="2">TM</font></sup> allows you to create file folders to organize your bookmarks (similar to creating folders in the library tab). </p>
+</div>
+</pkg:outlineMarker>
+
+<pkg:outlineMarker OutlineName="Adding Folders" id="36" >
+<div class="sect2">
+<h2>Adding Folders<a id="bookmarktab_addingfolders" name="bookmarktab_addingfolders"></a></h2>
+<p>You can organize your bookmarks by creating additional sub-folders; then drag and drop bookmarks into the desired folders. </p>
+<p>To create a new sub-folder, right click on the desired parent folder and select 
+  Add Folder or [Alt + a], name the folder and press Enter. </p>
+<p><img class="figure" src="quickstartguide_files/bookmark_addfolder.gif" border="1" height="267" width="291"  /></p>
+
+</div>
+</pkg:outlineMarker>
+
+<pkg:outlineMarker OutlineName="Drag and Drop" id="37" >
+<div class="sect2">
+<h2>Drag and Drop<a id="bookmarktab_dragndrop" name="bookmarktab_dragndrop"></a></h2>
+
+<p>You can move bookmarks around by dragging and dropping bookmarks from one location 
+  to another. We recommend you put "vertical content" in a common folder. 
+  For example: Create a folder called Linux. Place your Linux documentation packages, 
+  "How To" packages, and your favorite Linux book packages in the Linux 
+  folder. This will make finding and searching your content easier. </p>
+
+</div>
+</pkg:outlineMarker>
+
+<pkg:outlineMarker OutlineName="Deleting Folders" id="38" >
+<div class="sect2">
+<h2>Deleting Folders<a id="bookmarktab_deletingfolders" name="bookmarktab_deletingfolders"></a></h2>
+<p>Folders must be empty to be deleted. There are two ways to delete a folder: </p><ul><li>Right click the empty folder and click delete. <strong></strong></li><li>Click folder to select and press the delete key on keyboard. <strong></strong></li></ul>
+</div>
+</pkg:outlineMarker>
+
+<pkg:outlineMarker OutlineName="Renaming Folders" id="39" >
+<div class="sect2">
+<h2>Renaming Folders<a id="bookmarktab_renamingfolders" name="bookmarktab_renamingfolders"></a></h2>
+<p>To rename a folder, select the desired folder, right click and click Rename or [Alt + r]. <br  />
+  Right click on any Bookmark in the Navigation Window and follow menu instructions to move, delete, or rename bookmarks. </p><p align="center"> </p>
+</div>
+</pkg:outlineMarker>
+
+<pkg:outlineMarker OutlineName="Deleting Bookmarks" id="40" >
+<div class="sect2">
+<h2>Deleting Bookmarks<a id="bookmarktab_deletingbookmarks" name="bookmarktab_deletingbookmarks"></a></h2>
+<p>To delete a bookmark: </p><ul><li>Select the bookmark from the bookmark tab and press Delete key </li><li>Right click on bookmark and select Delete Bookmark </li></ul>
+</div>
+</pkg:outlineMarker>
+
+<pkg:outlineMarker OutlineName="Renaming Bookmarks" id="41" >
+<div class="sect2">
+<h2>Renaming Bookmarks<a id="bookmarktab_renamingbookmarks" name="bookmarktab_renamingbookmarks"></a></h2>
+To rename a bookmark: <ul><li>Select the bookmark from the bookmark tab and press (Alt + r) </li><li>Right click on bookmark and select Rename Bookmark </li></ul>
+</div>
+</pkg:outlineMarker>
+
+<pkg:outlineMarker OutlineName="Keyboard Commands" id="42" >
+<div class="sect2">
+<h2>Keyboard Commands<a id="bookmarktab_keyboardcommands" name="bookmarktab_keyboardcommands"></a></h2>
+
+<p>Right-click in the Bookmark tab and follow the keyboard commands. </p>
+<img src="quickstartguide_files/bookmark_hotkeys.gif"  />
+<a name="notes" id="notes"></a> 
+
+
+</div>
+</pkg:outlineMarker>
+</div>
+</pkg:outlineMarker>
+
+<pkg:outlineMarker OutlineName="NOTES " id="8" >
+<div class="sect1">
+<h1>NOTES <a id="notestab" name="notestab"></a></h1>
+
+<p> Viewing of notes only applies only to the currently opened package. There 
+  are two types of notes - <a href="private_notes/#private_notes">Private</a> and <a href="public_notes/#public_notes">Public</a>. 
+  The Notes function is turned on/off through Notes on the Menu bar.</p>
+<img src="quickstartguide_files/notes_menu.gif"  />
+
+<pkg:outlineMarker OutlineName="Private Notes" id="private_notes" >
+<div class="sect2">
+<h2>Private Notes<a name="private_notes" id="private_notes"></a></h2>
+
+<p>Private notes allow you to add personal notes, tips, and ideas to the existing 
+  content. It's your space. You can edit existing notes or add multiple notes 
+  to each section. Private notes and related icons are are yellow in color.</p>
+
+<pkg:outlineMarker OutlineName="Displaying/Hiding Private Notes" id="43" >
+<div class="sect3">
+<h3>Displaying/Hiding Private Notes</h3>
+
+<p>To view Private notes select Notes...Private Notes from the Menu bar<br  />
+  To hide Private notes select Notes...Private Notes from the Menu bar to remove 
+the check mark.</p>
+<img src="quickstartguide_files/menu_notes_private_notes.gif" width="290" height="111"  />
+
+</div>
+</pkg:outlineMarker>
+
+<pkg:outlineMarker OutlineName="Add a Private Note" id="44" >
+<div class="sect3">
+<h3>Add a Private Note<a id="notestab_addanote" name="notestab_addanote"></a></h3>
+
+<p>To add a note, you have to turn the feature "on". To do this, select 
+  Notes ...Private Notes from the Menu bar</p>
+<p>Once the Notes feature has been turned on, a <strong>yellow <font size="+2">+</font></strong> 
+  icon will appear in each section of the package. When you select the icon, a 
+  pop-up box appears for your note information as seen below: </p>
+
+<img src="quickstartguide_files/note_private_create.gif" width="400" height="340"  />
+<p>Complete note and press OK.</p>
+
+</div>
+</pkg:outlineMarker>
+
+<pkg:outlineMarker OutlineName="Edit a Private Note" id="45" >
+<div class="sect3">
+<h3>Edit a Private Note<a id="notestab_editanote" name="notestab_editanote"></a></h3>
+
+<p>To edit a note, select the yellow edit icon from within the note. You can also 
+  right click on the note in the Notes tab...Select Edit Note.</p>
+<img src="quickstartguide_files/note_private_edit.gif"  />
+
+</div>
+</pkg:outlineMarker>
+
+<pkg:outlineMarker OutlineName="Deleting Private Notes" id="46" >
+<div class="sect3">
+<h3>Deleting Private Notes<a id="notestab_deletingnotes" name="notestab_deletingnotes"></a></h3>
+
+To delete a note: 
+<ul>
+  <li>Click on the Note Tab...Select the note you wish to delete...Right click 
+    on the note...Select Delete Note </li>
+  <li>Alternatively, when viewing the note, select the delete icon from inside 
+    the note. </li>
+</ul>
+<img src="quickstartguide_files/note_private_delete.gif"  />
+
+</div>
+</pkg:outlineMarker>
+
+<pkg:outlineMarker OutlineName="Viewing Private Note List" id="47" >
+<div class="sect3">
+<h3>Viewing Private Note List</h3>
+
+<p>The entire private note list for an open package may be viewed from the Notes 
+  tab. Select Private Notes from the drop-down box as shown below:</p>
+<img src="quickstartguide_files/notes_toggle.gif"  />
+
+
+</div>
+</pkg:outlineMarker>
+
+<pkg:outlineMarker OutlineName="Keyboard Commands" id="48" >
+<div class="sect3">
+<h3>Keyboard Commands<a id="notestab_keyboardcommands" name="notestab_keyboardcommands"></a></h3>
+
+<p>Keyboard commands shortcuts are visible by mousing over menu items<br  />
+  <br  />
+<img src="quickstartguide_files/shortcut.png" width="295" height="172"  />. </p>
+
+
+
+</div>
+</pkg:outlineMarker>
+</div>
+</pkg:outlineMarker>
+
+<pkg:outlineMarker OutlineName="Public Notes " id="public_notes" >
+<div class="sect2">
+<h2>Public Notes<a name="public_notes" id="public_notes"></a> </h2>
+
+<p>&#160;Public notes promote active community participants to become formal contributors 
+  to the package. Often, public contributions are more "valuable" than 
+  the original content as they provide insight from real-world users. Public notes 
+  and related icons are blue in color. </p>
+
+<pkg:outlineMarker OutlineName="How Public Notes Work" id="49" >
+<div class="sect3">
+<h3>How Public Notes Work</h3>
+ 
+Public notes are hosted and maintained in a MySQL database on OSoft's web server. 
+The notes may be downloaded directly into the ThoutReader&#8482; and read offline. 
+Submitting a public note requires the user to be logged in to his/her OSoft user 
+account. This reduces spam and maintains the quality of the submissions. It also 
+allows contributors to edit/delete their submissions from their OSoft user account. 
+Because of the quantity of notes expected, public notes will be maintained by 
+the community following established <a href="http://www.osoft.com/store/infocenter/policies.php%3Fsection%3D5">posting 
+guidelines</a>.  
+
+</div>
+</pkg:outlineMarker>
+
+<pkg:outlineMarker OutlineName="Displaying/Hiding Public Notes" id="50" >
+<div class="sect3">
+<h3>Displaying/Hiding Public Notes</h3>
+ 
+<p>To view public notes select Notes...Public Notes from the Menu bar<br  />
+  To hide public notes select Notes...Public Notes from the Menu bar to remove 
+the check mark.</p>
+<img src="quickstartguide_files/menu_notes_public_notes.gif" width="290" height="111"  />
+
+</div>
+</pkg:outlineMarker>
+
+<pkg:outlineMarker OutlineName="Downloading Public Notes" id="51" >
+<div class="sect3">
+<h3>Downloading Public Notes</h3>
+ 
+<p>Public notes may be edited and viewed online, or downloaded for display withing the thout reader as illustrated below.</p>
+<p>&#160;</p>
+<p><strong>A. Visit the note server home page. </strong>The server home page allows you to search notes, as well modify your public notes.</p>
+<p><strong>B. Download All Public Notes.</strong> This will download all public notes for every package you have installed.</p>
+<p><strong>C. Download Public Notes for this Package.</strong> This will download notes for the current package only. </p>
+<img src="quickstartguide_files/notes_download.gif" width="554" height="156"  /> 
+
+</div>
+</pkg:outlineMarker>
+
+<pkg:outlineMarker OutlineName="Add a Public Note" id="52" >
+<div class="sect3">
+<h3>Add a Public Note</h3>
+
+<p>To add a public note, you have to turn the feature "on". To do this, 
+  Select Notes ...Public Notes from the Menu bar.</p>
+<p><br  />
+  <font class="note"><font color="#ff0000"><strong>NOTE: </strong></font>You must be connected to 
+the internet to <strong>add</strong> a public note to OSoft's web server.</font></p>
+<p>When you turn public notes on, a <strong>blue <font size="+2">+</font></strong> 
+  icon will appear in each section of the package. Selecting the icon will open 
+  your default browser and take you to OSoft's website. </p>
+<ul>
+  <li>In order to add a public note, you must log in to your OSoft user account. 
+    If you are not logged in at the time you desire to create a public note, clicking 
+    on the blue + will take you to OSoft's log in page.</li>
+  <li>Once you log in, the Add a Public Note page will be displayed for the particular 
+    node you selected.</li>
+  <li>Add your note and click Submit.</li>
+</ul>
+<img src="quickstartguide_files/note_public_create.gif"  /> 
+
+</div>
+</pkg:outlineMarker>
+
+<pkg:outlineMarker OutlineName="&#160;Making a Public Note Private" id="public2private" >
+<div class="sect3">
+<h3>&#160;Making a Public Note Private<a name="public2private" id="public2private"></a></h3>
+
+<p>This unique feature of the ThoutReader&#8482; allows you to convert any public 
+  note into a personal note. Perhaps you only wish to view only the best public 
+  notes or responses from the author(s) as part of your notes. To accomplish this, 
+  click the public--&#62;private note icon as shown below:</p>
+<p><img src="quickstartguide_files/public2private.gif"  /> </p>
+<p>Notice that the public (blue) note is duplicated as a private (yellow) note. 
+  By turning public notes off and private notes on, you have access to a repository 
+  of great private notes from leading experts.</p>
+
+</div>
+</pkg:outlineMarker>
+
+<pkg:outlineMarker OutlineName="Deleting/Editing Public Notes" id="53" >
+<div class="sect3">
+<h3>Deleting/Editing Public Notes</h3>
+
+<p>Only the author of a public note can edit or delete it. This must be done from 
+  their OSoft user account at www.osoft.com. Users can edit a public note created 
+  by others by turning the <a href="public2private/#public2private">public note private</a>. 
+  <br  />
+</p>
+<div class="note"><font color="#ff0000"><strong>Note:</strong></font> OSoft reserves the right 
+  to edit or remove any public note deemed objectionable as defined by our <a href="http://www.osoft.com/store/infocenter/policies.php%3Fsection%3D5">posting 
+  guidelines</a>. </div>
+
+
+
+</div>
+</pkg:outlineMarker>
+</div>
+</pkg:outlineMarker>
+</div>
+</pkg:outlineMarker>
+
+<pkg:outlineMarker OutlineName="UPDATES AND UPGRADES" id="9" >
+<div class="sect1">
+<h1>UPDATES AND UPGRADES<a id="updatesandupgrades" name="updatesandupgrades"></a></h1>
+<p>Whenever
+OSoft updates a package that you have previously downloaded, you will
+be notified by e-mail and the new version will automatically be placed
+in the download section of your individual user log-in at <a href="http://osoft.com/">www.osoft.com</a>.
+This will allow you to download the updated package at your
+convenience. It is important that you keep your user information
+current. </p><div class="note">
+  <p><strong><font color="#ff0000">Note </font></strong>: If you replace an older 
+    version package with a newer version, your appended notes from the older version 
+    can still be read in the newer version. </p></div>
+  <p>To upgrade the ThoutReader&#8482;, Select Help...Update from the Menu bar. 
+    OSoft's current version of the ThoutReader&#8482; will be compared with your 
+    version and you will be given a option to update if you are out of sync. You 
+    should check for updates often as OSoft releases one or more new versions 
+    a month. We recommend you remove your current version of the ThoutReader&#8482; 
+    before installing the newer version.</p>
+  <p><img src="quickstartguide_files/help_update.gif"  /></p>
+  <p>&#160;</p>
+  
+</div>
+</pkg:outlineMarker>
+
+<pkg:outlineMarker OutlineName="SUPPORT" id="10" >
+<div class="sect1">
+<h1>SUPPORT</h1>
+
+  <p>The best source for answers to your questions is the <a href="http://www.osoft.com/forum/">General 
+    Support</a> section of OSoft's User Forum. You may also find OSoft's <a href="http://www.osoft.com/store/infocenter/customer%5Fsupport.php">Customer 
+    Support</a> section helpful. If all else fails, please contact us at support@osoft.com.</p>
+  <p>&#160;</p>
+  <p>&#160;</p>
+
+
+</div>
+</pkg:outlineMarker>
+
+
+		</pkg:outlineMarker>
+	</pkg:content>
+</pkg:package>

@@ -1,0 +1,27 @@
+--- 
+books: 
+  - 
+    book_id: FreeBSD Developers' Handbook
+    title: BSD Book
+    type: Thout_1_0_jar
+    uri: FreeBSD_Developers_Handbook.jar
+  - 
+    book_id: Perl 5.8 Documentation
+    title: Perl 5.8 Documentation
+    type: Thout_1_0_jar
+    uri: ../test_packages/other/osoft_9Perl5.8manual_en.jar
+  - 
+    book_id: FreeBSD Developers' Handbook
+    title: BSD Book (unzipped)
+    type: Thout_1_0
+    uri: ../test_packages/FreeBSD_Developers_Handbook/FreeBSDDevelopersHandbook.xml
+  - 
+    book_id: Quick Start Guide for ThoutReader
+    title: Quick Start
+    type: Thout_1_0_jar
+    uri: QuickStartGuide.jar
+library_info: 
+  name: test library
+  type: YAMLLibrary
+  storage: drlib_store
+  version: 0.000001

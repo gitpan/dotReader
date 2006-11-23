@@ -1,0 +1,42 @@
+#!/usr/bin/perl
+
+# Copyright (C) 2006 Eric L. Wilhelm
+
+use warnings;
+use strict;
+
+=head1 NAME
+
+syckify_toc - specialized storage
+
+=cut
+
+package bin::syckify_toc;
+
+use lib 'lib';
+use dtRdr::Book;
+use dtRdr::Plugins;
+dtRdr::Plugins->init;
+local $SIG{__WARN__};
+
+sub main {
+  my (@args) = @_;
+
+  my $uri = shift(@args);
+  (-e $uri) or die "no file: $uri";
+
+  my $book = dtRdr::Book->new_from_uri($uri);
+  $book or die;
+
+  print $book->toc->yaml_dump;
+
+}
+
+package main;
+
+if($0 eq __FILE__) {
+  bin::syckify_toc::main(@ARGV);
+}
+
+# vi:ts=2:sw=2:et:sta
+my $package = 'bin::syckify_toc';

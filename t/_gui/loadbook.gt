@@ -1,0 +1,129 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+
+use Test::More qw(no_plan);
+
+use constant { D => 0 };
+
+use Wx;
+use Wx::Event qw(
+  EVT_IDLE
+  EVT_TREE_SEL_CHANGED
+  EVT_TREE_SEL_CHANGING
+  EVT_TREE_ITEM_EXPANDED
+  );
+
+#BEGIN {
+#use inc::loginit;
+#}
+
+my $package = require("./client/app.pl");
+
+# NOTE: crash will typically happen here.  If it does, we're dead in
+# the water (probably a syntax error.)
+my $app = eval {$package->new(); };
+ok((not $@), "$package constructor") or
+  BAIL_OUT("error: " . join('\n', split(/\n+/, $@)));
+
+local $SIG{__WARN__};
+
+my $main_frame = $package->_main_frame;
+my $first = sub {
+  $main_frame->sidebar->select_item('libraries');
+  my $tr = $main_frame->sidebar->libraries;
+  $tr->SetFocus();
+  my $id = $tr->GetRootItem;
+  $tr->Expand($id);
+  D and warn "$id children:", $tr->GetChildrenCount($id), " (", $tr->GetChildrenCount($id,0), ")\n";
+  ($id) = $tr->GetFirstChild($id); # My Libraries
+  $tr->Expand($id);
+  D and warn "$id children:",
+    $tr->GetChildrenCount($id), " (", $tr->GetChildrenCount($id,0), ")\n";
+  ($id) = $tr->GetFirstChild($id); # SQLLite test library
+  $tr->Expand($id);
+  D and warn "$id children:",
+    $tr->GetChildrenCount($id), " (", $tr->GetChildrenCount($id,0), ")\n";
+  D and warn "tr is ", $tr->GetId, "\n";
+  D and warn "text: ", $tr->GetItemText($id), "\n";
+  D and warn "data is ", $tr->GetPlData($id);
+  $tr->SelectItem($id); # BSD Book
+}; # first
+my @evt_subs = (
+  $first,
+);
+
+my $shim_type = ref($main_frame->bv_manager->htmlwidget);
+$shim_type =~ s/dtRdr::HTMLShim:://;
+my @checklist = (qw(
+  activate
+  book_open
+  ),
+  ($shim_type eq 'WxMozilla' ? 'html_loaded' : ()),
+  );
+my %ok = map({$_ => 0} @checklist);
+
+# our evt_sub will trigger this
+EVT_TREE_SEL_CHANGED($main_frame, $main_frame->sidebar->libraries,
+  sub {
+    my ($fr, $event) = @_;
+    $fr->sidebar->libraries->item_activated($event);
+    my $foc = Wx::Window::FindFocus();
+    D and warn "focus is on $foc (",
+      join(", ", $fr, $fr->sidebar->contents, $fr->sidebar), ")";
+    my $tb = $fr->sidebar->contents;
+    if($foc eq $fr->sidebar->contents) {
+      $ok{activate}++;
+      D and warn "that's good";
+      my $id = $tb->GetRootItem;
+      $tb->UnselectAll;
+      $tb->IsExpanded($id) and $tb->Collapse($id);
+      $tb->Expand($id);
+      $tb->SelectItem($id);
+    }
+  });
+EVT_TREE_ITEM_EXPANDED($main_frame, $main_frame->sidebar->contents,
+  sub {
+    my ($fr, $event) = @_;
+    D and warn "event fired: ", $event->GetItem;
+    $ok{book_open}++;
+    $fr->sidebar->contents->item_activated($event);
+  });
+
+if($shim_type eq 'WxMozilla') {
+  # check the widget
+  require Wx::Mozilla::Event; Wx::Mozilla::Event->import(qw(
+    EVT_MOZILLA_LOAD_COMPLETE
+  ));
+
+  EVT_MOZILLA_LOAD_COMPLETE($main_frame->bv_manager->htmlwidget, -1,
+    sub {
+      D and warn "load complete";
+      $ok{html_loaded}++;
+    });
+}
+# setup the IDLE event
+my $idle_ok = 0;
+EVT_IDLE($app, sub {
+  D and warn "\n  idle ", time(), "\n";
+  $evt_subs[$idle_ok] and $evt_subs[$idle_ok]->();
+  $idle_ok++;
+  # XXX we occasionally some oddities here
+  ($idle_ok >= 1) and $app->ExitMainLoop;
+  1;
+});
+
+# MainLoop only reacts to events, but we'll wrap it anyway.
+eval { $app->MainLoop(); };
+ok((not $@), "MainLoop done") or
+  BAIL_OUT("error: " . join('\n', split(/\n+/, $@)));
+
+# MeinLeap does not have a useful return value?
+ok(1, 'MainLoop');
+foreach my $item (@checklist) {
+  ok($ok{$item}, $item);
+}
+ok($idle_ok, 'exit');
+
+# vim:ts=2:sw=2:et:sta

@@ -1,0 +1,30 @@
+#!/usr/bin/perl
+
+use warnings;
+use strict;
+
+use lib 'inc';
+use Test::More qw(no_plan);
+use dtRdrTestUtil::ABook;
+
+BEGIN { use_ok('dtRdr::Note') };
+
+my $book = ABook_new_1_0('test_packages/copy_ok_check/book.xml');
+
+
+require dtRdrTestUtil::GUI;
+
+set_testing( scalar(@ARGV));
+set_dosub(sub {
+  my $frame = the_package()->_main_frame;
+  my $bvm = $frame->bv_manager;
+  $bvm->open_book($book);
+  my $bv = $bvm->book_view;
+  my $viewer = $bv->show_literal_section('1');
+  my $text = $viewer->copy_all;
+  ok($text);
+  # TODO check the clipboard vs that
+  $frame->Close;
+});
+run();
+# vim:ts=2:sw=2:et:sta

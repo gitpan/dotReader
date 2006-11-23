@@ -1,0 +1,69 @@
+#!/usr/bin/perl
+
+# Copyright (C) 2006 Eric L. Wilhelm
+
+use warnings;
+use strict;
+
+use lib 'lib';
+
+my %classmap;
+BEGIN {
+  use Class::Accessor;
+  my $mk = \&Class::Accessor::_mk_accessors;
+  my $subref = sub {
+    my ($class, $type, @list) = @_;
+    $classmap{$class} ||= [];
+    push(@{$classmap{$class}}, map({[$type, $_]} @list));
+    goto $mk;
+  };
+  no strict 'refs';
+  no warnings 'redefine';
+  *{'Class::Accessor::_mk_accessors'} = $subref;
+}
+
+=head1 NAME
+
+accessor_report - who has what attributes
+
+=cut
+
+package bin::accessor_report;
+
+sub main {
+  my (@args) = @_;
+
+  use File::Find qw(find);
+  my @files;
+  find( sub {
+    /\.pm$/ or return;
+    push(@files, $File::Find::name);
+    }, 'lib/');
+  
+  foreach my $file (@files) {
+    $file =~ s#lib/##;
+    $file =~ s#\\|/#::#g;
+    $file =~ s/\.pm$// or die;
+  }
+  my %skip = map({$_ => 1}
+    # Just skip all of the platform-specific shims and let the chooser
+    # module's BEGIN {} verify that they load.
+    grep(/^dtRdr::HTMLShim::/, @files),
+    );
+  foreach my $mod (@files) {
+    # skips
+    $skip{$mod} and next;
+    eval "require $mod";
+  }
+
+  print join("\n", map({join("\n  ", $_, map({"($_->[0])  $_->[1]"} @{$classmap{$_}}))} keys(%classmap))), "\n";
+}
+
+package main;
+
+if($0 eq __FILE__) {
+  bin::accessor_report::main(@ARGV);
+}
+
+# vi:ts=2:sw=2:et:sta
+my $package = 'bin::accessor_report';

@@ -1,0 +1,18 @@
+--- 
+book_handler: {}
+
+library: 
+  - 
+    type: bar2
+    uri: foo1
+  - 
+    type: bar2
+    uri: bar1
+  - 
+    type: bar2
+    uri: baz1
+module: []
+
+user_info: {}
+
+version: 0.010

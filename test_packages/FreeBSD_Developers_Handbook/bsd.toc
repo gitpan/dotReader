@@ -1,0 +1,4663 @@
+--- 
+children: 
+  - 
+    children: 
+      - 
+        children: 
+          - 
+            id: INTRODUCTION-DEVEL
+            info: 
+              render: 1
+              render_children: 1
+            range: 
+              - INTRODUCTION-DEVEL
+              - 14940
+              - 15705
+            title: 1.1 Developing on FreeBSD
+            visible: 1
+            wrange: 
+              - 6121
+              - 6697
+          - 
+            id: INTRODUCTION-BSDVISION
+            info: 
+              render: 1
+              render_children: 1
+            range: 
+              - INTRODUCTION-BSDVISION
+              - 15708
+              - 16109
+            title: 1.2 The BSD Vision
+            visible: 1
+            wrange: 
+              - 6697
+              - 6888
+          - 
+            id: INTRODUCTION-ARCHGUIDE
+            info: 
+              render: 1
+              render_children: 1
+            range: 
+              - INTRODUCTION-ARCHGUIDE
+              - 16112
+              - 17339
+            title: 1.3 Architectural Guidelines
+            visible: 1
+            wrange: 
+              - 6888
+              - 7775
+          - 
+            id: INTRODUCTION-LAYOUT
+            info: 
+              render: 1
+              render_children: 1
+            range: 
+              - INTRODUCTION-LAYOUT
+              - 17342
+              - 20064
+            title: 1.4 The Layout of /usr/src
+            visible: 1
+            wrange: 
+              - 7775
+              - 8741
+        id: INTRODUCTION
+        info: 
+          render: 1
+          render_children: 1
+        range: 
+          - INTRODUCTION
+          - 14669
+          - 20097
+        title: Chapter 1 Introduction
+        visible: 1
+        wrange: 
+          - 6033
+          - 8741
+      - 
+        children: 
+          - 
+            id: TOOLS-SYNOPSIS
+            info: 
+              render: 1
+              render_children: 1
+            range: 
+              - TOOLS-SYNOPSIS
+              - 20356
+              - 20989
+            title: 2.1 Synopsis
+            visible: 1
+            wrange: 
+              - 8818
+              - 9202
+          - 
+            id: TOOLS-INTRO
+            info: 
+              render: 1
+              render_children: 1
+            range: 
+              - TOOLS-INTRO
+              - 20992
+              - 22479
+            title: 2.2 Introduction
+            visible: 1
+            wrange: 
+              - 9202
+              - 10263
+          - 
+            children: 
+              - 
+                id: AEN217
+                info: 
+                  render: 1
+                  render_children: 1
+                range: 
+                  - AEN217
+                  - 23281
+                  - 25106
+                title: 2.3.1 Interpreters
+                visible: 1
+                wrange: 
+                  - 10855
+                  - 12386
+              - 
+                id: AEN228
+                info: 
+                  render: 1
+                  render_children: 1
+                range: 
+                  - AEN228
+                  - 25110
+                  - 31130
+                title: 2.3.2 Interpreters available with FreeBSD
+                visible: 1
+                wrange: 
+                  - 12386
+                  - 16091
+              - 
+                id: AEN302
+                info: 
+                  render: 1
+                  render_children: 1
+                range: 
+                  - AEN302
+                  - 31134
+                  - 33755
+                title: 2.3.3 Compilers
+                visible: 1
+                wrange: 
+                  - 16091
+                  - 17973
+            id: TOOLS-PROGRAMMING
+            info: 
+              render: 1
+              render_children: 1
+            range: 
+              - TOOLS-PROGRAMMING
+              - 22482
+              - 33791
+            title: 2.3 Introduction to Programming
+            visible: 1
+            wrange: 
+              - 10263
+              - 17973
+          - 
+            children: 
+              - 
+                children: 
+                  - 
+                    id: Q2411
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - Q2411
+                      - 47533
+                      - 48406
+                    title: 2.4.1.1. I am trying to write a program which uses the sin() function and I get an error like this. What does it mean?
+                    visible: 1
+                    wrange: 
+                      - 26172
+                      - 26498
+                  - 
+                    children: 
+                      - 
+                        copy_ok: 1
+                        id: code_1
+                        info: 
+                          render: 1
+                          render_children: 1
+                        range: 
+                          - code_1
+                          - 48801
+                          - 49078
+                        title: code_1
+                        visible: 0
+                        wrange: 
+                          - 26613
+                          - 26715
+                    id: Q2412
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - Q2412
+                      - 48410
+                      - 49844
+                    title: 2.4.1.2. All right, I wrote this simple program to practice using -lm. All it does is raise 2.1 to the power of 6.
+                    visible: 1
+                    wrange: 
+                      - 26498
+                      - 27083
+                  - 
+                    children: 
+                      - 
+                        copy_ok: 1
+                        id: code_2
+                        info: 
+                          render: 1
+                          render_children: 1
+                        range: 
+                          - code_2
+                          - 50282
+                          - 50505
+                        title: code_2
+                        visible: 0
+                        wrange: 
+                          - 27308
+                          - 27368
+                    id: Q2413
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - Q2413
+                      - 49848
+                      - 50954
+                    title: 2.4.1.3. So how do I fix this?
+                    visible: 1
+                    wrange: 
+                      - 27083
+                      - 27562
+                  - 
+                    id: Q2414
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - Q2414
+                      - 50958
+                      - 51751
+                    title: 2.4.1.4. I compiled a file called foobar.c and I cannot find an executable called foobar. Where has it gone?
+                    visible: 1
+                    wrange: 
+                      - 27562
+                      - 27799
+                  - 
+                    id: Q2415
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - Q2415
+                      - 51755
+                      - 53005
+                    title: 2.4.1.5. OK, I have an executable called foobar, I can see it when I run ls, but when I type in foobar at the command prompt it tells me there is no such file. Why can it not find it?
+                    visible: 1
+                    wrange: 
+                      - 27799
+                      - 28420
+                  - 
+                    id: Q2416
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - Q2416
+                      - 53009
+                      - 53797
+                    title: 2.4.1.6. I called my executable test, but nothing happens when I run it. What is going on?
+                    visible: 1
+                    wrange: 
+                      - 28420
+                      - 28719
+                  - 
+                    id: Q2417
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - Q2417
+                      - 53801
+                      - 54725
+                    title: 2.4.1.7. I compiled my program and it seemed to run all right at first, then there was an error and it said something about ``core dumped''. What does that mean?
+                    visible: 1
+                    wrange: 
+                      - 28719
+                      - 29208
+                  - 
+                    id: Q2418
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - Q2418
+                      - 54729
+                      - 55148
+                    title: 2.4.1.8. Fascinating stuff, but what I am supposed to do now?
+                    visible: 1
+                    wrange: 
+                      - 29208
+                      - 29317
+                  - 
+                    children: 
+                      - 
+                        copy_ok: 1
+                        id: code_3
+                        info: 
+                          render: 1
+                          render_children: 1
+                        range: 
+                          - code_3
+                          - 55849
+                          - 56039
+                        title: code_3
+                        visible: 0
+                        wrange: 
+                          - 29672
+                          - 29712
+                      - 
+                        copy_ok: 1
+                        id: code_4
+                        info: 
+                          render: 1
+                          render_children: 1
+                        range: 
+                          - code_4
+                          - 56114
+                          - 56297
+                        title: code_4
+                        visible: 0
+                        wrange: 
+                          - 29762
+                          - 29795
+                      - 
+                        copy_ok: 1
+                        id: code_5
+                        info: 
+                          render: 1
+                          render_children: 1
+                        range: 
+                          - code_5
+                          - 56723
+                          - 56899
+                        title: code_5
+                        visible: 0
+                        wrange: 
+                          - 30188
+                          - 30214
+                      - 
+                        copy_ok: 1
+                        id: code_6
+                        info: 
+                          render: 1
+                          render_children: 1
+                        range: 
+                          - code_6
+                          - 56974
+                          - 57171
+                        title: code_6
+                        visible: 0
+                        wrange: 
+                          - 30264
+                          - 30311
+                      - 
+                        copy_ok: 1
+                        id: code_7
+                        info: 
+                          render: 1
+                          render_children: 1
+                        range: 
+                          - code_7
+                          - 57462
+                          - 57637
+                        title: code_7
+                        visible: 0
+                        wrange: 
+                          - 30451
+                          - 30476
+                      - 
+                        copy_ok: 1
+                        id: code_8
+                        info: 
+                          render: 1
+                          render_children: 1
+                        range: 
+                          - code_8
+                          - 57654
+                          - 57850
+                        title: code_8
+                        visible: 0
+                        wrange: 
+                          - 30479
+                          - 30525
+                    id: Q2419
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - Q2419
+                      - 55152
+                      - 58158
+                    title: 2.4.1.9. When my program dumped core, it said something about a ``segmentation fault''. What is that?
+                    visible: 1
+                    wrange: 
+                      - 29317
+                      - 30773
+                  - 
+                    id: Q24110
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - Q24110
+                      - 58162
+                      - 58927
+                    title: 2.4.1.10. Sometimes when I get a core dump it says ``bus error''. It says in my UNIX book that this means a hardware problem, but the computer still seems to be working. Is this true?
+                    visible: 1
+                    wrange: 
+                      - 30773
+                      - 31131
+                  - 
+                    id: Q24111
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - Q24111
+                      - 58931
+                      - 60830
+                    title: 2.4.1.11. This dumping core business sounds as though it could be quite useful, if I can make it happen when I want to. Can I do this, or do I have to wait until there is an error?
+                    visible: 1
+                    wrange: 
+                      - 31131
+                      - 31991
+                id: AEN523
+                info: 
+                  render: 1
+                  render_children: 1
+                range: 
+                  - AEN523
+                  - 44941
+                  - 60866
+                title: 2.4.1 Common cc Queries and Problems
+                visible: 1
+                wrange: 
+                  - 24795
+                  - 31991
+            id: TOOLS-COMPILING
+            info: 
+              render: 1
+              render_children: 1
+            range: 
+              - TOOLS-COMPILING
+              - 33792
+              - 60900
+            title: 2.4 Compiling with cc
+            visible: 1
+            wrange: 
+              - 17973
+              - 31991
+          - 
+            children: 
+              - 
+                id: AEN712
+                info: 
+                  render: 1
+                  render_children: 1
+                range: 
+                  - AEN712
+                  - 61022
+                  - 63871
+                title: 2.5.1 What is make?
+                visible: 1
+                wrange: 
+                  - 32000
+                  - 33979
+              - 
+                children: 
+                  - 
+                    copy_ok: 1
+                    id: code_9
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - code_9
+                      - 64097
+                      - 64270
+                    title: code_9
+                    visible: 0
+                    wrange: 
+                      - 34040
+                      - 34067
+                  - 
+                    copy_ok: 1
+                    id: code_10
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - code_10
+                      - 66144
+                      - 66349
+                    title: code_10
+                    visible: 0
+                    wrange: 
+                      - 35401
+                      - 35453
+                id: AEN747
+                info: 
+                  render: 1
+                  render_children: 1
+                range: 
+                  - AEN747
+                  - 63875
+                  - 68227
+                title: 2.5.2 Example of using make
+                visible: 1
+                wrange: 
+                  - 33979
+                  - 36775
+              - 
+                children: 
+                  - 
+                    copy_ok: 1
+                    id: code_11
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - code_11
+                      - 68575
+                      - 68778
+                    title: code_11
+                    visible: 0
+                    wrange: 
+                      - 36982
+                      - 37035
+                  - 
+                    copy_ok: 1
+                    id: code_12
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - code_12
+                      - 68952
+                      - 69113
+                    title: code_12
+                    visible: 0
+                    wrange: 
+                      - 37143
+                      - 37160
+                  - 
+                    copy_ok: 1
+                    id: code_13
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - code_13
+                      - 69650
+                      - 69835
+                    title: code_13
+                    visible: 0
+                    wrange: 
+                      - 37624
+                      - 37657
+                  - 
+                    copy_ok: 1
+                    id: code_14
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - code_14
+                      - 70014
+                      - 70177
+                    title: code_14
+                    visible: 0
+                    wrange: 
+                      - 37767
+                      - 37786
+                id: AEN800
+                info: 
+                  render: 1
+                  render_children: 1
+                range: 
+                  - AEN800
+                  - 68231
+                  - 70522
+                title: 2.5.3 Make and include-files
+                visible: 1
+                wrange: 
+                  - 36775
+                  - 37968
+              - 
+                children: 
+                  - 
+                    copy_ok: 1
+                    id: code_15
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - code_15
+                      - 70970
+                      - 71266
+                    title: code_15
+                    visible: 0
+                    wrange: 
+                      - 38254
+                      - 38393
+                id: AEN823
+                info: 
+                  render: 1
+                  render_children: 1
+                range: 
+                  - AEN823
+                  - 70526
+                  - 74049
+                title: 2.5.4 FreeBSD Makefiles
+                visible: 1
+                wrange: 
+                  - 37968
+                  - 40585
+              - 
+                children: 
+                  - 
+                    copy_ok: 1
+                    id: code_16
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - code_16
+                      - 75568
+                      - 75767
+                    title: code_16
+                    visible: 0
+                    wrange: 
+                      - 41556
+                      - 41594
+                id: AEN860
+                info: 
+                  render: 1
+                  render_children: 1
+                range: 
+                  - AEN860
+                  - 74053
+                  - 76053
+                title: 2.5.5 More advanced uses of make
+                visible: 1
+                wrange: 
+                  - 40585
+                  - 41710
+            id: TOOLS-MAKE
+            info: 
+              render: 1
+              render_children: 1
+            range: 
+              - TOOLS-MAKE
+              - 60901
+              - 76089
+            title: 2.5 Make
+            visible: 1
+            wrange: 
+              - 31991
+              - 41710
+          - 
+            children: 
+              - 
+                id: AEN890
+                info: 
+                  render: 1
+                  render_children: 1
+                range: 
+                  - AEN890
+                  - 76220
+                  - 77972
+                title: 2.6.1 The Debugger
+                visible: 1
+                wrange: 
+                  - 41724
+                  - 42869
+              - 
+                children: 
+                  - 
+                    copy_ok: 1
+                    id: code_17
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - code_17
+                      - 79775
+                      - 80137
+                    title: code_17
+                    visible: 0
+                    wrange: 
+                      - 44065
+                      - 44250
+                  - 
+                    copy_ok: 1
+                    id: code_18
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - code_18
+                      - 82665
+                      - 82885
+                    title: code_18
+                    visible: 0
+                    wrange: 
+                      - 45582
+                      - 45645
+                id: AEN911
+                info: 
+                  render: 1
+                  render_children: 1
+                range: 
+                  - AEN911
+                  - 77976
+                  - 83769
+                title: 2.6.2 Running a program in the debugger
+                visible: 1
+                wrange: 
+                  - 42869
+                  - 46264
+              - 
+                id: AEN1000
+                info: 
+                  render: 1
+                  render_children: 1
+                range: 
+                  - AEN1000
+                  - 83773
+                  - 86545
+                title: 2.6.3 Examining a core file
+                visible: 1
+                wrange: 
+                  - 46264
+                  - 48139
+              - 
+                id: AEN1034
+                info: 
+                  render: 1
+                  render_children: 1
+                range: 
+                  - AEN1034
+                  - 86549
+                  - 88191
+                title: 2.6.4 Attaching to a running program
+                visible: 1
+                wrange: 
+                  - 48139
+                  - 49188
+            id: DEBUGGING
+            info: 
+              render: 1
+              render_children: 1
+            range: 
+              - DEBUGGING
+              - 76090
+              - 88227
+            title: 2.6 Debugging
+            visible: 1
+            wrange: 
+              - 41710
+              - 49188
+          - 
+            children: 
+              - 
+                id: AEN1060
+                info: 
+                  render: 1
+                  render_children: 1
+                range: 
+                  - AEN1060
+                  - 88416
+                  - 94386
+                title: 2.7.1 Emacs
+                visible: 1
+                wrange: 
+                  - 49233
+                  - 53657
+              - 
+                id: AEN1132
+                info: 
+                  render: 1
+                  render_children: 1
+                range: 
+                  - AEN1132
+                  - 94390
+                  - 95591
+                title: 2.7.2 Configuring Emacs
+                visible: 1
+                wrange: 
+                  - 53657
+                  - 54549
+              - 
+                children: 
+                  - 
+                    copy_ok: 1
+                    id: code_19
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - code_19
+                      - 98050
+                      - 107103
+                    title: code_19
+                    visible: 0
+                    wrange: 
+                      - 56056
+                      - 64335
+                id: AEN1140
+                info: 
+                  render: 1
+                  render_children: 1
+                range: 
+                  - AEN1140
+                  - 95595
+                  - 107149
+                title: 2.7.3 A sample .emacs file
+                visible: 1
+                wrange: 
+                  - 54549
+                  - 64335
+              - 
+                children: 
+                  - 
+                    copy_ok: 1
+                    id: code_20
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - code_20
+                      - 109012
+                      - 109242
+                    title: code_20
+                    visible: 0
+                    wrange: 
+                      - 65574
+                      - 65660
+                  - 
+                    copy_ok: 1
+                    id: code_21
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - code_21
+                      - 109576
+                      - 109935
+                    title: code_21
+                    visible: 0
+                    wrange: 
+                      - 65860
+                      - 66071
+                id: AEN1183
+                info: 
+                  render: 1
+                  render_children: 1
+                range: 
+                  - AEN1183
+                  - 107153
+                  - 110493
+                title: 2.7.4 Extending the Range of Languages Emacs Understands
+                visible: 1
+                wrange: 
+                  - 64335
+                  - 66397
+            id: EMACS
+            info: 
+              render: 1
+              render_children: 1
+            range: 
+              - EMACS
+              - 88228
+              - 110529
+            title: 2.7 Using Emacs as a Development Environment
+            visible: 1
+            wrange: 
+              - 49188
+              - 66397
+          - 
+            id: TOOLS-READING
+            info: 
+              render: 1
+              render_children: 1
+            range: 
+              - TOOLS-READING
+              - 110530
+              - 112334
+            title: 2.8 Further Reading
+            visible: 1
+            wrange: 
+              - 66397
+              - 67287
+        id: TOOLS
+        info: 
+          render: 1
+          render_children: 1
+        range: 
+          - TOOLS
+          - 20098
+          - 112367
+        title: Chapter 2 Programming Tools
+        visible: 1
+        wrange: 
+          - 8741
+          - 67287
+      - 
+        children: 
+          - 
+            id: SECURE-SYNOPSIS
+            info: 
+              render: 1
+              render_children: 1
+            range: 
+              - SECURE-SYNOPSIS
+              - 112612
+              - 113007
+            title: 3.1 Synopsis
+            visible: 1
+            wrange: 
+              - 67348
+              - 67547
+          - 
+            id: SECURE-PHILOSOPHY
+            info: 
+              render: 1
+              render_children: 1
+            range: 
+              - SECURE-PHILOSOPHY
+              - 113010
+              - 114022
+            title: 3.2 Secure Design Methodology
+            visible: 1
+            wrange: 
+              - 67547
+              - 68305
+          - 
+            children: 
+              - 
+                children: 
+                  - 
+                    copy_ok: 1
+                    id: code_22
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - code_22
+                      - 117616
+                      - 118088
+                    title: code_22
+                    visible: 0
+                    wrange: 
+                      - 70779
+                      - 71051
+                id: AEN1354
+                info: 
+                  render: 1
+                  render_children: 1
+                range: 
+                  - AEN1354
+                  - 117202
+                  - 118434
+                title: 3.3.1 Example Buffer Overflow
+                visible: 1
+                wrange: 
+                  - 70572
+                  - 71328
+              - 
+                children: 
+                  - 
+                    id: AEN1392
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - AEN1392
+                      - 120177
+                      - 122034
+                    title: 3.3.2.1 Compiler based run-time bounds checking
+                    visible: 1
+                    wrange: 
+                      - 72601
+                      - 74015
+                  - 
+                    id: AEN1411
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - AEN1411
+                      - 122038
+                      - 123178
+                    title: 3.3.2.2 Library based run-time bounds checking
+                    visible: 1
+                    wrange: 
+                      - 74015
+                      - 74794
+                id: AEN1363
+                info: 
+                  render: 1
+                  render_children: 1
+                range: 
+                  - AEN1363
+                  - 118438
+                  - 123214
+                title: 3.3.2 Avoiding Buffer Overflows
+                visible: 1
+                wrange: 
+                  - 71328
+                  - 74794
+            id: SECURE-BUFFEROV
+            info: 
+              render: 1
+              render_children: 1
+            range: 
+              - SECURE-BUFFEROV
+              - 114025
+              - 123248
+            title: 3.3 Buffer Overflows
+            visible: 1
+            wrange: 
+              - 68305
+              - 74794
+          - 
+            id: SECURE-SETUID
+            info: 
+              render: 1
+              render_children: 1
+            range: 
+              - SECURE-SETUID
+              - 123249
+              - 124321
+            title: 3.4 SetUID issues
+            visible: 1
+            wrange: 
+              - 74794
+              - 75565
+          - 
+            children: 
+              - 
+                id: AEN1458
+                info: 
+                  render: 1
+                  render_children: 1
+                range: 
+                  - AEN1458
+                  - 125884
+                  - 128232
+                title: 3.5.1 FreeBSD's jail functionality
+                visible: 1
+                wrange: 
+                  - 76751
+                  - 78207
+              - 
+                id: AEN1499
+                info: 
+                  render: 1
+                  render_children: 1
+                range: 
+                  - AEN1499
+                  - 128236
+                  - 128895
+                title: 3.5.2 POSIX.1e Process Capabilities
+                visible: 1
+                wrange: 
+                  - 78207
+                  - 78557
+            id: SECURE-CHROOT
+            info: 
+              render: 1
+              render_children: 1
+            range: 
+              - SECURE-CHROOT
+              - 124324
+              - 128931
+            title: 3.5 Limiting your program's environment
+            visible: 1
+            wrange: 
+              - 75565
+              - 78557
+          - 
+            id: SECURE-TRUST
+            info: 
+              render: 1
+              render_children: 1
+            range: 
+              - SECURE-TRUST
+              - 128932
+              - 130254
+            title: 3.6 Trust
+            visible: 1
+            wrange: 
+              - 78557
+              - 79614
+          - 
+            id: SECURE-RACE-CONDITIONS
+            info: 
+              render: 1
+              render_children: 1
+            range: 
+              - SECURE-RACE-CONDITIONS
+              - 130257
+              - 131371
+            title: 3.7 Race Conditions
+            visible: 1
+            wrange: 
+              - 79614
+              - 80362
+        id: SECURE
+        info: 
+          render: 1
+          render_children: 1
+        range: 
+          - SECURE
+          - 112368
+          - 131404
+        title: Chapter 3 Secure Programming
+        visible: 1
+        wrange: 
+          - 67287
+          - 80362
+      - 
+        children: 
+          - 
+            children: 
+              - 
+                id: AEN1553
+                info: 
+                  render: 1
+                  render_children: 1
+                range: 
+                  - AEN1553
+                  - 132489
+                  - 134008
+                title: 4.1.1 A Call to Unify the I18N Effort
+                visible: 1
+                wrange: 
+                  - 81113
+                  - 82191
+              - 
+                children: 
+                  - 
+                    copy_ok: 1
+                    id: code_23
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - code_23
+                      - 134582
+                      - 134780
+                    title: code_23
+                    visible: 0
+                    wrange: 
+                      - 82538
+                      - 82569
+                  - 
+                    copy_ok: 1
+                    id: code_24
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - code_24
+                      - 134840
+                      - 135045
+                    title: code_24
+                    visible: 0
+                    wrange: 
+                      - 82588
+                      - 82626
+                id: AEN1562
+                info: 
+                  render: 1
+                  render_children: 1
+                range: 
+                  - AEN1562
+                  - 134012
+                  - 135088
+                title: 4.1.2 Perl and Python
+                visible: 1
+                wrange: 
+                  - 82191
+                  - 82626
+            id: L10N-PROGRAMMING
+            info: 
+              render: 1
+              render_children: 1
+            range: 
+              - L10N-PROGRAMMING
+              - 131626
+              - 135121
+            title: 4.1 Programming I18N Compliant Applications
+            visible: 1
+            wrange: 
+              - 80426
+              - 82626
+        id: L10N
+        info: 
+          render: 1
+          render_children: 1
+        range: 
+          - L10N
+          - 131405
+          - 135155
+        title: Chapter 4 Localization and Internationalization - L10Nand I18N
+        visible: 1
+        wrange: 
+          - 80362
+          - 82626
+      - 
+        children: 
+          - 
+            children: 
+              - 
+                copy_ok: 1
+                id: code_25
+                info: 
+                  render: 1
+                  render_children: 1
+                range: 
+                  - code_25
+                  - 135906
+                  - 136078
+                title: code_25
+                visible: 0
+                wrange: 
+                  - 82988
+                  - 83016
+            id: POLICIES-MAINTAINER
+            info: 
+              render: 1
+              render_children: 1
+            range: 
+              - POLICIES-MAINTAINER
+              - 135545
+              - 137146
+            title: 5.1 MAINTAINER on Makefiles
+            visible: 1
+            wrange: 
+              - 82799
+              - 83970
+          - 
+            children: 
+              - 
+                copy_ok: 1
+                id: code_26
+                info: 
+                  render: 1
+                  render_children: 1
+                range: 
+                  - code_26
+                  - 143527
+                  - 145335
+                title: code_26
+                visible: 0
+                wrange: 
+                  - 89025
+                  - 90455
+            id: POLICIES-CONTRIBUTED
+            info: 
+              render: 1
+              render_children: 1
+            range: 
+              - POLICIES-CONTRIBUTED
+              - 137149
+              - 145378
+            title: 5.2 Contributed Software
+            visible: 1
+            wrange: 
+              - 83970
+              - 90455
+          - 
+            id: POLICIES-ENCUMBERED
+            info: 
+              render: 1
+              render_children: 1
+            range: 
+              - POLICIES-ENCUMBERED
+              - 145381
+              - 148262
+            title: 5.3 Encumbered Files
+            visible: 1
+            wrange: 
+              - 90455
+              - 92043
+          - 
+            id: POLICIES-SHLIB
+            info: 
+              render: 1
+              render_children: 1
+            range: 
+              - POLICIES-SHLIB
+              - 148265
+              - 151573
+            title: 5.4 Shared Libraries
+            visible: 1
+            wrange: 
+              - 92043
+              - 94388
+        id: POLICIES
+        info: 
+          render: 1
+          render_children: 1
+        range: 
+          - POLICIES
+          - 135156
+          - 151606
+        title: Chapter 5 Source Tree Guidelines andPolicies
+        visible: 1
+        wrange: 
+          - 82626
+          - 94388
+      - 
+        id: TESTING
+        info: 
+          render: 1
+          render_children: 1
+        range: 
+          - TESTING
+          - 151607
+          - 160962
+        title: Chapter 6 Regression and Performance Testing
+        visible: 1
+        wrange: 
+          - 94388
+          - 99964
+    id: BASICS
+    info: 
+      render: 1
+      render_children: 0
+    range: 
+      - BASICS
+      - 13861
+      - 160994
+    title: I. Basics
+    visible: 1
+    wrange: 
+      - 5818
+      - 99964
+  - 
+    children: 
+      - 
+        id: SIGNALS
+        info: 
+          render: 1
+          render_children: 1
+        range: 
+          - SIGNALS
+          - 161489
+          - 161750
+        title: Chapter 7 * Signals
+        visible: 1
+        wrange: 
+          - 100052
+          - 100153
+      - 
+        children: 
+          - 
+            id: SOCKETS-SYNOPSIS
+            info: 
+              render: 1
+              render_children: 1
+            range: 
+              - SOCKETS-SYNOPSIS
+              - 161977
+              - 163363
+            title: 8.1 Synopsis
+            visible: 1
+            wrange: 
+              - 100205
+              - 101176
+          - 
+            id: SOCKETS-DIVERSITY
+            info: 
+              render: 1
+              render_children: 1
+            range: 
+              - SOCKETS-DIVERSITY
+              - 163366
+              - 165486
+            title: 8.2 Networking and Diversity
+            visible: 1
+            wrange: 
+              - 101176
+              - 102649
+          - 
+            id: SOCKETS-PROTOCOLS
+            info: 
+              render: 1
+              render_children: 1
+            range: 
+              - SOCKETS-PROTOCOLS
+              - 165489
+              - 175054
+            title: 8.3 Protocols
+            visible: 1
+            wrange: 
+              - 102649
+              - 109065
+          - 
+            id: SOCKETS-MODEL
+            info: 
+              render: 1
+              render_children: 1
+            range: 
+              - SOCKETS-MODEL
+              - 175057
+              - 176368
+            title: 8.4 The Sockets Model
+            visible: 1
+            wrange: 
+              - 109065
+              - 109637
+          - 
+            children: 
+              - 
+                children: 
+                  - 
+                    children: 
+                      - 
+                        children: 
+                          - 
+                            copy_ok: 1
+                            id: code_27
+                            info: 
+                              render: 1
+                              render_children: 1
+                            range: 
+                              - code_27
+                              - 177760
+                              - 177952
+                            title: code_27
+                            visible: 0
+                            wrange: 
+                              - 110078
+                              - 110126
+                        id: SOCKETS-SOCKET
+                        info: 
+                          render: 1
+                          render_children: 1
+                        range: 
+                          - SOCKETS-SOCKET
+                          - 177344
+                          - 180436
+                        title: 8.5.1.1.1 socket
+                        visible: 1
+                        wrange: 
+                          - 109970
+                          - 111581
+                      - 
+                        children: 
+                          - 
+                            copy_ok: 1
+                            id: code_28
+                            info: 
+                              render: 1
+                              render_children: 1
+                            range: 
+                              - code_28
+                              - 180928
+                              - 181386
+                            title: code_28
+                            visible: 0
+                            wrange: 
+                              - 111852
+                              - 112127
+                          - 
+                            copy_ok: 1
+                            id: code_29
+                            info: 
+                              render: 1
+                              render_children: 1
+                            range: 
+                              - code_29
+                              - 182416
+                              - 184705
+                            title: code_29
+                            visible: 0
+                            wrange: 
+                              - 112790
+                              - 114581
+                          - 
+                            copy_ok: 1
+                            id: code_30
+                            info: 
+                              render: 1
+                              render_children: 1
+                            range: 
+                              - code_30
+                              - 185467
+                              - 185799
+                            title: code_30
+                            visible: 0
+                            wrange: 
+                              - 114927
+                              - 115087
+                          - 
+                            copy_ok: 1
+                            id: code_31
+                            info: 
+                              render: 1
+                              render_children: 1
+                            range: 
+                              - code_31
+                              - 187228
+                              - 187478
+                            title: code_31
+                            visible: 0
+                            wrange: 
+                              - 115890
+                              - 115990
+                          - 
+                            copy_ok: 1
+                            id: code_32
+                            info: 
+                              render: 1
+                              render_children: 1
+                            range: 
+                              - code_32
+                              - 188125
+                              - 188426
+                            title: code_32
+                            visible: 0
+                            wrange: 
+                              - 116440
+                              - 116568
+                          - 
+                            copy_ok: 1
+                            id: code_33
+                            info: 
+                              render: 1
+                              render_children: 1
+                            range: 
+                              - code_33
+                              - 192759
+                              - 193073
+                            title: code_33
+                            visible: 0
+                            wrange: 
+                              - 119145
+                              - 119284
+                        id: SOCKETS-SOCKADDR
+                        info: 
+                          render: 1
+                          render_children: 1
+                        range: 
+                          - SOCKETS-SOCKADDR
+                          - 180440
+                          - 196218
+                        title: 8.5.1.1.2 sockaddr
+                        visible: 1
+                        wrange: 
+                          - 111581
+                          - 120986
+                    id: SOCKETS-COMMON-ELEMENTS
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - SOCKETS-COMMON-ELEMENTS
+                      - 177170
+                      - 196255
+                    title: 8.5.1.1 The Common Elements
+                    visible: 1
+                    wrange: 
+                      - 109942
+                      - 120986
+                  - 
+                    children: 
+                      - 
+                        children: 
+                          - 
+                            copy_ok: 1
+                            id: code_34
+                            info: 
+                              render: 1
+                              render_children: 1
+                            range: 
+                              - code_34
+                              - 197430
+                              - 197642
+                            title: code_34
+                            visible: 0
+                            wrange: 
+                              - 121493
+                              - 121561
+                        id: SOCKETS-CONNECT
+                        info: 
+                          render: 1
+                          render_children: 1
+                        range: 
+                          - SOCKETS-CONNECT
+                          - 196983
+                          - 198741
+                        title: 8.5.1.2.1 connect
+                        visible: 1
+                        wrange: 
+                          - 121357
+                          - 122190
+                      - 
+                        children: 
+                          - 
+                            copy_ok: 1
+                            id: code_35
+                            info: 
+                              render: 1
+                              render_children: 1
+                            range: 
+                              - code_35
+                              - 199097
+                              - 200037
+                            title: code_35
+                            visible: 0
+                            wrange: 
+                              - 122341
+                              - 123041
+                        id: SOCKETS-FIRST-CLIENT
+                        info: 
+                          render: 1
+                          render_children: 1
+                        range: 
+                          - SOCKETS-FIRST-CLIENT
+                          - 198745
+                          - 200611
+                        title: 8.5.1.2.2 Our First Client
+                        visible: 1
+                        wrange: 
+                          - 122190
+                          - 123320
+                    id: SOCKETS-CLIENT-FUNCTIONS
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - SOCKETS-CLIENT-FUNCTIONS
+                      - 196256
+                      - 200648
+                    title: 8.5.1.2 Client Functions
+                    visible: 1
+                    wrange: 
+                      - 120986
+                      - 123320
+                  - 
+                    children: 
+                      - 
+                        children: 
+                          - 
+                            copy_ok: 1
+                            id: code_36
+                            info: 
+                              render: 1
+                              render_children: 1
+                            range: 
+                              - code_36
+                              - 202059
+                              - 202268
+                            title: code_36
+                            visible: 0
+                            wrange: 
+                              - 124218
+                              - 124283
+                          - 
+                            copy_ok: 1
+                            id: code_37
+                            info: 
+                              render: 1
+                              render_children: 1
+                            range: 
+                              - code_37
+                              - 202737
+                              - 202930
+                            title: code_37
+                            visible: 0
+                            wrange: 
+                              - 124589
+                              - 124630
+                        id: SOCKETS-BIND
+                        info: 
+                          render: 1
+                          render_children: 1
+                        range: 
+                          - SOCKETS-BIND
+                          - 201279
+                          - 203349
+                        title: 8.5.1.3.1 bind
+                        visible: 1
+                        wrange: 
+                          - 123783
+                          - 124778
+                      - 
+                        children: 
+                          - 
+                            copy_ok: 1
+                            id: code_38
+                            info: 
+                              render: 1
+                              render_children: 1
+                            range: 
+                              - code_38
+                              - 204087
+                              - 204263
+                            title: code_38
+                            visible: 0
+                            wrange: 
+                              - 125196
+                              - 125228
+                        id: SOCKETS-LISTEN
+                        info: 
+                          render: 1
+                          render_children: 1
+                        range: 
+                          - SOCKETS-LISTEN
+                          - 203353
+                          - 204556
+                        title: 8.5.1.3.2 listen
+                        visible: 1
+                        wrange: 
+                          - 124778
+                          - 125441
+                      - 
+                        children: 
+                          - 
+                            copy_ok: 1
+                            id: code_39
+                            info: 
+                              render: 1
+                              render_children: 1
+                            range: 
+                              - code_39
+                              - 205165
+                              - 205371
+                            title: code_39
+                            visible: 0
+                            wrange: 
+                              - 125730
+                              - 125792
+                        id: SOCKETS-ACCEPT
+                        info: 
+                          render: 1
+                          render_children: 1
+                        range: 
+                          - SOCKETS-ACCEPT
+                          - 204560
+                          - 206308
+                        title: 8.5.1.3.3 accept
+                        visible: 1
+                        wrange: 
+                          - 125441
+                          - 126370
+                      - 
+                        children: 
+                          - 
+                            copy_ok: 1
+                            id: code_40
+                            info: 
+                              render: 1
+                              render_children: 1
+                            range: 
+                              - code_40
+                              - 207072
+                              - 208994
+                            title: code_40
+                            visible: 0
+                            wrange: 
+                              - 126854
+                              - 128103
+                          - 
+                            copy_ok: 1
+                            id: code_41
+                            info: 
+                              render: 1
+                              render_children: 1
+                            range: 
+                              - code_41
+                              - 209209
+                              - 209421
+                            title: code_41
+                            visible: 0
+                            wrange: 
+                              - 128224
+                              - 128280
+                        id: SOCKETS-FIRST-SERVER
+                        info: 
+                          render: 1
+                          render_children: 1
+                        range: 
+                          - SOCKETS-FIRST-SERVER
+                          - 206312
+                          - 217542
+                        title: 8.5.1.3.4 Our First Server
+                        visible: 1
+                        wrange: 
+                          - 126370
+                          - 133552
+                    id: SOCKETS-SERVER-FUNCTIONS
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - SOCKETS-SERVER-FUNCTIONS
+                      - 200649
+                      - 217578
+                    title: 8.5.1.3 Server Functions
+                    visible: 1
+                    wrange: 
+                      - 123320
+                      - 133552
+                id: SOCKETS-CLIENT-SERVER
+                info: 
+                  render: 1
+                  render_children: 1
+                range: 
+                  - SOCKETS-CLIENT-SERVER
+                  - 176761
+                  - 217612
+                title: 8.5.1 The Client-Server Difference
+                visible: 1
+                wrange: 
+                  - 109807
+                  - 133552
+            id: SOCKETS-ESSENTIAL-FUNCTIONS
+            info: 
+              render: 1
+              render_children: 1
+            range: 
+              - SOCKETS-ESSENTIAL-FUNCTIONS
+              - 176371
+              - 217646
+            title: 8.5 Essential Socket Functions
+            visible: 1
+            wrange: 
+              - 109637
+              - 133552
+          - 
+            children: 
+              - 
+                children: 
+                  - 
+                    copy_ok: 1
+                    id: code_42
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - code_42
+                      - 218981
+                      - 219234
+                    title: code_42
+                    visible: 0
+                    wrange: 
+                      - 134100
+                      - 134209
+                  - 
+                    copy_ok: 1
+                    id: code_43
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - code_43
+                      - 219758
+                      - 220917
+                    title: code_43
+                    visible: 0
+                    wrange: 
+                      - 134549
+                      - 135433
+                id: SOCKETS-GETHOSTBYNAME
+                info: 
+                  render: 1
+                  render_children: 1
+                range: 
+                  - SOCKETS-GETHOSTBYNAME
+                  - 218261
+                  - 222193
+                title: 8.6.1 gethostbyname
+                visible: 1
+                wrange: 
+                  - 133884
+                  - 136236
+              - 
+                children: 
+                  - 
+                    copy_ok: 1
+                    id: code_44
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - code_44
+                      - 222724
+                      - 222937
+                    title: code_44
+                    visible: 0
+                    wrange: 
+                      - 136412
+                      - 136481
+                  - 
+                    copy_ok: 1
+                    id: code_45
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - code_45
+                      - 223319
+                      - 223658
+                    title: code_45
+                    visible: 0
+                    wrange: 
+                      - 136679
+                      - 136852
+                id: SOCKETS-GETSERVBYNAME
+                info: 
+                  render: 1
+                  render_children: 1
+                range: 
+                  - SOCKETS-GETSERVBYNAME
+                  - 222197
+                  - 224264
+                title: 8.6.2 getservbyname
+                visible: 1
+                wrange: 
+                  - 136236
+                  - 137324
+            id: SOCKETS-HELPER-FUNCTIONS
+            info: 
+              render: 1
+              render_children: 1
+            range: 
+              - SOCKETS-HELPER-FUNCTIONS
+              - 217647
+              - 224300
+            title: 8.6 Helper Functions
+            visible: 1
+            wrange: 
+              - 133552
+              - 137324
+          - 
+            id: SOCKETS-CONCURRENT-SERVERS
+            info: 
+              render: 1
+              render_children: 1
+            range: 
+              - SOCKETS-CONCURRENT-SERVERS
+              - 224301
+              - 228149
+            title: 8.7 Concurrent Servers
+            visible: 1
+            wrange: 
+              - 137324
+              - 139416
+        id: SOCKETS
+        info: 
+          render: 1
+          render_children: 1
+        range: 
+          - SOCKETS
+          - 161752
+          - 228182
+        title: Chapter 8 Sockets
+        visible: 1
+        wrange: 
+          - 100153
+          - 139416
+      - 
+        children: 
+          - 
+            children: 
+              - 
+                children: 
+                  - 
+                    id: AEN2706
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - AEN2706
+                      - 228910
+                      - 235209
+                    title: 9.1.1.1 Conformance
+                    visible: 1
+                    wrange: 
+                      - 139643
+                      - 143324
+                  - 
+                    id: NEIGHBOR-DISCOVERY
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - NEIGHBOR-DISCOVERY
+                      - 235213
+                      - 238067
+                    title: 9.1.1.2 Neighbor Discovery
+                    visible: 1
+                    wrange: 
+                      - 143324
+                      - 145713
+                  - 
+                    id: IPV6-SCOPE-INDEX
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - IPV6-SCOPE-INDEX
+                      - 238071
+                      - 241782
+                    title: 9.1.1.3 Scope Index
+                    visible: 1
+                    wrange: 
+                      - 145713
+                      - 148512
+                  - 
+                    children: 
+                      - 
+                        id: AEN2906
+                        info: 
+                          render: 1
+                          render_children: 1
+                        range: 
+                          - AEN2906
+                          - 242301
+                          - 244208
+                        title: 9.1.1.4.1 Assignment of link-local, and special addresses
+                        visible: 1
+                        wrange: 
+                          - 148887
+                          - 150403
+                      - 
+                        id: AEN2914
+                        info: 
+                          render: 1
+                          render_children: 1
+                        range: 
+                          - AEN2914
+                          - 244212
+                          - 247817
+                        title: 9.1.1.4.2 Stateless address autoconfiguration on hosts
+                        visible: 1
+                        wrange: 
+                          - 150403
+                          - 152823
+                    id: IPV6-PNP
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - IPV6-PNP
+                      - 241786
+                      - 247854
+                    title: 9.1.1.4 Plug and Play
+                    visible: 1
+                    wrange: 
+                      - 148512
+                      - 152823
+                  - 
+                    id: GIF
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - GIF
+                      - 247855
+                      - 249660
+                    title: 9.1.1.5 Generic tunnel interface
+                    visible: 1
+                    wrange: 
+                      - 152823
+                      - 153653
+                  - 
+                    id: IPV6-SAS
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - IPV6-SAS
+                      - 249664
+                      - 252878
+                    title: 9.1.1.6 Source Address Selection
+                    visible: 1
+                    wrange: 
+                      - 153653
+                      - 156472
+                  - 
+                    id: IPV6-JUMBO
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - IPV6-JUMBO
+                      - 252882
+                      - 257059
+                    title: 9.1.1.7 Jumbo Payload
+                    visible: 1
+                    wrange: 
+                      - 156472
+                      - 159795
+                  - 
+                    id: AEN3026
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - AEN3026
+                      - 257063
+                      - 258246
+                    title: 9.1.1.8 Loop prevention in header processing
+                    visible: 1
+                    wrange: 
+                      - 159795
+                      - 160759
+                  - 
+                    id: ICMPV6
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - ICMPV6
+                      - 258250
+                      - 258627
+                    title: 9.1.1.9 ICMPv6
+                    visible: 1
+                    wrange: 
+                      - 160759
+                      - 160974
+                  - 
+                    id: AEN3033
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - AEN3033
+                      - 258631
+                      - 259914
+                    title: 9.1.1.10 Applications
+                    visible: 1
+                    wrange: 
+                      - 160974
+                      - 161338
+                  - 
+                    id: AEN3052
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - AEN3052
+                      - 259918
+                      - 262079
+                    title: 9.1.1.11 Kernel Internals
+                    visible: 1
+                    wrange: 
+                      - 161338
+                      - 163120
+                  - 
+                    children: 
+                      - 
+                        id: AEN3155
+                        info: 
+                          render: 1
+                          render_children: 1
+                        range: 
+                          - AEN3155
+                          - 270232
+                          - 272211
+                        title: 9.1.1.12.1 unified tcp and inpcb code
+                        visible: 1
+                        wrange: 
+                          - 167796
+                          - 169106
+                    id: IPV6-WILDCARD-SOCKET
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - IPV6-WILDCARD-SOCKET
+                      - 262083
+                      - 272248
+                    title: 9.1.1.12 IPv4 mapped address and IPv6 wildcard socket
+                    visible: 1
+                    wrange: 
+                      - 163120
+                      - 169106
+                  - 
+                    id: AEN3183
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - AEN3183
+                      - 272249
+                      - 274143
+                    title: 9.1.1.13 sockaddr_storage
+                    visible: 1
+                    wrange: 
+                      - 169106
+                      - 170521
+                id: IPV6DETAILS
+                info: 
+                  render: 1
+                  render_children: 1
+                range: 
+                  - IPV6DETAILS
+                  - 228782
+                  - 274180
+                title: 9.1.1 IPv6
+                visible: 1
+                wrange: 
+                  - 139632
+                  - 170521
+              - 
+                id: AEN3201
+                info: 
+                  render: 1
+                  render_children: 1
+                range: 
+                  - AEN3201
+                  - 274181
+                  - 275397
+                title: 9.1.2 Network Drivers
+                visible: 1
+                wrange: 
+                  - 170521
+                  - 171263
+              - 
+                children: 
+                  - 
+                    id: AEN3232
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - AEN3232
+                      - 276799
+                      - 278115
+                    title: 9.1.3.1 FAITH TCP relay translator
+                    visible: 1
+                    wrange: 
+                      - 172216
+                      - 172941
+                id: AEN3215
+                info: 
+                  render: 1
+                  render_children: 1
+                range: 
+                  - AEN3215
+                  - 275401
+                  - 278152
+                title: 9.1.3 Translator
+                visible: 1
+                wrange: 
+                  - 171263
+                  - 172941
+              - 
+                children: 
+                  - 
+                    id: AEN3256
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - AEN3256
+                      - 278484
+                      - 279585
+                    title: 9.1.4.1 Policy Management
+                    visible: 1
+                    wrange: 
+                      - 173053
+                      - 173523
+                  - 
+                    id: AEN3269
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - AEN3269
+                      - 279589
+                      - 280223
+                    title: 9.1.4.2 Key Management
+                    visible: 1
+                    wrange: 
+                      - 173523
+                      - 173953
+                  - 
+                    id: AEN3274
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - AEN3274
+                      - 280227
+                      - 282152
+                    title: 9.1.4.3 AH and ESP handling
+                    visible: 1
+                    wrange: 
+                      - 173953
+                      - 175606
+                  - 
+                    id: AEN3287
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - AEN3287
+                      - 282156
+                      - 285749
+                    title: 9.1.4.4 Conformance to RFCs and IDs
+                    visible: 1
+                    wrange: 
+                      - 175606
+                      - 177722
+                  - 
+                    id: IPSEC-ECN
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - IPSEC-ECN
+                      - 285753
+                      - 288955
+                    title: 9.1.4.5 ECN consideration on IPsec tunnels
+                    visible: 1
+                    wrange: 
+                      - 177722
+                      - 179955
+                  - 
+                    id: AEN3416
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - AEN3416
+                      - 288959
+                      - 289816
+                    title: 9.1.4.6 Interoperability
+                    visible: 1
+                    wrange: 
+                      - 179955
+                      - 180468
+                id: IPSEC-IMPLEMENTATION
+                info: 
+                  render: 1
+                  render_children: 1
+                range: 
+                  - IPSEC-IMPLEMENTATION
+                  - 278153
+                  - 289848
+                title: 9.1.4 IPsec
+                visible: 1
+                wrange: 
+                  - 172941
+                  - 180468
+            id: IPV6-IMPLEMENTATION
+            info: 
+              render: 1
+              render_children: 1
+            range: 
+              - IPV6-IMPLEMENTATION
+              - 228327
+              - 289880
+            title: 9.1 IPv6/IPsec Implementation
+            visible: 1
+            wrange: 
+              - 139441
+              - 180468
+        id: IPV6
+        info: 
+          render: 1
+          render_children: 1
+        range: 
+          - IPV6
+          - 228183
+          - 289914
+        title: Chapter 9 IPv6 Internals
+        visible: 1
+        wrange: 
+          - 139416
+          - 180468
+    id: IPC
+    info: 
+      render: 1
+      render_children: 0
+    range: 
+      - IPC
+      - 160999
+      - 289950
+    title: II. Interprocess Communication
+    visible: 1
+    wrange: 
+      - 99964
+      - 180468
+  - 
+    children: 
+      - 
+        children: 
+          - 
+            children: 
+              - 
+                id: AEN3444
+                info: 
+                  render: 1
+                  render_children: 1
+                range: 
+                  - AEN3444
+                  - 293620
+                  - 299055
+                title: 10.1.1 A Sample DMA transfer
+                visible: 1
+                wrange: 
+                  - 183009
+                  - 188163
+              - 
+                id: AEN3461
+                info: 
+                  render: 1
+                  render_children: 1
+                range: 
+                  - AEN3461
+                  - 299059
+                  - 302634
+                title: 10.1.2 DMA Page Registers and 16Meg address space limitations
+                visible: 1
+                wrange: 
+                  - 188163
+                  - 191335
+              - 
+                id: AEN3480
+                info: 
+                  render: 1
+                  render_children: 1
+                range: 
+                  - AEN3480
+                  - 302638
+                  - 309085
+                title: 10.1.3 DMA Operational Modes and Settings
+                visible: 1
+                wrange: 
+                  - 191335
+                  - 197229
+              - 
+                id: AEN3522
+                info: 
+                  render: 1
+                  render_children: 1
+                range: 
+                  - AEN3522
+                  - 309089
+                  - 310746
+                title: 10.1.4 Programming the DMA
+                visible: 1
+                wrange: 
+                  - 197229
+                  - 198679
+              - 
+                children: 
+                  - 
+                    id: AEN3534
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - AEN3534
+                      - 311108
+                      - 314081
+                    title: "10.1.5.1 0x00-0x1f DMA Controller #1 (Channels 0, 1, 2 and 3)"
+                    visible: 1
+                    wrange: 
+                      - 198900
+                      - 200102
+                  - 
+                    id: AEN3673
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - AEN3673
+                      - 314085
+                      - 317084
+                    title: "10.1.5.2 0xc0-0xdf DMA Controller #2 (Channels 4, 5, 6 and 7)"
+                    visible: 1
+                    wrange: 
+                      - 200102
+                      - 201299
+                  - 
+                    id: AEN3813
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - AEN3813
+                      - 317088
+                      - 318134
+                    title: 10.1.5.3 0x80-0x9f DMA Page Registers
+                    visible: 1
+                    wrange: 
+                      - 201299
+                      - 201718
+                  - 
+                    id: AEN3850
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - AEN3850
+                      - 318138
+                      - 325169
+                    title: 10.1.5.4 0x400-0x4ff 82374 Enhanced DMA Registers
+                    visible: 1
+                    wrange: 
+                      - 201718
+                      - 205904
+                id: AEN3531
+                info: 
+                  render: 1
+                  render_children: 1
+                range: 
+                  - AEN3531
+                  - 310750
+                  - 325202
+                title: 10.1.5 DMA Port Map
+                visible: 1
+                wrange: 
+                  - 198679
+                  - 205904
+            id: DMA-BASICS
+            info: 
+              render: 1
+              render_children: 1
+            range: 
+              - DMA-BASICS
+              - 290780
+              - 325236
+            title: "10.1 DMA: What it is and How it Works"
+            visible: 1
+            wrange: 
+              - 180597
+              - 205904
+        id: DMA
+        info: 
+          render: 1
+          render_children: 1
+        range: 
+          - DMA
+          - 290657
+          - 325270
+        title: Chapter 10 DMA
+        visible: 1
+        wrange: 
+          - 180582
+          - 205904
+      - 
+        children: 
+          - 
+            children: 
+              - 
+                id: CONFIG-DUMPDEV
+                info: 
+                  render: 1
+                  render_children: 1
+                range: 
+                  - CONFIG-DUMPDEV
+                  - 327595
+                  - 330424
+                title: 11.1.1 Configuring the Dump Device
+                visible: 1
+                wrange: 
+                  - 207593
+                  - 208659
+              - 
+                id: EXTRACT-DUMP
+                info: 
+                  render: 1
+                  render_children: 1
+                range: 
+                  - EXTRACT-DUMP
+                  - 330428
+                  - 333983
+                title: 11.1.2 Extracting a Kernel Dump
+                visible: 1
+                wrange: 
+                  - 208659
+                  - 210320
+            id: KERNELDEBUG-OBTAIN
+            info: 
+              render: 1
+              render_children: 1
+            range: 
+              - KERNELDEBUG-OBTAIN
+              - 325533
+              - 334019
+            title: 11.1 Obtaining a Kernel Crash Dump
+            visible: 1
+            wrange: 
+              - 205978
+              - 210320
+          - 
+            id: KERNELDEBUG-GDB
+            info: 
+              render: 1
+              render_children: 1
+            range: 
+              - KERNELDEBUG-GDB
+              - 334020
+              - 347874
+            title: 11.2 Debugging a Kernel Crash Dump with kgdb
+            visible: 1
+            wrange: 
+              - 210320
+              - 220894
+          - 
+            id: KERNELDEBUG-DDD
+            info: 
+              render: 1
+              render_children: 1
+            range: 
+              - KERNELDEBUG-DDD
+              - 347877
+              - 348808
+            title: 11.3 Debugging a Crash Dump with DDD
+            visible: 1
+            wrange: 
+              - 220894
+              - 221316
+          - 
+            children: 
+              - 
+                copy_ok: 1
+                id: code_46
+                info: 
+                  render: 1
+                  render_children: 1
+                range: 
+                  - code_46
+                  - 349534
+                  - 349757
+                title: code_46
+                visible: 0
+                wrange: 
+                  - 221782
+                  - 221843
+            id: KERNELDEBUG-POST-MORTEM
+            info: 
+              render: 1
+              render_children: 1
+            range: 
+              - KERNELDEBUG-POST-MORTEM
+              - 348811
+              - 350984
+            title: 11.4 Post-Mortem Analysis of a Dump
+            visible: 1
+            wrange: 
+              - 221316
+              - 222757
+          - 
+            children: 
+              - 
+                copy_ok: 1
+                id: code_47
+                info: 
+                  render: 1
+                  render_children: 1
+                range: 
+                  - code_47
+                  - 351907
+                  - 352063
+                title: code_47
+                visible: 0
+                wrange: 
+                  - 223423
+                  - 223435
+            id: KERNELDEBUG-ONLINE-DDB
+            info: 
+              render: 1
+              render_children: 1
+            range: 
+              - KERNELDEBUG-ONLINE-DDB
+              - 350987
+              - 359851
+            title: 11.5 On-Line Kernel Debugging Using DDB
+            visible: 1
+            wrange: 
+              - 222757
+              - 228456
+          - 
+            id: KERNELDEBUG-ONLINE-GDB
+            info: 
+              render: 1
+              render_children: 1
+            range: 
+              - KERNELDEBUG-ONLINE-GDB
+              - 359854
+              - 363160
+            title: 11.6 On-Line Kernel Debugging Using Remote GDB
+            visible: 1
+            wrange: 
+              - 228456
+              - 230892
+          - 
+            id: KERNELDEBUG-KLD
+            info: 
+              render: 1
+              render_children: 1
+            range: 
+              - KERNELDEBUG-KLD
+              - 363163
+              - 365995
+            title: 11.7 Debugging Loadable Modules Using GDB
+            visible: 1
+            wrange: 
+              - 230892
+              - 232753
+          - 
+            id: KERNELDEBUG-CONSOLE
+            info: 
+              render: 1
+              render_children: 1
+            range: 
+              - KERNELDEBUG-CONSOLE
+              - 365998
+              - 366644
+            title: 11.8 Debugging a Console Driver
+            visible: 1
+            wrange: 
+              - 232753
+              - 233158
+        id: KERNELDEBUG
+        info: 
+          render: 1
+          render_children: 1
+        range: 
+          - KERNELDEBUG
+          - 325271
+          - 366677
+        title: Chapter 11 Kernel Debugging
+        visible: 1
+        wrange: 
+          - 205904
+          - 233158
+      - 
+        id: UFS
+        info: 
+          render: 1
+          render_children: 1
+        range: 
+          - UFS
+          - 366678
+          - 367013
+        title: Chapter 12 * UFS
+        visible: 1
+        wrange: 
+          - 233158
+          - 233340
+      - 
+        id: AFS
+        info: 
+          render: 1
+          render_children: 1
+        range: 
+          - AFS
+          - 367015
+          - 367206
+        title: Chapter 13 * AFS
+        visible: 1
+        wrange: 
+          - 233340
+          - 233378
+      - 
+        id: SYSCONS
+        info: 
+          render: 1
+          render_children: 1
+        range: 
+          - SYSCONS
+          - 367208
+          - 367446
+        title: Chapter 14 * Syscons
+        visible: 1
+        wrange: 
+          - 233378
+          - 233455
+      - 
+        children: 
+          - 
+            id: LINUX
+            info: 
+              render: 1
+              render_children: 1
+            range: 
+              - LINUX
+              - 367619
+              - 367867
+            title: 15.1 * Linux
+            visible: 1
+            wrange: 
+              - 233489
+              - 233520
+        id: COMPATIBILITY
+        info: 
+          render: 1
+          render_children: 1
+        range: 
+          - COMPATIBILITY
+          - 367448
+          - 367899
+        title: Chapter 15 * Compatibility Layers
+        visible: 1
+        wrange: 
+          - 233455
+          - 233520
+    id: KERNEL
+    info: 
+      render: 1
+      render_children: 0
+    range: 
+      - KERNEL
+      - 289955
+      - 367934
+    title: III. Kernel
+    visible: 1
+    wrange: 
+      - 180468
+      - 233520
+  - 
+    children: 
+      - 
+        children: 
+          - 
+            id: X86-INTRO
+            info: 
+              render: 1
+              render_children: 1
+            range: 
+              - X86-INTRO
+              - 368747
+              - 370606
+            title: 16.1 Synopsis
+            visible: 1
+            wrange: 
+              - 233720
+              - 235089
+          - 
+            children: 
+              - 
+                id: X86-THE-ASSEMBLER
+                info: 
+                  render: 1
+                  render_children: 1
+                range: 
+                  - X86-THE-ASSEMBLER
+                  - 370745
+                  - 371909
+                title: 16.2.1 The Assembler
+                visible: 1
+                wrange: 
+                  - 235104
+                  - 235839
+              - 
+                id: X86-THE-LINKER
+                info: 
+                  render: 1
+                  render_children: 1
+                range: 
+                  - X86-THE-LINKER
+                  - 371913
+                  - 372457
+                title: 16.2.2 The Linker
+                visible: 1
+                wrange: 
+                  - 235839
+                  - 236062
+            id: X86-THE-TOOLS
+            info: 
+              render: 1
+              render_children: 1
+            range: 
+              - X86-THE-TOOLS
+              - 370609
+              - 372493
+            title: 16.2 The Tools
+            visible: 1
+            wrange: 
+              - 235089
+              - 236062
+          - 
+            children: 
+              - 
+                children: 
+                  - 
+                    copy_ok: 1
+                    id: code_48
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - code_48
+                      - 373579
+                      - 373905
+                    title: code_48
+                    visible: 0
+                    wrange: 
+                      - 236620
+                      - 236753
+                  - 
+                    copy_ok: 1
+                    id: code_49
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - code_49
+                      - 374395
+                      - 374704
+                    title: code_49
+                    visible: 0
+                    wrange: 
+                      - 237130
+                      - 237251
+                id: X86-DEFAULT-CALLING-CONVENTION
+                info: 
+                  render: 1
+                  render_children: 1
+                range: 
+                  - X86-DEFAULT-CALLING-CONVENTION
+                  - 372639
+                  - 374928
+                title: 16.3.1 Default Calling Convention
+                visible: 1
+                wrange: 
+                  - 236080
+                  - 237335
+              - 
+                children: 
+                  - 
+                    copy_ok: 1
+                    id: code_50
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - code_50
+                      - 375777
+                      - 376009
+                    title: code_50
+                    visible: 0
+                    wrange: 
+                      - 237820
+                      - 237888
+                id: X86-ALTERNATE-CALLING-CONVENTION
+                info: 
+                  render: 1
+                  render_children: 1
+                range: 
+                  - X86-ALTERNATE-CALLING-CONVENTION
+                  - 374932
+                  - 376752
+                title: 16.3.2 Alternate Calling Convention
+                visible: 1
+                wrange: 
+                  - 237335
+                  - 238363
+              - 
+                id: X86-USE-GENEVA
+                info: 
+                  render: 1
+                  render_children: 1
+                range: 
+                  - X86-USE-GENEVA
+                  - 376756
+                  - 377540
+                title: 16.3.3 Which Convention Should You Use?
+                visible: 1
+                wrange: 
+                  - 238363
+                  - 238913
+              - 
+                children: 
+                  - 
+                    children: 
+                      - 
+                        copy_ok: 1
+                        id: code_51
+                        info: 
+                          render: 1
+                          render_children: 1
+                        range: 
+                          - code_51
+                          - 378896
+                          - 379447
+                        title: code_51
+                        visible: 0
+                        wrange: 
+                          - 239657
+                          - 240039
+                    id: X86-THE-SYSCALLS-FILE
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - X86-THE-SYSCALLS-FILE
+                      - 377867
+                      - 380100
+                    title: 16.3.4.1 The syscalls File
+                    visible: 1
+                    wrange: 
+                      - 239063
+                      - 240317
+                id: X86-CALL-NUMBERS
+                info: 
+                  render: 1
+                  render_children: 1
+                range: 
+                  - X86-CALL-NUMBERS
+                  - 377544
+                  - 380136
+                title: 16.3.4 Call Numbers
+                visible: 1
+                wrange: 
+                  - 238913
+                  - 240317
+            id: X86-SYSTEM-CALLS
+            info: 
+              render: 1
+              render_children: 1
+            range: 
+              - X86-SYSTEM-CALLS
+              - 372494
+              - 380170
+            title: 16.3 System Calls
+            visible: 1
+            wrange: 
+              - 236062
+              - 240317
+          - 
+            children: 
+              - 
+                id: X86-MAN-PAGES
+                info: 
+                  render: 1
+                  render_children: 1
+                range: 
+                  - X86-MAN-PAGES
+                  - 380689
+                  - 381979
+                title: 16.4.1 Man Pages
+                visible: 1
+                wrange: 
+                  - 240683
+                  - 241336
+              - 
+                id: X86-WHERE-RETURN-VALUES
+                info: 
+                  render: 1
+                  render_children: 1
+                range: 
+                  - X86-WHERE-RETURN-VALUES
+                  - 381983
+                  - 383021
+                title: 16.4.2 Where Are the Return Values?
+                visible: 1
+                wrange: 
+                  - 241336
+                  - 241896
+              - 
+                id: X86-WHERE-ERRNO
+                info: 
+                  render: 1
+                  render_children: 1
+                range: 
+                  - X86-WHERE-ERRNO
+                  - 383025
+                  - 383723
+                title: 16.4.3 Where Is errno?
+                visible: 1
+                wrange: 
+                  - 241896
+                  - 242287
+              - 
+                id: X86-HOW-TO-KNOW-ERROR
+                info: 
+                  render: 1
+                  render_children: 1
+                range: 
+                  - X86-HOW-TO-KNOW-ERROR
+                  - 383727
+                  - 384341
+                title: 16.4.4 Determining an Error Occurred
+                visible: 1
+                wrange: 
+                  - 242287
+                  - 242614
+            id: X86-RETURN-VALUES
+            info: 
+              render: 1
+              render_children: 1
+            range: 
+              - X86-RETURN-VALUES
+              - 380171
+              - 384377
+            title: 16.4 Return Values
+            visible: 1
+            wrange: 
+              - 240317
+              - 242614
+          - 
+            children: 
+              - 
+                children: 
+                  - 
+                    copy_ok: 1
+                    id: code_52
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - code_52
+                      - 385808
+                      - 386024
+                    title: code_52
+                    visible: 0
+                    wrange: 
+                      - 243586
+                      - 243656
+                id: X86-DEAL-WITH-FUNCTION-NUMBERS
+                info: 
+                  render: 1
+                  render_children: 1
+                range: 
+                  - X86-DEAL-WITH-FUNCTION-NUMBERS
+                  - 385359
+                  - 386069
+                title: 16.5.1 Dealing with Function Numbers
+                visible: 1
+                wrange: 
+                  - 243306
+                  - 243656
+              - 
+                children: 
+                  - 
+                    copy_ok: 1
+                    id: code_53
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - code_53
+                      - 386386
+                      - 387042
+                    title: code_53
+                    visible: 0
+                    wrange: 
+                      - 243788
+                      - 244156
+                id: X86-DEAL-WITH-GENEVA
+                info: 
+                  render: 1
+                  render_children: 1
+                range: 
+                  - X86-DEAL-WITH-GENEVA
+                  - 386073
+                  - 387087
+                title: 16.5.2 Dealing with Conventions
+                visible: 1
+                wrange: 
+                  - 243656
+                  - 244156
+              - 
+                id: X86-DEAL-WITH-OTHER-PORTABILITY
+                info: 
+                  render: 1
+                  render_children: 1
+                range: 
+                  - X86-DEAL-WITH-OTHER-PORTABILITY
+                  - 387091
+                  - 387792
+                title: 16.5.3 Dealing with Other Portability Issues
+                visible: 1
+                wrange: 
+                  - 244156
+                  - 244632
+              - 
+                children: 
+                  - 
+                    copy_ok: 1
+                    id: code_54
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - code_54
+                      - 388586
+                      - 388780
+                    title: code_54
+                    visible: 0
+                    wrange: 
+                      - 245242
+                      - 245284
+                  - 
+                    copy_ok: 1
+                    id: code_55
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - code_55
+                      - 388930
+                      - 389314
+                    title: code_55
+                    visible: 0
+                    wrange: 
+                      - 245420
+                      - 245604
+                id: X86-PORTABLE-LIBRARY
+                info: 
+                  render: 1
+                  render_children: 1
+                range: 
+                  - X86-PORTABLE-LIBRARY
+                  - 387796
+                  - 390167
+                title: 16.5.4 Using a Library
+                visible: 1
+                wrange: 
+                  - 244632
+                  - 246396
+              - 
+                children: 
+                  - 
+                    copy_ok: 1
+                    id: code_56
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - code_56
+                      - 391029
+                      - 391230
+                    title: code_56
+                    visible: 0
+                    wrange: 
+                      - 246978
+                      - 247028
+                  - 
+                    copy_ok: 1
+                    id: code_57
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - code_57
+                      - 391298
+                      - 391566
+                    title: code_57
+                    visible: 0
+                    wrange: 
+                      - 247082
+                      - 247190
+                  - 
+                    copy_ok: 1
+                    id: code_58
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - code_58
+                      - 391689
+                      - 391901
+                    title: code_58
+                    visible: 0
+                    wrange: 
+                      - 247299
+                      - 247356
+                  - 
+                    copy_ok: 1
+                    id: code_59
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - code_59
+                      - 391979
+                      - 392200
+                    title: code_59
+                    visible: 0
+                    wrange: 
+                      - 247420
+                      - 247485
+                  - 
+                    copy_ok: 1
+                    id: code_60
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - code_60
+                      - 392290
+                      - 392661
+                    title: code_60
+                    visible: 0
+                    wrange: 
+                      - 247561
+                      - 247750
+                id: X86-PORTABLE-INCLUDE
+                info: 
+                  render: 1
+                  render_children: 1
+                range: 
+                  - X86-PORTABLE-INCLUDE
+                  - 390171
+                  - 392854
+                title: 16.5.5 Using an Include File
+                visible: 1
+                wrange: 
+                  - 246396
+                  - 247865
+            id: X86-PORTABLE-CODE
+            info: 
+              render: 1
+              render_children: 1
+            range: 
+              - X86-PORTABLE-CODE
+              - 384378
+              - 392890
+            title: 16.5 Creating Portable Code
+            visible: 1
+            wrange: 
+              - 242614
+              - 247865
+          - 
+            children: 
+              - 
+                copy_ok: 1
+                id: code_61
+                info: 
+                  render: 1
+                  render_children: 1
+                range: 
+                  - code_61
+                  - 393149
+                  - 393586
+                title: code_61
+                visible: 0
+                wrange: 
+                  - 247956
+                  - 248217
+              - 
+                children: 
+                  - 
+                    id: X86-GET-NASM
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - X86-GET-NASM
+                      - 395720
+                      - 397411
+                    title: 16.6.1.1 Installing nasm
+                    visible: 1
+                    wrange: 
+                      - 249577
+                      - 250184
+                id: X86-ASSEMBLE-1
+                info: 
+                  render: 1
+                  render_children: 1
+                range: 
+                  - X86-ASSEMBLE-1
+                  - 395366
+                  - 397447
+                title: 16.6.1 Assembling the Code
+                visible: 1
+                wrange: 
+                  - 249427
+                  - 250184
+            id: X86-FIRST-PROGRAM
+            info: 
+              render: 1
+              render_children: 1
+            range: 
+              - X86-FIRST-PROGRAM
+              - 392891
+              - 397481
+            title: 16.6 Our First Program
+            visible: 1
+            wrange: 
+              - 247865
+              - 250184
+          - 
+            children: 
+              - 
+                copy_ok: 1
+                id: code_62
+                info: 
+                  render: 1
+                  render_children: 1
+                range: 
+                  - code_62
+                  - 398177
+                  - 398984
+                title: code_62
+                visible: 0
+                wrange: 
+                  - 250562
+                  - 251085
+              - 
+                copy_ok: 1
+                id: code_63
+                info: 
+                  render: 1
+                  render_children: 1
+                range: 
+                  - code_63
+                  - 402692
+                  - 403604
+                title: code_63
+                visible: 0
+                wrange: 
+                  - 253521
+                  - 254127
+            id: X86-UNIX-FILTERS
+            info: 
+              render: 1
+              render_children: 1
+            range: 
+              - X86-UNIX-FILTERS
+              - 397482
+              - 405131
+            title: 16.7 Writing UNIX Filters
+            visible: 1
+            wrange: 
+              - 250184
+              - 254979
+          - 
+            children: 
+              - 
+                copy_ok: 1
+                id: code_64
+                info: 
+                  render: 1
+                  render_children: 1
+                range: 
+                  - code_64
+                  - 406051
+                  - 407489
+                title: code_64
+                visible: 0
+                wrange: 
+                  - 255682
+                  - 256675
+              - 
+                copy_ok: 1
+                id: code_65
+                info: 
+                  render: 1
+                  render_children: 1
+                range: 
+                  - code_65
+                  - 409531
+                  - 411029
+                title: code_65
+                visible: 0
+                wrange: 
+                  - 258011
+                  - 259043
+              - 
+                children: 
+                  - 
+                    copy_ok: 1
+                    id: code_66
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - code_66
+                      - 414380
+                      - 414553
+                    title: code_66
+                    visible: 0
+                    wrange: 
+                      - 261360
+                      - 261382
+                  - 
+                    copy_ok: 1
+                    id: code_67
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - code_67
+                      - 415000
+                      - 415184
+                    title: code_67
+                    visible: 0
+                    wrange: 
+                      - 261701
+                      - 261729
+                  - 
+                    copy_ok: 1
+                    id: code_68
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - code_68
+                      - 416702
+                      - 416967
+                    title: code_68
+                    visible: 0
+                    wrange: 
+                      - 262926
+                      - 263030
+                  - 
+                    copy_ok: 1
+                    id: code_69
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - code_69
+                      - 417120
+                      - 417322
+                    title: code_69
+                    visible: 0
+                    wrange: 
+                      - 263112
+                      - 263154
+                id: X86-UNGETC
+                info: 
+                  render: 1
+                  render_children: 1
+                range: 
+                  - X86-UNGETC
+                  - 411896
+                  - 417601
+                title: 16.8.1 How to Unread a Character
+                visible: 1
+                wrange: 
+                  - 259437
+                  - 263351
+            id: X86-BUFFERED-IO
+            info: 
+              render: 1
+              render_children: 1
+            range: 
+              - X86-BUFFERED-IO
+              - 405134
+              - 417637
+            title: 16.8 Buffered Input and Output
+            visible: 1
+            wrange: 
+              - 254979
+              - 263351
+          - 
+            children: 
+              - 
+                copy_ok: 1
+                id: code_70
+                info: 
+                  render: 1
+                  render_children: 1
+                range: 
+                  - code_70
+                  - 419922
+                  - 420113
+                title: code_70
+                visible: 0
+                wrange: 
+                  - 264850
+                  - 264889
+              - 
+                copy_ok: 1
+                id: code_71
+                info: 
+                  render: 1
+                  render_children: 1
+                range: 
+                  - code_71
+                  - 420178
+                  - 420429
+                title: code_71
+                visible: 0
+                wrange: 
+                  - 264940
+                  - 265030
+              - 
+                copy_ok: 1
+                id: code_72
+                info: 
+                  render: 1
+                  render_children: 1
+                range: 
+                  - code_72
+                  - 420484
+                  - 422821
+                title: code_72
+                visible: 0
+                wrange: 
+                  - 265071
+                  - 266760
+            id: X86-COMMAND-LINE
+            info: 
+              render: 1
+              render_children: 1
+            range: 
+              - X86-COMMAND-LINE
+              - 417638
+              - 425989
+            title: 16.9 Command Line Arguments
+            visible: 1
+            wrange: 
+              - 263351
+              - 268846
+          - 
+            children: 
+              - 
+                id: X86-FIND-ENVIRONMENT
+                info: 
+                  render: 1
+                  render_children: 1
+                range: 
+                  - X86-FIND-ENVIRONMENT
+                  - 426504
+                  - 427772
+                title: 16.10.1 How to Find Environment Variables
+                visible: 1
+                wrange: 
+                  - 269069
+                  - 269764
+              - 
+                children: 
+                  - 
+                    id: X86-CGI
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - X86-CGI
+                      - 428178
+                      - 429535
+                    title: "16.10.2.1 CGI: A Quick Overview"
+                    visible: 1
+                    wrange: 
+                      - 269972
+                      - 270552
+                  - 
+                    children: 
+                      - 
+                        copy_ok: 1
+                        id: code_73
+                        info: 
+                          render: 1
+                          render_children: 1
+                        range: 
+                          - code_73
+                          - 430156
+                          - 436212
+                        title: code_73
+                        visible: 0
+                        wrange: 
+                          - 270834
+                          - 275944
+                    id: X86-WEBVARS-THE-CODE
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - X86-WEBVARS-THE-CODE
+                      - 429539
+                      - 437487
+                    title: 16.10.2.2 The Code
+                    visible: 1
+                    wrange: 
+                      - 270552
+                      - 276659
+                id: X86-WEBVAR
+                info: 
+                  render: 1
+                  render_children: 1
+                range: 
+                  - X86-WEBVAR
+                  - 427776
+                  - 437523
+                title: 16.10.2 webvars
+                visible: 1
+                wrange: 
+                  - 269764
+                  - 276659
+            id: X86-ENVIRONMENT
+            info: 
+              render: 1
+              render_children: 1
+            range: 
+              - X86-ENVIRONMENT
+              - 425992
+              - 437557
+            title: 16.10 UNIX Environment
+            visible: 1
+            wrange: 
+              - 268846
+              - 276659
+          - 
+            children: 
+              - 
+                children: 
+                  - 
+                    id: X86-FINAL-STATE
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - X86-FINAL-STATE
+                      - 445339
+                      - 446538
+                    title: 16.11.1.1 The Final State
+                    visible: 1
+                    wrange: 
+                      - 282096
+                      - 282887
+                  - 
+                    id: X86-TUC-COUNTER
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - X86-TUC-COUNTER
+                      - 446542
+                      - 447074
+                    title: 16.11.1.2 The Output Counter
+                    visible: 1
+                    wrange: 
+                      - 282887
+                      - 283203
+                id: X86-FINITE-STATE-MACHINE
+                info: 
+                  render: 1
+                  render_children: 1
+                range: 
+                  - X86-FINITE-STATE-MACHINE
+                  - 440984
+                  - 447111
+                title: 16.11.1 Finite State Machine
+                visible: 1
+                wrange: 
+                  - 278855
+                  - 283203
+              - 
+                children: 
+                  - 
+                    copy_ok: 1
+                    id: code_74
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - code_74
+                      - 447791
+                      - 448137
+                    title: code_74
+                    visible: 0
+                    wrange: 
+                      - 283581
+                      - 283712
+                  - 
+                    copy_ok: 1
+                    id: code_75
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - code_75
+                      - 448232
+                      - 448407
+                    title: code_75
+                    visible: 0
+                    wrange: 
+                      - 283793
+                      - 283821
+                  - 
+                    copy_ok: 1
+                    id: code_76
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - code_76
+                      - 448542
+                      - 448710
+                    title: code_76
+                    visible: 0
+                    wrange: 
+                      - 283915
+                      - 283936
+                  - 
+                    copy_ok: 1
+                    id: code_77
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - code_77
+                      - 448955
+                      - 449114
+                    title: code_77
+                    visible: 0
+                    wrange: 
+                      - 284140
+                      - 284149
+                id: X86-SOFTWARE-FSM
+                info: 
+                  render: 1
+                  render_children: 1
+                range: 
+                  - X86-SOFTWARE-FSM
+                  - 447112
+                  - 449510
+                title: 16.11.2 Implementing FSM in Software
+                visible: 1
+                wrange: 
+                  - 283203
+                  - 284438
+              - 
+                children: 
+                  - 
+                    copy_ok: 1
+                    id: code_78
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - code_78
+                      - 452147
+                      - 452418
+                    title: code_78
+                    visible: 0
+                    wrange: 
+                      - 286233
+                      - 286341
+                id: MEMORY-MAPPED-FILES
+                info: 
+                  render: 1
+                  render_children: 1
+                range: 
+                  - MEMORY-MAPPED-FILES
+                  - 449514
+                  - 453554
+                title: 16.11.3 Memory Mapped Files
+                visible: 1
+                wrange: 
+                  - 284438
+                  - 286843
+              - 
+                children: 
+                  - 
+                    copy_ok: 1
+                    id: code_79
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - code_79
+                      - 454454
+                      - 454657
+                    title: code_79
+                    visible: 0
+                    wrange: 
+                      - 287330
+                      - 287384
+                id: X86-FILE-SIZE
+                info: 
+                  render: 1
+                  render_children: 1
+                range: 
+                  - X86-FILE-SIZE
+                  - 453558
+                  - 455298
+                title: 16.11.4 Determining File Size
+                visible: 1
+                wrange: 
+                  - 286843
+                  - 287811
+              - 
+                children: 
+                  - 
+                    copy_ok: 1
+                    id: code_80
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - code_80
+                      - 456204
+                      - 456413
+                    title: code_80
+                    visible: 0
+                    wrange: 
+                      - 288435
+                      - 288497
+                id: X86-FTRUNCATE
+                info: 
+                  render: 1
+                  render_children: 1
+                range: 
+                  - X86-FTRUNCATE
+                  - 455302
+                  - 456545
+                title: 16.11.5 Changing the File Size
+                visible: 1
+                wrange: 
+                  - 287811
+                  - 288549
+              - 
+                children: 
+                  - 
+                    copy_ok: 1
+                    id: code_81
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - code_81
+                      - 456929
+                      - 458040
+                    title: code_81
+                    visible: 0
+                    wrange: 
+                      - 288753
+                      - 289533
+                  - 
+                    copy_ok: 1
+                    id: code_82
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - code_82
+                      - 458082
+                      - 458328
+                    title: code_82
+                    visible: 0
+                    wrange: 
+                      - 289561
+                      - 289652
+                  - 
+                    copy_ok: 1
+                    id: code_83
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - code_83
+                      - 458375
+                      - 458745
+                    title: code_83
+                    visible: 0
+                    wrange: 
+                      - 289685
+                      - 289877
+                  - 
+                    copy_ok: 1
+                    id: code_84
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - code_84
+                      - 458781
+                      - 462583
+                    title: code_84
+                    visible: 0
+                    wrange: 
+                      - 289899
+                      - 292763
+                id: X86-FTUC
+                info: 
+                  render: 1
+                  render_children: 1
+                range: 
+                  - X86-FTUC
+                  - 456549
+                  - 463176
+                title: 16.11.6 ftuc
+                visible: 1
+                wrange: 
+                  - 288549
+                  - 293095
+            id: X86-FILES
+            info: 
+              render: 1
+              render_children: 1
+            range: 
+              - X86-FILES
+              - 437558
+              - 463212
+            title: 16.11 Working with Files
+            visible: 1
+            wrange: 
+              - 276659
+              - 293095
+          - 
+            children: 
+              - 
+                children: 
+                  - 
+                    copy_ok: 1
+                    id: code_85
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - code_85
+                      - 468812
+                      - 473577
+                    title: code_85
+                    visible: 0
+                    wrange: 
+                      - 296990
+                      - 300695
+                  - 
+                    children: 
+                      - 
+                        copy_ok: 1
+                        id: code_86
+                        info: 
+                          render: 1
+                          render_children: 1
+                        range: 
+                          - code_86
+                          - 475504
+                          - 475751
+                        title: code_86
+                        visible: 0
+                        wrange: 
+                          - 302078
+                          - 302154
+                    id: X86-BUFFERED-DARK-SIDE
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - X86-BUFFERED-DARK-SIDE
+                      - 474426
+                      - 478379
+                    title: 16.12.1.1 The Dark Side of Buffering
+                    visible: 1
+                    wrange: 
+                      - 301420
+                      - 303787
+                id: X86-CSV
+                info: 
+                  render: 1
+                  render_children: 1
+                range: 
+                  - X86-CSV
+                  - 464364
+                  - 478415
+                title: 16.12.1 CSV
+                visible: 1
+                wrange: 
+                  - 293916
+                  - 303787
+            id: X86-ONE-POINTED-MIND
+            info: 
+              render: 1
+              render_children: 1
+            range: 
+              - X86-ONE-POINTED-MIND
+              - 463213
+              - 478449
+            title: 16.12 One-Pointed Mind
+            visible: 1
+            wrange: 
+              - 293095
+              - 303787
+          - 
+            children: 
+              - 
+                children: 
+                  - 
+                    children: 
+                      - 
+                        copy_ok: 1
+                        id: code_87
+                        info: 
+                          render: 1
+                          render_children: 1
+                        range: 
+                          - code_87
+                          - 485191
+                          - 485365
+                        title: code_87
+                        visible: 0
+                        wrange: 
+                          - 306843
+                          - 306873
+                      - 
+                        copy_ok: 1
+                        id: code_88
+                        info: 
+                          render: 1
+                          render_children: 1
+                        range: 
+                          - code_88
+                          - 485667
+                          - 485841
+                        title: code_88
+                        visible: 0
+                        wrange: 
+                          - 307015
+                          - 307045
+                    id: X86-FPU-PACKED-DECIMAL
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - X86-FPU-PACKED-DECIMAL
+                      - 483652
+                      - 486619
+                    title: 16.13.1.1 The Packed Decimal Format
+                    visible: 1
+                    wrange: 
+                      - 306103
+                      - 307525
+                id: X86-FPU-ORGANIZATION
+                info: 
+                  render: 1
+                  render_children: 1
+                range: 
+                  - X86-FPU-ORGANIZATION
+                  - 479138
+                  - 486656
+                title: 16.13.1 Organization of the FPU
+                visible: 1
+                wrange: 
+                  - 304119
+                  - 307525
+              - 
+                children: 
+                  - 
+                    id: X86-CAMERA
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - X86-CAMERA
+                      - 487266
+                      - 488262
+                    title: 16.13.2.1 The Camera
+                    visible: 1
+                    wrange: 
+                      - 307844
+                      - 308536
+                  - 
+                    id: X86-THE-PINHOLE
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - X86-THE-PINHOLE
+                      - 488266
+                      - 489081
+                    title: 16.13.2.2 The Pinhole
+                    visible: 1
+                    wrange: 
+                      - 308536
+                      - 308949
+                  - 
+                    children: 
+                      - 
+                        copy_ok: 1
+                        id: code_89
+                        info: 
+                          render: 1
+                          render_children: 1
+                        range: 
+                          - code_89
+                          - 489433
+                          - 489598
+                        title: code_89
+                        visible: 0
+                        wrange: 
+                          - 309102
+                          - 309120
+                    id: X86-FOCAL-LENGTH
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - X86-FOCAL-LENGTH
+                      - 489085
+                      - 490184
+                    title: 16.13.2.3 Focal Length
+                    visible: 1
+                    wrange: 
+                      - 308949
+                      - 309509
+                  - 
+                    children: 
+                      - 
+                        copy_ok: 1
+                        id: code_90
+                        info: 
+                          render: 1
+                          render_children: 1
+                        range: 
+                          - code_90
+                          - 490760
+                          - 490918
+                        title: code_90
+                        visible: 0
+                        wrange: 
+                          - 309928
+                          - 309939
+                      - 
+                        copy_ok: 1
+                        id: code_91
+                        info: 
+                          render: 1
+                          render_children: 1
+                        range: 
+                          - code_91
+                          - 491548
+                          - 491709
+                        title: code_91
+                        visible: 0
+                        wrange: 
+                          - 310466
+                          - 310479
+                    id: X86-F-NUMBER
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - X86-F-NUMBER
+                      - 490188
+                      - 491754
+                    title: 16.13.2.4 The F-Number
+                    visible: 1
+                    wrange: 
+                      - 309509
+                      - 310479
+                  - 
+                    id: X86-NORMALIZED-F-NUMBER
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - X86-NORMALIZED-F-NUMBER
+                      - 491758
+                      - 492796
+                    title: 16.13.2.5 Normalized F-Number
+                    visible: 1
+                    wrange: 
+                      - 310479
+                      - 311299
+                  - 
+                    id: X86-F-STOP
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - X86-F-STOP
+                      - 492800
+                      - 493575
+                    title: 16.13.2.6 The F-Stop
+                    visible: 1
+                    wrange: 
+                      - 311299
+                      - 311839
+                id: X86-PINHOLE-PHOTOGRAPHY
+                info: 
+                  render: 1
+                  render_children: 1
+                range: 
+                  - X86-PINHOLE-PHOTOGRAPHY
+                  - 486657
+                  - 493612
+                title: 16.13.2 Excursion to Pinhole Photography
+                visible: 1
+                wrange: 
+                  - 307525
+                  - 311839
+              - 
+                children: 
+                  - 
+                    id: XPINHOLE-PROCESSING-INPUT
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - XPINHOLE-PROCESSING-INPUT
+                      - 493897
+                      - 498395
+                    title: 16.13.3.1 Processing Program Input
+                    visible: 1
+                    wrange: 
+                      - 311954
+                      - 315275
+                  - 
+                    id: X86-PINHOLE-OPTIONS
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - X86-PINHOLE-OPTIONS
+                      - 498399
+                      - 504134
+                    title: 16.13.3.2 Offering Options
+                    visible: 1
+                    wrange: 
+                      - 315275
+                      - 319174
+                  - 
+                    children: 
+                      - 
+                        copy_ok: 1
+                        id: code_92
+                        info: 
+                          render: 1
+                          render_children: 1
+                        range: 
+                          - code_92
+                          - 515327
+                          - 515580
+                        title: code_92
+                        visible: 0
+                        wrange: 
+                          - 326976
+                          - 327044
+                    id: X86-PINHOLE-OUTPUT
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - X86-PINHOLE-OUTPUT
+                      - 504138
+                      - 522251
+                    title: 16.13.3.3 The Output
+                    visible: 1
+                    wrange: 
+                      - 319174
+                      - 331409
+                id: X86-PINHOLE-SOFTWARE
+                info: 
+                  render: 1
+                  render_children: 1
+                range: 
+                  - X86-PINHOLE-SOFTWARE
+                  - 493613
+                  - 522288
+                title: 16.13.3 Designing the Pinhole Software
+                visible: 1
+                wrange: 
+                  - 311839
+                  - 331409
+              - 
+                children: 
+                  - 
+                    copy_ok: 1
+                    id: code_93
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - code_93
+                      - 527102
+                      - 527443
+                    title: code_93
+                    visible: 0
+                    wrange: 
+                      - 334720
+                      - 334839
+                id: X86-FPU-OPTIMIZATIONS
+                info: 
+                  render: 1
+                  render_children: 1
+                range: 
+                  - X86-FPU-OPTIMIZATIONS
+                  - 522289
+                  - 528115
+                title: 16.13.4 FPU Optimizations
+                visible: 1
+                wrange: 
+                  - 331409
+                  - 335130
+              - 
+                children: 
+                  - 
+                    copy_ok: 1
+                    id: code_94
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - code_94
+                      - 528312
+                      - 539707
+                    title: code_94
+                    visible: 0
+                    wrange: 
+                      - 335156
+                      - 343978
+                id: X86-PINHOLE-THE-CODE
+                info: 
+                  render: 1
+                  render_children: 1
+                range: 
+                  - X86-PINHOLE-THE-CODE
+                  - 528119
+                  - 545020
+                title: 16.13.5 pinhole--The Code
+                visible: 1
+                wrange: 
+                  - 335130
+                  - 347101
+              - 
+                id: X86-PINHOLE-USING
+                info: 
+                  render: 1
+                  render_children: 1
+                range: 
+                  - X86-PINHOLE-USING
+                  - 545024
+                  - 547185
+                title: 16.13.6 Using pinhole
+                visible: 1
+                wrange: 
+                  - 347101
+                  - 348452
+              - 
+                children: 
+                  - 
+                    copy_ok: 1
+                    id: code_95
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - code_95
+                      - 547734
+                      - 547889
+                    title: code_95
+                    visible: 0
+                    wrange: 
+                      - 348656
+                      - 348667
+                  - 
+                    copy_ok: 1
+                    id: code_96
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - code_96
+                      - 547912
+                      - 548066
+                    title: code_96
+                    visible: 0
+                    wrange: 
+                      - 348676
+                      - 348686
+                  - 
+                    copy_ok: 1
+                    id: code_97
+                    info: 
+                      render: 1
+                      render_children: 1
+                    range: 
+                      - code_97
+                      - 548741
+                      - 549050
+                    title: code_97
+                    visible: 0
+                    wrange: 
+                      - 349178
+                      - 349340
+                id: X86-PINHOLE-SCRIPTING
+                info: 
+                  render: 1
+                  render_children: 1
+                range: 
+                  - X86-PINHOLE-SCRIPTING
+                  - 547189
+                  - 551487
+                title: 16.13.7 Scripting
+                visible: 1
+                wrange: 
+                  - 348452
+                  - 350845
+            id: X86-FPU
+            info: 
+              render: 1
+              render_children: 1
+            range: 
+              - X86-FPU
+              - 478450
+              - 551523
+            title: 16.13 Using the FPU
+            visible: 1
+            wrange: 
+              - 303787
+              - 350845
+          - 
+            children: 
+              - 
+                id: X86-PROTECTED
+                info: 
+                  render: 1
+                  render_children: 1
+                range: 
+                  - X86-PROTECTED
+                  - 552751
+                  - 553495
+                title: 16.14.1 UNIX Is Protected
+                visible: 1
+                wrange: 
+                  - 351504
+                  - 351944
+              - 
+                id: X86-ABSTRACTION
+                info: 
+                  render: 1
+                  render_children: 1
+                range: 
+                  - X86-ABSTRACTION
+                  - 553499
+                  - 557679
+                title: 16.14.2 UNIX Is an Abstraction
+                visible: 1
+                wrange: 
+                  - 351944
+                  - 354799
+            id: X86-CAVEATS
+            info: 
+              render: 1
+              render_children: 1
+            range: 
+              - X86-CAVEATS
+              - 551524
+              - 557715
+            title: 16.14 Caveats
+            visible: 1
+            wrange: 
+              - 350845
+              - 354799
+          - 
+            id: X86-ACKNOWLEDGEMENTS
+            info: 
+              render: 1
+              render_children: 1
+            range: 
+              - X86-ACKNOWLEDGEMENTS
+              - 557716
+              - 558880
+            title: 16.15 Acknowledgements
+            visible: 1
+            wrange: 
+              - 354799
+              - 355575
+        id: X86
+        info: 
+          render: 1
+          render_children: 1
+        range: 
+          - X86
+          - 368352
+          - 558913
+        title: Chapter 16 x86 Assembly Language Programming
+        visible: 1
+        wrange: 
+          - 233604
+          - 355575
+      - 
+        id: ALPHA
+        info: 
+          render: 1
+          render_children: 1
+        range: 
+          - ALPHA
+          - 558914
+          - 559271
+        title: Chapter 17 * Alpha
+        visible: 1
+        wrange: 
+          - 355575
+          - 355704
+    id: ARCHITECTURES
+    info: 
+      render: 1
+      render_children: 0
+    range: 
+      - ARCHITECTURES
+      - 367939
+      - 559307
+    title: IV. Architectures
+    visible: 1
+    wrange: 
+      - 233520
+      - 355704
+  - 
+    children: 
+      - 
+        id: DOC-INDEX
+        info: 
+          render: 1
+          render_children: 1
+        range: 
+          - DOC-INDEX
+          - 561205
+          - 571398
+        title: Index
+        visible: 1
+        wrange: 
+          - 356583
+          - 359460
+    id: APPENDICES
+    info: 
+      render: 1
+      render_children: 0
+    range: 
+      - APPENDICES
+      - 559312
+      - 571429
+    title: V. Appendices
+    visible: 1
+    wrange: 
+      - 355704
+      - 359460
+dumpmeta: 
+  fingerprint: b9b6949268bb3312d36663afe26a537f
+  version: 0.1
+id: AEN1
+info: 
+  render: 1
+  render_children: 0
+range: 
+  - AEN1
+  - 242
+  - 571450
+title: FreeBSD Developers' Handbook
+visible: 1
+wrange: 
+  - 0
+  - 359460
