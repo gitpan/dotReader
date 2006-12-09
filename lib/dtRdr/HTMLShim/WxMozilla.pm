@@ -230,13 +230,14 @@ sub event_right_click {
   my $killit = sub {
     #$event->Skip;
   };
-  if($self->{parent}->book_view->load_url($event->GetLink, $killit)) {
+  my $url = $event->GetLink;
+  $url or return; # only because this is a silly way to handle links
+  if($self->{parent}->book_view->load_url($url, $killit)) {
     #$event->Skip;
   }
 
 } # end subroutine event_right_click definition
 ########################################################################
-
 
 =head2 load_url
 
@@ -250,6 +251,7 @@ sub load_url {
   $self->LoadURL($url);
 } # end subroutine load_url definition
 ########################################################################
+
 =head2 SetPage
 
   $widget->SetPage($content);

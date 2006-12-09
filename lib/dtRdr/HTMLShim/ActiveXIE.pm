@@ -219,7 +219,7 @@ sub before_navigate2 {
   my $self = shift;
   my ($parent, $evt) = @_;
 
-  RL('#link')->debug("IN...$evt->{URL}");
+  RL('#links')->debug("IN...$evt->{URL}");
   if($self->load_in_progress) {
     #$self->set_load_in_progress(0);
     return;
@@ -235,7 +235,7 @@ sub before_navigate2 {
     # hmm.
     if(defined(my $anchor = $uri->fragment)) {
       $evt->{Cancel} = 1;
-      RL('#link')->debug("jump to $anchor");
+      RL('#links')->debug("jump to $anchor");
       $self->jump_to_anchor($anchor);
       return;
     }
@@ -245,11 +245,11 @@ sub before_navigate2 {
   ######################################################################
 
   $self->set_load_in_progress(1);
-  RL('#link')->debug("FOLLOW");
+  RL('#links')->debug("FOLLOW");
   my $killit = sub {
-     $evt->{Cancel}=1;
-     $self->set_load_in_progress(0);
-   };
+    $evt->{Cancel}=1;
+    $self->set_load_in_progress(0);
+  };
   if($parent->book_view->load_url($evt->{URL}, $killit)) {
     $evt->{Cancel} = 1;
   }

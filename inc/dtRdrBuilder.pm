@@ -17,6 +17,13 @@ if($^O eq 'darwin') {
     warn "'$perl' may not work for you on the GUI\n",
       "do 'wxPerl Build.PL' for best results\n\n";
 }
+BEGIN {
+  if($^O eq 'darwin') {
+    eval { require Module::Build::Plugins::MacBundle };
+    #Module::Build::Plugins::MacBundle->import('ACTION_appbundle')
+    #  unless($@);
+  }
+} # end BEGIN
 
 =head1 NAME
 
@@ -187,7 +194,7 @@ sub ACTION_testpar {
   # ... now what? cd /tmp/ ... system ... ok?
   my $ft_file = $self->starter_data_dir . '/first_time';
   (-e $ft_file) or die "first_time file did not get created";
-  system($self->parfilename) and die "bad exit status";
+  system($self->binfilename) and die "bad exit status";
   (-e $ft_file) and die "first_time file did not get deleted";
   open(my $fh, '>', $ft_file); # putback
   print "ok\n";
@@ -343,12 +350,41 @@ compressed vs not -- z9 adds 11s to build (run seems to not mind so much
 
 =cut
 
-sub parfilename { $_[0]->par_build_dir . '/dotreader.exe'};
-sub starter_data_dir { $_[0]->par_build_dir . '/dotreader-data'};
+sub binfilename {
+  my $self = shift;
+  return($self->binary_build_dir . '/dotReader.app')
+    if($^O eq 'darwin');
+  return(
+    $self->binary_build_dir .
+      '/dotReader' . ($^O eq 'MSWin32' ? '.exe' : '')
+  );
+}
+
+# the distribution file (depends on current options)
+sub distfilename {
+  my $self = shift;
+  my $packname =
+    $self->binary_build_dir . '/' .
+    $self->binary_package_name . $self->distfile_extension;
+  return($packname);
+}
+sub distfile_extension {
+  my $self = shift;
+  my %choice = (
+    darwin => '.dmg',
+    MSWin32 => '.exe',
+  );
+  return($choice{$^O} || '.tar.gz');
+}
+
+sub starter_data_dir {
+  my $self = shift;
+  return($self->binary_build_dir . '/dotreader-data');
+}
 use constant {
   datadir => 'blib/pardata',
   clientdata => 'client/data',
-  par_build_dir => 'binary_build',
+  binary_build_dir => 'binary_build',
   parmanifest   => 'blib/parmanifest',
 };
 sub _my_args {
@@ -359,6 +395,7 @@ sub _my_args {
     clean
     dev
     nolink
+    bare
   );
   foreach my $opt (@bin_opts) {
     $args{$opt} = 1 if(exists($args{$opt}));
@@ -369,10 +406,10 @@ sub ACTION_par {
   my $self = shift;
 
   my %args = $self->_my_args;
-  my $devmode = $args{dev} || 0;
+  my $devmode = $args{dev} || 0; # XXX rename (dev should mean no deps?)
   $devmode and warn "building with console";
 
-  my $parfile = $self->parfilename;
+  my $parfile = $self->binfilename;
   { # do we need to do anything?
     my @sources = (
       keys(%{$self->find_pm_files}), 
@@ -412,6 +449,7 @@ sub ACTION_par {
     ));
     push(@other_dll, qw(
       /usr/lib/libstdc++.so.6
+      /usr/lib/libexpat.so.1
     ));
   }
   elsif($^O eq 'MSWin32') {
@@ -483,8 +521,8 @@ sub ACTION_par {
   );
   
   require File::Path;
-  $args{clean} and File::Path::rmtree([$self->par_build_dir]);
-  File::Path::mkpath([$self->par_build_dir]);
+  $args{clean} and File::Path::rmtree([$self->binary_build_dir]);
+  File::Path::mkpath([$self->binary_build_dir]);
 
   # Try to grab a cache of dependencies
   my $parmanifest = $self->parmanifest;
@@ -549,6 +587,34 @@ sub pp {
   my $self = shift;
   return(($^O eq 'MSWin32') ? ($self->perl, 'c:/perl/bin/pp') : ('pp'));
 }
+
+sub ACTION_appbundle {
+  my $self = shift;
+
+  $self->depends_on('datadir');
+  local $self->{args}{deps} = 1;
+  my $mm = # TODO some way to do that with SUPER::
+    Module::Build::Plugins::MacBundle::ACTION_appbundle($self, @_);
+
+  # XXX ugh, bit of thrashing-about involved here
+  # copy
+  my $dest = $self->binfilename;
+  #if(-e $dest) {
+  #  File::Path::rmtree($dest) or die $!;
+  #}
+  unless(-d $dest) {
+    File::Path::mkpath($dest) or die "$dest $!";
+  }
+  warn "copy to $dest";
+  system('rsync', '-av', '--delete',
+    $mm->built_dir . '/', $dest . '/') and die;
+
+  # datadir
+  system('rsync', '-av', '--delete',
+    $self->datadir . '/', "$dest/Contents/Resources/data/") and die;
+
+} # end subroutine ACTION_appbundle definition
+########################################################################
 
 sub ACTION_datadir {
   my $self = shift;
@@ -618,7 +684,7 @@ sub ACTION_repar {
 
   use Archive::Zip qw(:ERROR_CODES :CONSTANTS);
 
-  my $filename = 'binary_build/dotreader.exe';
+  my $filename = $self->binfilename;
 
   my $src_dir = $self->datadir;
   (-e $src_dir) or
@@ -638,13 +704,12 @@ sub ACTION_repar {
 } # end subroutine ACTION_repar definition
 ########################################################################
 
-
 sub ACTION_parmanifest {
   my $self = shift;
 
   require Archive::Zip;
   my $zip = Archive::Zip->new;
-  my $filename = $self->parfilename;
+  my $filename = $self->binfilename;
   $zip->read($filename);
   my $member = $zip->memberNamed('MANIFEST');
   my $parmanifest = $self->parmanifest;
@@ -654,7 +719,6 @@ sub ACTION_parmanifest {
 } # end subroutine ACTION_parmanifest definition
 ########################################################################
 
-# XXX icky name -- should be starter_data or something
 sub ACTION_starter_data {
   my $self = shift;
   my %args = $self->_my_args;
@@ -682,6 +746,7 @@ sub ACTION_starter_data {
   );
 
   # TODO have a manifest for shippable books?
+  # actually, need to get this out of the picture
   my @books = (
     map({'test_packages/' . $_}
       map({$_ . '.jar'}
@@ -691,6 +756,8 @@ sub ACTION_starter_data {
           other/publication_556
           other/rebel-w-o-car
           other/seventy_five_times
+          other/Reflections
+          other/dpp_reader
         )
       ),
     ),
@@ -718,11 +785,47 @@ sub ACTION_starter_data {
     );
   }
 
+  # standard plugins
+  my @plugins = qw(example_plugins/InfoButton/);
+  require File::Path;
+  my $pdir = $data_dir . 'plugins/';
+  if(-e $pdir) {
+    my $dirname = $pdir;
+    $dirname =~ s#/$##; # $%^&* windows!
+    File::Path::rmtree($dirname) or die "$dirname -- $!";
+  }
+  File::Path::mkpath($pdir) or die "$pdir -- $!";
+  foreach my $dir (@plugins) {
+    $dir =~ s#/*$#/#;
+    my $mfile = $dir . 'MANIFEST';
+    (-e $mfile) or die "cannot add plugin $dir without $mfile";
+    my @manifest = do {
+      open(my $fh, '<', $mfile) or die $!;
+      map({chomp; $_} <$fh>);
+    };
+    foreach my $file (@manifest) {
+      my $src = $dir . '/' . $file;
+      $self->copy_if_modified(
+        from => $src,
+        to => $pdir . '/' . $file,
+        verbose => 1,
+      );
+    }
+    # and ship the manifest file
+    my $mname = $dir;
+    $mname =~ s#/*$##;
+    $mname = $pdir . '/' . File::Basename::basename($mname) . '.MANIFEST';
+    warn "create $mname";
+    $self->copy_if_modified(
+      from => $mfile,
+      to => $mname,
+    );
+  }
+
   # TODO add some annotation data, bells, whistles, etc
 
 } # end subroutine ACTION_starter_data definition
 ########################################################################
-
 
 sub server_details {
   my $self = shift;
@@ -772,7 +875,7 @@ sub ACTION_binpush {
       ),
     )
   ) and die;
-  $dosystem->('rsync', '-rvz', 'binary_build/', 
+  $dosystem->('rsync', '-rvz', $self->binary_build_dir . '/', 
     $server . ':' . $dir . '/' . $release . '/') and die;
 
 } # end subroutine ACTION_binpush definition
@@ -793,7 +896,7 @@ sub bindistribute {
     foreach my $dest (@dirs) {
       $dest =~ s#/*$#/#;
       $dosystem->('rsync', '--delete', '-rv',
-        $self->par_build_dir . '/', $dest
+        $self->binary_build_dir . '/', $dest
       ) and die;
     }
   }
@@ -807,6 +910,49 @@ sub ACTION_bindistribute {
   $self->bindistribute($data);
 } # end subroutine ACTION_bindistribute definition
 ########################################################################
+
+sub ACTION_package_push {
+  my $self = shift;
+
+  my %opts = $self->_my_args;
+
+  my $src = $self->distfilename;
+  (-e $src) or die "no file $src";
+
+  my $data = $self->server_details;
+  my $server = $data->{server} or die;
+  my $dir = $data->{directory} or die;
+  $dir .= '/downloads/';
+
+  my $file = File::Basename::basename($src);
+
+  {
+    # only good way to ensure it isn't there already because BSD won't
+    # return remote command exit status
+    my ($in, $out, $err);
+    require IPC::Run;
+    IPC::Run::run(['ssh', $server,
+      "test '!' -e $dir/$file && echo ok"],
+      \$in, \$out, \$err) or die "command failed $err";
+    ($out eq "ok\n") or die "'$dir/$file' already exists";
+  }
+  my $current = $file;
+  my $ext = $self->distfile_extension;
+  $current =~ s/-v\d.*?(\Q$ext\E)$/-current$1/ or die;
+  $dosystem->('ssh', $server, 
+    join(" && ",
+      "cp -H $dir/$current $dir/$file",
+      (
+  # TODO link for bleed/etc when --version-force (or version-bump) is on
+        $opts{nolink} ? () :
+        ("rm $dir/$current", "ln -s $file $dir/$current")
+      ),
+    )
+  ) and die;
+  $dosystem->('rsync', '-vz', $src, $server . ':' . "$dir/$file")
+    and die;
+} # end subroutine ACTION_package_push definition
+########################################################################
 } # end closure
 
 # TODO put this in dtRdr.pm?
@@ -815,10 +961,14 @@ sub write_release_file {
   my $self = shift;
   my ($location) = @_;
 
-  # TODO let this get a different value from somewhere
-  my $release = 'svn' . svn_rev();
-  if(my $tag = svn_tag()) {
-    $release = $tag . " ($release)";
+  # let this get a different value from somewhere
+  my %args = $self->_my_args;
+  my $release = $args{'release'};
+  unless($release) {
+    $release = 'svn' . svn_rev();
+    if(my $tag = svn_tag()) {
+      $release = $tag . " ($release)";
+    }
   }
 
   my $file = "$location/" . $self->release_file;
@@ -831,7 +981,8 @@ sub svn_rev {
     my ($in, $out, $err);
     my @command = ('svk', 'info');
     ($^O eq 'MSWin32') and return('notsvn'); # bah
-    IPC::Run::run(\@command, \$in, \$out, \$err) or return("notsvn");
+    eval {IPC::Run::run(\@command, \$in, \$out, \$err)}
+      or return("notsvn-" . time());
     my ($rev) = grep(/^Revision/, split(/\n/, $out));
     $rev or die "can't find revision in output >>>$out<<<";
     $rev =~ s/Revision: *//;
@@ -866,6 +1017,225 @@ sub ACTION_binary_release {
   $self->depends_on('par');
   $self->depends_on('starter_data');
 } # end subroutine ACTION_binary_release definition
+########################################################################
+
+sub ACTION_binary_package {
+  my $self = shift;
+  my %args = $self->_my_args;
+  $self->depends_on( ($^O eq 'darwin') ?  'appbundle' : 'par' );
+  $args{bare} or $self->depends_on('starter_data');
+  my %choice = map({$_ => $_} qw(darwin MSWin32));
+  my $method = 'binary_package_' . ($choice{$^O} || 'linux');
+  $self->$method;
+} # end subroutine ACTION_binary_package definition
+########################################################################
+
+=head2 binary_package_name
+
+Assembles exception, platform, modifiers, version, and version bump
+values into a name (without .extension)
+
+  my $packname = $self->binary_package_name;
+
+=cut
+
+sub binary_package_name {
+  my $self = shift;
+
+  my %args = $self->_my_args;
+
+  my %choice = (
+    darwin => 'mac',
+    MSWin32 => 'win32',
+  );
+  my $platform = $choice{$^O} || $^O;
+  my @special = (
+    ($args{bare} ? 'bare' : ()),
+  );
+  my @extra; # ppc, dev, etc
+  my $bump; # e.g. pre
+  my $name = join('-',
+    lc($self->dist_name),
+    @special,
+    $platform,
+    @extra,
+    ($args{'version-force'} ?
+      $args{'version-force'} :
+      $self->dist_version
+    ),
+    ($args{'version-bump'} ? $args{'version-bump'} : ()),
+  );
+  return($name);
+} # end subroutine binary_package_name definition
+########################################################################
+
+=head2 binary_package_linux
+
+Linux and others.
+
+  $self->binary_package_linux;
+
+=cut
+
+sub binary_package_linux {
+  my $self = shift;
+
+  my $packname = $self->binary_package_name;
+  warn "package name $packname";
+
+  require File::Path;
+  if(-e $packname) {
+    File::Path::rmtree($packname);
+  }
+  mkdir($packname) or die "cannot create directory '$packname'";
+  $self->copy_package_files($packname);
+  my $tarball = $self->distfilename;
+  if(-e $tarball) {
+    unlink($tarball) or die "cannot delete $tarball -- $!";
+  }
+  system('tar', '-czhvf', $tarball, $packname) and
+    die "tarball failed $!";
+  # cleanup
+  File::Path::rmtree($packname);
+} # end subroutine binary_package_linux definition
+########################################################################
+
+=head2 binary_package_darwin
+
+  $self->binary_package_darwin;
+
+=cut
+
+sub binary_package_darwin {
+  my $self = shift;
+
+  my %args = $self->_my_args;
+  my $packname = $self->binary_package_name;
+
+  warn "package name $packname";
+  my $size = 0;
+  {
+    require IPC::Run;
+    my ($in, $out, $err);
+    IPC::Run::run(['du', '-ks', $self->binfilename,
+      ($args{bare} ? () : $self->starter_data_dir)],
+    \$in, \$out, \$err) or die "failed $err";
+    $size += $_ for(map({s/\s.*//; $_} split(/\n/, $out)));
+    $size = int($size / 1024) + 5;
+  }
+
+  # XXX this is pretty slow at 45MB
+  my $tmpdmg = '/tmp/tmp.dmg';
+  unlink($tmpdmg);
+  warn "create dmg at $size MB\n";
+  system(qw(hdiutil create -size), $size . 'm',
+    qw(-fs HFS+ -volname), $packname, $tmpdmg) and die $!;
+  # TODO check for failed umount
+  system(qw(hdiutil attach), $tmpdmg) and die $!;
+
+  warn "copy to image\n";
+  system('rsync', '-a', $self->binfilename, '/Volumes/' . $packname)
+    and die "$!";
+  unless($args{bare}) {
+    system('rsync', '-a',
+      $self->starter_data_dir, '/Volumes/' . $packname) and die "$!";
+  }
+
+  # only on recent osx
+  system(qw(hdiutil detach), '/Volumes/' . $packname) and die $!;
+
+  my $outdmg = $self->distfilename;
+  unlink($outdmg);
+  warn "convert dmg\n";
+  system(qw(hdiutil convert), $tmpdmg, qw(-format UDZO), '-o', $outdmg)
+    and die $!;
+
+
+} # end subroutine binary_package_darwin definition
+########################################################################
+
+=head2 binary_package_MSWin32
+
+  $self->binary_package_MSWin32;
+
+=cut
+
+sub binary_package_MSWin32 {
+  my $self = shift;
+  if(0) {
+    my $version = '0';
+    0 and system("/bin/rm dotreader-win32-* dotreader.zip dotreader*.exe;
+    ln -s binary_build dotreader-win32-$version;
+    zip -r dotreader.zip dotreader-win32-$version;
+    cat /cygdrive/c/code/unzipsfx.exe dotreader.zip > dotreader-win32-$version.exe;
+    zip -A dotreader-win32-$version.exe"
+    );
+    return;
+  }
+  my $packname = $self->binary_package_name;
+  warn "package name $packname";
+
+  require File::Path;
+  if(-e $packname) {
+    File::Path::rmtree($packname);
+  }
+  mkdir($packname) or die "cannot create directory '$packname'";
+  $self->copy_package_files($packname);
+  my $zipfile = $self->distfilename;
+  if(-e $zipfile) {
+    unlink($zipfile) or die "cannot delete $zipfile -- $!";
+  }
+  my $zipname = 'dotreader.zip';
+  if(-e $zipname) {
+    unlink($zipname) or die "cannot delete $zipname -- $!";
+  }
+  system('zip', '-r', $zipname, $packname) and die $!;
+  require File::Which;
+  my $unzipsfx = File::Which::which('unzipsfx');
+  $unzipsfx or die "you need unzipsfx";
+  my $zip;
+  foreach my $file ($unzipsfx, $zipname) {
+    open(my $fh, '<', $file) or die "$file $!";
+    binmode($fh);
+    local $/;
+    $zip .= <$fh>;
+  }
+  {
+    open(my $ofh, '>', $self->distfilename) or die $!;
+    binmode($ofh);
+    print $ofh $zip;
+    close($ofh) or die $!;
+  }
+
+  system('zip', '-A', $self->distfilename);
+  # cleanup
+  File::Path::rmtree($packname);
+} # end subroutine binary_package_MSWin32 definition
+########################################################################
+
+=head2 copy_package_files
+
+  $self->copy_package_files($dir); # useful for mac too
+
+=cut
+
+sub copy_package_files {
+  my $self = shift;
+  my ($dir) = @_;
+
+  my %args = $self->_my_args;
+
+  require File::NCopy;
+  my $copy = sub {
+    my ($file) = @_;
+    File::NCopy->new(
+      recursive      => 1,
+      #set_permission => sub {chmod(0700, $_[1]) or die $!},
+      )->copy($file, $dir . '/') or die "copy failed $!";
+    };
+  $copy->($self->binfilename);
+  $args{bare} or $copy->($self->starter_data_dir);
+} # end subroutine copy_package_files definition
 ########################################################################
 
 sub ACTION_traceuse {
@@ -970,6 +1340,13 @@ sub find_pm_files {
 } # end subroutine find_pm_files definition
 ########################################################################
 
+sub ACTION_build {
+  my $self = shift;
+  $self->depends_on('books'); # XXX ick -- needed for disttest to pass
+  $self->SUPER::ACTION_build;
+} # end subroutine ACTION_build definition
+########################################################################
+
 =begin devnotes
 
 =head1 WHAT'S ALL THIS THEN?
@@ -984,8 +1361,6 @@ subclass.  This really needs to go upstream.
 # STOLEN/HACKED CODE {{{
 sub ACTION_test {
   my $self = shift;
-
-  $self->depends_on('books'); # XXX ick -- need to get the rest upstream
 
   $self->generic_test(type => 't');
 }
@@ -1156,9 +1531,15 @@ Start a server on 8088 (or so)
 
 Builds the binary and starter data for the current platform.
 
+=item binary_package
+
+Build the binary, starter data, and wrap it up.
+
+Also takes a --bare argument
+
 =item par
 
-Build a 'binary_build/dotreader.exe' par.
+Build a binfilename() (e.g. 'binary_build/dotreader.exe') par.
 
 By default, this has no console on windows.  Use the "dev" pseudo-option
 to enable console output (only matters on windows.)

@@ -274,9 +274,8 @@ sub init {
     }
     $logger->warn("#caught $caller ($line) - $mess");
   };
-  {
-    package warnings;
-    local $SIG{__WARN__};
+  { # XXX hope we don't need this.  CPAN gets angry about it
+    # package warnings; local $SIG{__WARN__};
   }
 } # end subroutine init definition
 ########################################################################

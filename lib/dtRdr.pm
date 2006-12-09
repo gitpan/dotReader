@@ -1,5 +1,5 @@
 package dtRdr;
-$VERSION = eval{require version}?version::qv($_):$_ for(0.0.7);
+$VERSION = eval{require version}?version::qv($_):$_ for(0.0.8);
 
 use warnings;
 use strict;
@@ -140,7 +140,12 @@ sub init_app_dir {
   }
   else {
     require File::Basename;
-    $app_dir = File::Basename::dirname($filename);
+    if(-d $filename) {
+      $app_dir = $filename;
+    }
+    else {
+      $app_dir = File::Basename::dirname($filename);
+    }
     (-e $app_dir) or die "no app directory: '$app_dir'";
     require File::Spec;
     $app_dir = File::Spec->rel2abs($app_dir);
@@ -188,7 +193,7 @@ sub _init_user_dir {
   $did_init_user_dir and return;
   $did_init_user_dir = 1;
 
-  my $loc = $PROGRAM_NAME;
+  my $loc = eval{PerlWrapper->BundlePath} || $PROGRAM_NAME;
   # TODO absolute
 
   # TODO check ~/.dotreader and such
@@ -196,8 +201,8 @@ sub _init_user_dir {
   # remove extension (but don't try too hard)
   $loc =~ s/\.[^.]{2,3}$//;
 
-  $loc .= '-data';
-  (-d $loc) or return;
+  $loc = lc($loc . '-data');
+  unless(-d $loc) { L->warn("no $loc"); return; }
 
   $package->set_user_dir($loc);
 } # end subroutine _init_user_dir definition

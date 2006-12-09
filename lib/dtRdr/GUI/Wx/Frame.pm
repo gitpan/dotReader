@@ -195,6 +195,7 @@ sub init {
   #$self->sidebar->_ad_split;
 
   $self->disable('_book');
+  $self->disable('file_add_book');
   $self->disable('_history');
 
   { # setup the idle event
@@ -775,10 +776,8 @@ sub menu_tb_bookmark {
   my ($evt) = @_;
 
   my $bv = $self->bv_manager->book_view;
-  # TODO we need to disable this button if there's no book
-  unless($bv) {
-    # TODO dtRdr::GUI::Wx::ErrorDialog
-    RL('#user')->warn("You must open a book before you can add highlights");
+  unless($bv) { # assert
+    $self->error("You must open a book before you can add highlights");
     return;
   }
   $bv->bookmark_at_selection;

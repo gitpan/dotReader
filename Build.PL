@@ -16,6 +16,7 @@ my $builder = $build_class->new(
   build_requires => { # should be test_requires, but not in 0.28
     'IPC::Run' => 0,
   },
+  main_pl_file => 'client/app.pl',
   requires => {
     'Test::More'               => 0.62,
     'Archive::Zip'             => 0,
@@ -40,19 +41,17 @@ my $builder = $build_class->new(
     ################################################################
     # Windows prereqs
     ( $^O eq 'MSWin32' ? (
-      # XXX long-term this is required on Win and Lin?
       'Wx::ActiveX::IE' => 0
       ) : ()),
     ################################################################
     # linux prereqs
     ( $^O eq 'linux' ? (
-      # XXX long-term this is required on Win and Lin?
-      'Wx::Mozilla' => 0
+      'Wx::Mozilla' => 0.05
       ) : ()),
     ################################################################
     # darwin prereqs
     ( $^O eq 'darwin' ? (
-      'Wx::WebKit' => 0
+      'Wx::WebKit' => 0.04
       ) : ()),
     ################################################################
   }, # end requires

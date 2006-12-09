@@ -99,6 +99,20 @@ sub init {
 } # end subroutine init definition
 ########################################################################
 
+=head2 _error
+
+A shortcut.
+
+  $self->_error($message);
+
+=cut
+
+sub _error {
+  my $self = shift;
+  my ($message) = @_;
+  $self->manager->main_frame->error($message);
+} # end subroutine _error definition
+########################################################################
 
 =head2 set_widgets
 
@@ -176,18 +190,24 @@ sub load_url {
   if(my $scheme = $uri->scheme) {
     if($scheme eq 'pkg') {
       RL('#links')->debug("this is an internal link");
-      my $pkg = $uri->authority;
+      my $pkg = $uri->authority; # NOTE I will not unescape that here
       my @urlpath = split(/\//, $uri->path);
       my $id = $urlpath[-1];
       RL('#links')->debug("id:$id pkg:$pkg");
-      #$evt->{Cancel} = 1 ;
-      # TODO check that $pkg is the current book
+
+      # cancel whatever the widget had in mind
       $killit->();
+
+      # check that $pkg is the current book
+      unless($pkg eq $self->book->id) {
+        $self->_error("Cannot load links to other books yet ($pkg).");
+        return(1);
+      }
+
       eval {
         $self->render_node_by_id($id);
       };
-      # TODO $mainframe->error or something
-      $@ and RL('#user')->error("follow link to '$id' failed");
+      $@ and $self->_error("Follow link to '$id' failed ($@).");
       return(1);
     }
     elsif($scheme eq 'dr') {
@@ -227,7 +247,7 @@ sub load_url {
         return;
       }
       else {
-        RL('#user')->error("unknown type '$ext' in  '$url'");
+        $self->_error("unknown type '$ext' in  '$url'");
       }
 
       return(1);
@@ -526,7 +546,7 @@ sub show_note {
     $self->manager->note_viewer->show_note($note);
   }
   else {
-    RL('#user')->error("nothing found for $note_id");
+    $self->_error("nothing found for $note_id");
   }
 } # end subroutine show_note definition
 ########################################################################

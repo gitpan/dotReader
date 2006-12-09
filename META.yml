@@ -1,6 +1,6 @@
 ---
 name: dotReader
-version: v0.0.7
+version: v0.0.8
 author:
   - OSoft Inc.
 abstract: toplevel data
@@ -24,7 +24,7 @@ requires:
   Wx: 0.26
   Wx::Event: 0
   Wx::Html: 0
-  Wx::Mozilla: 0
+  Wx::Mozilla: 0.05
   XML::Parser::Expat: 0
   XML::Twig: 3.22
   YAML::Syck: 0.67
@@ -57,7 +57,7 @@ provides:
     version: 0.01
   dtRdr:
     file: lib/dtRdr.pm
-    version: v0.0.7
+    version: v0.0.8
   dtRdr::Accessor:
     file: lib/dtRdr/Accessor.pm
     version: 0.01
@@ -210,8 +210,6 @@ provides:
   dtRdr::Logger::Appender::File:
     file: lib/dtRdr/Logger/Appender/File.pm
     version: 0.01
-  dtRdr::Logger::Appender::WxMessageBox:
-    file: lib/dtRdr/Logger/Appender/WxMessageBox.pm
   dtRdr::Metadata:
     file: lib/dtRdr/Metadata.pm
   dtRdr::Note:
@@ -255,8 +253,6 @@ provides:
     version: 0.01
   dtRdr::User:
     file: lib/dtRdr/User.pm
-  warnings:
-    file: lib/dtRdr/Logger.pm
 generated_by: Module::Build version 0.280501
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.2.html

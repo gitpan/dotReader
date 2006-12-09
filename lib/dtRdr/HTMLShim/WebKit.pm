@@ -2,18 +2,17 @@ package dtRdr::HTMLShim::WebKit;
 
 use warnings;
 use strict;
+use Carp;
 
-BEGIN { # TODO fix this
-  package Wx::WebKit;
-  our @ISA = qw(Wx::ScrolledWindow);
-}
+#BEGIN { # TODO fix this
+#  package Wx::WebKit;
+#  our @ISA = qw(Wx::ScrolledWindow);
+#}
 
-use Wx qw(
-  :everything
-  );
 use Wx::WebKit;
 use base qw(dtRdr::HTMLWidget);
   sub base { 'Wx::WebKitCtrl' };
+use Wx::WebKit::Event qw(:all);
 #use Wx::Panel;
 
 # TEMPORARY {{{
@@ -35,6 +34,8 @@ use dtRdr::HTMLWidget::Shared;
 *img_src_rewrite_sub =
   \&dtRdr::HTMLWidget::Shared::base64_images_rewriter;
 
+use dtRdr::Logger;
+
 =head1 NAME
 
 WebKitShim.pm - the webkit version of the generic html widget
@@ -47,28 +48,154 @@ sub new {
   {
     # XXX THE WEBKIT API IS WRONG:
     # the constructor should not need a URL
-    warn "FIXME:  WebKit needs hacking";
+    # but I guess that's in the C++ api now
     splice(@{$others[0]}, 2, 0, "");
   }
   $self = $self->SUPER::new(@others);
   $self->SetBackgroundColour(Wx::Colour->new(244,25,0));
-  $self->{load_in_progress} = 0;
-  #$self->{webkit} = Wx::WebKitCtrl->new($self, $id, "");
-  #$self->{sizer} = Wx::BoxSizer->new(wxVERTICAL);
-  #$self->{dummy} = Wx::Panel->new($self, $id);
-  #$self->{dummy}->SetBackgroundColour(Wx::Colour->new(0,250, 250));
-  #$self->{sizer}->Add($self->{dummy}, 1, wxEXPAND, 0);
-  #$self->{sizer}->Add($self->{webkit}, 1, wxEXPAND, 0);
-  #$self->{sizer}->Fit($parent);
-  #$self->{sizer}->SetSizeHints($parent);
-  #$self->SetAutoLayout(1);
-  #$self->SetSizer($self->{sizer});
-  #$self->Layout();
   return $self;
-}
+} # end subroutine new definition
+########################################################################
 
-sub init{ # register event handlers
-  my ($self,$parent,$htmlwidget) = @_;
+=head2 init
+
+Registers event handlers.
+
+  $hw->init($parent);
+
+=cut
+
+sub init {
+  my $self = shift;
+  my ($parent) = @_;
+
+  # setup events
+  EVT_WEBKIT_BEFORE_LOAD($self, -1,
+    sub {$_[0]->before_load($parent, $_[1])});
+
+  # meddle
+  1 and Wx::Event::EVT_KEY_UP($self, sub {my ($s, $evt) = @_;
+    WARN "got event $evt";
+    #$evt->Skip;
+  });
+  EVT_WEBKIT_STATE_CHANGED($self, $self, sub {my ($s, $evt) = @_;
+    WARN "STATE_CHANGED $evt";
+  });
+
+} # end subroutine init definition
+########################################################################
+
+=head2 before_load
+
+Handles the BeforeLoadEvent
+
+  $self->before_load($parent, $evt);
+
+=cut
+
+sub before_load {
+  my $self = shift;
+  my ($parent, $evt) = @_;
+
+  my $url = $evt->GetURL;
+  # get rid of the weirdos
+  return if($url =~ m#^applewebdata://#);
+
+  RL('#links')->debug("IN...", $url);
+
+  #if($self->load_in_progress) {
+  #  #$self->set_load_in_progress(0);
+  #  return;
+  #}
+
+  unless($parent->book_view) { # TODO we're stuck as a bookview for now
+    return;
+  }
+
+  # it appears that we don't have to deal with this circularity issue
+  # $self->set_load_in_progress(1);
+
+  RL('#links')->debug("FOLLOW");
+  my $killit = sub {
+    $evt->Cancel;
+    # $self->set_load_in_progress(0);
+  };
+  if($parent->book_view->load_url($url, $killit)) {
+    $evt->Cancel;
+  }
+} # end subroutine before_load definition
+########################################################################
+
+=head2 get_selection_context
+
+  my ($pre, $str, $post) = $hw->get_selection_context($context_length);
+
+=cut
+
+{
+my $ABSURD_STRING = '>>><<<';
+my $SELECT_O_SCRIPT = <<"  ---";
+  var selection = window.getSelection();
+
+  function getSurroundingText(selText, direction, numChars){
+    var surText = "";
+
+    var otherDirection = "backward";
+    var strStart = selText.length;
+
+    if (direction == "backward"){
+        otherDirection = "forward";
+        strStart = 0;
+        // the cursor position is at the end of the selection
+        // so we have to move "backwards" over the selection
+        // itself, too.
+        numChars += selText.length;
+    }
+
+    var strEnd = strStart + numChars;
+
+    for (i = 0; i < numChars; i++) {
+        selection.modify("extend", direction, "character");
+    }
+
+    surText = selection + '';
+    surText = surText.substring(strStart, strEnd)
+
+    // restore the selection to its original state
+    for (i = 0; i < numChars; i++) {
+        selection.modify("extend", otherDirection, "character");
+    }
+
+    return surText;
+
+  }
+
+  function getSelectionContext(numChars) {
+
+    var preText = "";
+    var postText = "";
+    var selText = selection + '';
+    var strLen = selText.length;
+
+    postText = getSurroundingText(selText, "forward", numChars);
+    preText = getSurroundingText(selText, "backward", numChars);
+
+    return preText + '$ABSURD_STRING' + selText + '$ABSURD_STRING' + postText;
+  }
+  ---
+
+sub get_selection_context {
+  my $self = shift;
+  my ($blength) = @_;
+  defined $blength or $blength = 10;
+  my $script = $SELECT_O_SCRIPT . "\ngetSelectionContext($blength);";
+  ##WARN "select with\n$script\n\n  ";
+  my $found = $self->RunScript($script);
+  my ($l, $m, $t, @e) = split(/$ABSURD_STRING/, $found);
+  @e and die "error in get_selection_context split -- @e";
+  return($l, $m, $t);
+} # end subroutine get_selection_context definition
+########################################################################
 }
 
 # XXX this should be in the XS code

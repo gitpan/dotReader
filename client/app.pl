@@ -13,21 +13,10 @@ use File::Spec;
 use warnings;
 use strict;
 
-BEGIN {
-  # XXX stupid hack for now.  needs to tee/log/etc
-  if($PerlWrapper::BundlePath) {
-    chdir('../');
-    open(STDERR, '>', "/tmp/dtrdr.$$.err");
-    select STDERR; $| = 1;
-    $SIG{__DIE__} = sub {
-      warn $_[0];
-      die $_[0];
-    }
-  }
-}
-
 use dtRdr;
-dtRdr->init_app_dir(__FILE__); # requires us to be next to data/
+# fixup for appbundle context (TODO maybe goes in dtRdr.pm?)
+my $location = eval {PerlWrapper->ResourcesPath} || __FILE__;
+dtRdr->init_app_dir($location); # requires us to be next to data/
 
 package MainApp;
 
@@ -69,7 +58,7 @@ sub OnInit {
   my $did_idle = 0;
   if(my $on_first_idle = $self->_on_first_idle) {
     $self->Connect(-1, -1, &Wx::wxEVT_IDLE, sub {
-      $_[1]->Skip;
+      #$_[1]->Skip; # makes macs mad?
       (++$did_idle > 1) and return(); # eek
       dtRdr::Logger::RL('#idle')->info("run startup idle");
       $on_first_idle->();
@@ -141,18 +130,24 @@ sub recover {
 } # end subroutine recover definition
 ########################################################################
 
-if(
-  $PerlWrapper::BundlePath                   # mac appbundle
-  or ($^O eq 'MSWin32' and $ENV{PAR_ARGV_0}) # windows par (assumes we're main)
+main::main(@ARGV) if(
+  ($^O eq 'MSWin32' and $ENV{PAR_ARGV_0}) # windows par (assumes main)
   or ($0 eq ( $ENV{PAR_ARGV_0} || __FILE__)) # saner situations
-) {
+);
 
-  if(@ARGV) { # XXX no, not pretty
+# macs are too special to pass a meaningful argv, so the MacMaker main.c
+# is going to call this directly
+sub main::main {
+  my @args = @_;
+
+  if(@args) { # XXX no, not pretty
     MainApp->_set_on_first_idle(sub {
-      MainApp->_main_frame->backend_file_open($ARGV[0]);
+      MainApp->_main_frame->backend_file_open($args[0]);
     });
   }
   elsif(1) {
+    # unfortunately, we have to run this as a deferred sub because we
+    # won't have an environment until later
     MainApp->_set_on_first_idle(sub {
       dtRdr->first_time and MainApp->_main_frame->_open_first_book;
     });
@@ -162,6 +157,9 @@ if(
   $app->MainLoop();
 }
 } # end $app closure
+
+# tell perlwrapper we want to handle SIG{__DIE__}
+eval {PerlWrapper->NoEval(1)};
 
 # vim:ts=2:sw=2:et:sta
 my $package = 'MainApp';

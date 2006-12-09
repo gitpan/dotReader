@@ -5,6 +5,8 @@ use strict;
 use Carp;
 use English '-no_match_vars';
 
+use URI::Escape ();
+
 our $VERSION = '0.01';
 
 use base qw(
@@ -70,6 +72,33 @@ sub new {
 ########################################################################
 
 =head1 Methods
+
+=head2 set_id
+
+URI-escapes the id because Thout1.0 books didn't have a proper ID.
+
+  $book->set_id($id);
+
+=cut
+
+sub set_id {
+  my $self = shift;
+  my ($id) = @_;
+  return($self->SUPER::set_id($self->_id_escape($id)));
+} # end subroutine set_id definition
+########################################################################
+
+=head2 _id_escape
+
+  $id = $self->_id_escape($id);
+
+=cut
+
+sub _id_escape {
+  my $self = shift;
+  return(URI::Escape::uri_escape($_[0], '^A-Za-z0-9.-'));
+} # end subroutine _id_escape definition
+########################################################################
 
 =head2 set_base_dir
 
@@ -930,8 +959,7 @@ sub parse_content {
   my $self = shift;
   my ($content) = @_;
 
-  my $render_id = URI->new($self->get_metadata('id'))->as_string;
-
+  my $render_id = $self->id;
   # TODO there's too much happening here
   #   we need to
   #     a.  whittle-down the content
@@ -966,11 +994,20 @@ sub parse_content {
       (1 ? (a => sub {
         my ($o, $bit) = @_;
         my $ref = $bit->{att}{href};
-        if($ref and ($ref !~ /^\w{3,6}:/g)) {
-          $bit->set_att(
-            href => 'pkg://'. $render_id . '/'.
-                    URI->new($ref)->as_string
+        $ref or return;
+        if($ref =~ m/^pkg:/) { # explicit, but maybe dirty
+          my $uri = URI->new($ref);
+          my $auth = $self->_id_escape(
+            URI::Escape::uri_unescape($uri->authority) # bah
           );
+          my $rstring =
+            'pkg://' . $auth . $uri->path;
+          $bit->set_att(href => $rstring);
+        }
+        elsif($ref !~ m/^\w{3,6}:/) { # relative link
+          my $rstring = 'pkg://'. $render_id . '/'.
+                    URI->new($ref)->as_string;
+          $bit->set_att(href => $rstring);
         }
       }) : ()),
     },

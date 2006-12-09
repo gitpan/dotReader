@@ -124,6 +124,7 @@ sub init {
   # self->SetRelatedStatusBar(...)
 
   # This gets us web browsing, but requires file:// on local stuff
+  use Wx::FS;
   Wx::FileSystem::AddHandler(Wx::InternetFSHandler->new);
   {
     # this does nothing unless we make a menu/hotkey for it
@@ -232,6 +233,7 @@ sub OnLinkClicked {
 } # end subroutine OnLinkClicked definition
 ########################################################################
 use Method::Alias load_url => 'LoadPage';
+use Method::Alias LoadURL => 'LoadPage';
 
 =head2 OnOpeningURL
 

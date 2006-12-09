@@ -9,6 +9,7 @@ our $VERSION = 0.01;
 
 use dtRdr::Traits::Class qw(
   NOT_IMPLEMENTED
+  WARN_NOT_IMPLEMENTED
   );
 
 my $delegate_class;
@@ -169,12 +170,7 @@ Initialization callback.
 
 =cut
 
-sub init {
-  my $self = shift;
-  # XXX should have a $self->SHOULD_BE_IMPLEMENTED()
-  Carp::cluck("init does nothing");
-} # end subroutine init definition
-########################################################################
+sub init { my $self = shift; $self->WARN_NOT_IMPLEMENTED; 0;}
 
 =head1 ...Methods
 

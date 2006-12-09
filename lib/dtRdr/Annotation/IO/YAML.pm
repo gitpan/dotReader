@@ -40,7 +40,7 @@ sub init {
   }
   else {
     # XXX too dwim?
-    mkdir($uri);
+    mkdir($uri) or die "cannot create $uri";
   }
 
   my $store = $self->{_store} = {};
