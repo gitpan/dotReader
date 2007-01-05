@@ -1,18 +1,21 @@
 package dtRdr::Callbacks::Book;
+$VERSION = eval{require version}?version::qv($_):$_ for(0.1.1);
 
 use warnings;
 use strict;
+use Carp;
 
-our $VERSION = '0.01';
+use Class::Accessor::Classy;
+rw 'aggregated';
+no  Class::Accessor::Classy;
 
-use dtRdr::Accessor;
-dtRdr::Accessor->rw qw(
-  img_src_rewrite
-  core_link
-);
-dtRdr::Accessor->ro qw(
-  html_head_append
-);
+=begin TODO
+
+o arrays -- probably add_foo_sub() appends and set_foo_sub() smashes
+
+o html head / css stuff
+
+=end TODO
 
 =head1 NAME
 
@@ -20,8 +23,29 @@ dtRdr::Callbacks::Book - the callbacks object for books
 
 =head1 SYNOPSIS
 
+Just using the module will typically do everything you need.
+
+  use dtRdr::Callbacks::Book;
+
+This installs callback() and get_callbacks() methods in your class.  The
+callback() method is for adding to your class's callbacks.
+
+  YourClass->callback->set_foo_sub(sub {...});
+
+The get_callbacks() methods aggregates your classes callbacks with your
+base class.  If your plugin has no specific callbacks, you can just
+inherit it, but this is not recommended.
+
+To run the 'foo' callback (which will either be specific to your class,
+your base class, or else the default), just:
+
+  YourClass->get_callbacks->foo($args);
+
+Alternatively, the standalone usage: 
+
+  use dtRdr::Callbacks::Book (); # suppress import()
   my $callbacks = dtRdr::Callbacks::Book->new();
-  $callbacks->set_core_link(sub {"foo://" . $_[0]});
+  $callbacks->set_core_link_sub(sub {"foo://" . $_[0]});
 
   # later ...
 
@@ -29,11 +53,9 @@ dtRdr::Callbacks::Book - the callbacks object for books
 
 =cut
 
-my %defaults; # will hold default subs for undeclared stuff
+my %defaults; # holds default subs for undeclared stuff
 
 =head2 new
-
-Might take arguments later, but not yet.
 
   my $callbacks = dtRdr::Callbacks::Book->new();
 
@@ -42,19 +64,53 @@ Might take arguments later, but not yet.
 sub new {
   my $package = shift;
   my $class = ref($package) || $package;
-  my $self = {
-    # list-types should be predeclared?
-    html_head_append => [],
-  };
+  my $self = {};
   bless($self, $class);
   return($self);
 } # end subroutine new definition
 ########################################################################
 
+=head2 aggregate
+
+Overwrites each property (from right to left) and returns an aggregated
+callback object.  List types are appended rather than overwritten.
+
+  my $all_callbacks = $callback->aggregate($and1, $and2, $and3);
+
+=cut
+
+sub aggregate {
+  my $self = shift;
+  my @others = @_;
+  my @list = (reverse(@others), $self);
+  my @keys = do {
+    my %all = map({$_ => 1} grep(/_sub$/, map({keys(%$_)} @list)));
+    keys(%all);
+  };
+  my $aggregated = $self->new;
+  foreach my $key (@keys) {
+    foreach my $item (@list) {
+      next unless(exists($item->{$key}));
+      my $ref = $item->{$key};
+      $ref or next;
+      # subrefs just smash, but arrays need to accumulate
+      if(ref($ref) eq 'ARRAY') {
+        # careful not to grow any existing references
+        my $current = $aggregated->{$key} || [];
+        $ref = [@$current, @$ref];
+      }
+      $aggregated->{$key} = $ref;
+    }
+  }
+  $aggregated->{aggregated} = 1;
+  return($aggregated);
+} # end subroutine aggregate definition
+########################################################################
+
 =head1 Callbacks
 
 The documentation for each callback here should also serve as your
-custom callback's prototype template.
+custom callback's prototype.
 
 =head2 core_link
 
@@ -69,38 +125,14 @@ $defaults{core_link} = sub {
   my ($item) = @_;
   return('dr://CORE/' . $item);
 };
-
-sub core_link {
-  my $self = shift;
-  my $subref = $self->get_core_link || $defaults{core_link};
-  return($subref->(@_));
-} # end subroutine core_link definition
 ########################################################################
-
-=head2 set_core_link
-
-Only once.
-
-  $callbacks->set_core_link($subref);
-
-=cut
-
-sub set_core_link {
-  my $self = shift;
-  my ($subref) = @_;
-
-  # once and only once
-  $self->get_core_link and
-    croak("attempt to redefine 'core_link' callback");
-
-  $self->SUPER::set_core_link($subref);
-} # end subroutine set_core_link definition
-########################################################################
-
 
 =head2 img_src_rewrite
 
-  my $uri = $callbacks->img_src_rewrite($src, $book);
+Rewrites the img tag's src uri (such as into a base-64 encoded form.)
+The default just parrots the $uri with which it was called.
+
+  $uri = $callbacks->img_src_rewrite($uri, $book);
 
 =cut
 
@@ -108,37 +140,175 @@ $defaults{img_src_rewrite} = sub {
   my ($src, $book) = @_;
   return($src);
 };
-
-sub img_src_rewrite {
-  my $self = shift;
-  my $subref = $self->get_img_src_rewrite || $defaults{img_src_rewrite};
-  return($subref->(@_));
-} # end subroutine img_src_rewrite definition
 ########################################################################
 
-=head2 set_img_src_rewrite
+########################################################################
+# DO NOT ATTEMPT TO DEFINE ANY DEFAULTS BELOW HERE
+########################################################################
 
-  $callbacks->set_img_src_rewrite($subref);
+########################################################################
+# build and install them and their accessors
+foreach my $key (keys(%defaults)) {
+  __PACKAGE__->define($key, $defaults{$key});
+}
+########################################################################
+
+=head1 Meta
+
+These methods let you add to the callback object, though it is best to
+define the methods in this package as above.
+
+=head2 define
+
+Define a callback and the default subref.
+
+  dtRdr::Callbacks::Book->define('name', sub {...});
+
+For multi-entry callbacks, the second argument is a (possibly empty)
+array reference.
 
 =cut
 
-sub set_img_src_rewrite {
-  my $self = shift;
-  my ($subref) = @_;
-
-  # once and only once
-  $self->get_img_src_rewrite and
-    croak("attempt to redefine 'img_src_rewrite' callback");
-
-  $self->SUPER::set_img_src_rewrite($subref);
-} # end subroutine set_img_src_rewrite definition
+sub define {
+  my $package = shift;
+  my ($title, $def_subref) = @_;
+  my $subname = $title . '_sub';
+  my $installer = sub {
+    my ($name, $sub) = @_;
+    no strict 'refs';
+    *{$package . '::' . $name} = $sub;
+  };
+  if(ref($def_subref) eq 'ARRAY') {
+    die "not here yet";
+    # $subname .= 's';
+    # also, define the append_foo_subs($sub1, $sub2, $sub3); method
+  }
+  elsif(ref($def_subref) eq 'CODE') {
+    use Class::Accessor::Classy;
+    rw $subname;
+    no  Class::Accessor::Classy;
+    my $getter = 'get_' . $subname;
+    my $setter = 'set_' . $subname;
+    my $setsub = sub {
+      my $self = shift;
+      my ($subref) = @_;
+      $self->aggregated
+        and croak("cannot set on an aggregated callback object");
+      $self->$getter() and
+        croak("attempt to redefine '$title' callback");
+      my $super_setter = 'SUPER::' . $setter;
+      $self->$super_setter($subref);
+    }; # setsub
+    $installer->($setter, $setsub);
+    # no need for a getsub here
+    my $dosub = sub {
+      my $self = shift;
+      my $subref = $self->$getter || $def_subref;
+      return($subref->(@_));
+    };
+    $installer->($title, $dosub);
+  }
+  else {
+    croak("unsupported reference type '$def_subref'");
+  }
+} # end subroutine define definition
 ########################################################################
 
-=head1 TODO
 
-  $callbacks->add_html_head_append($subref);
+=head2 has
+
+Returns true if some method (other than the default) has been installed
+under $name.  For multi-sub callbacks, returns true if one or more is
+installed (whether it is the default or not.)
+
+  $callbacks->has($name);
 
 =cut
+
+sub has {
+  my $self = shift;
+  my ($name) = @_;
+  my $look = $name . '_sub';
+  return(defined($self->$look)) if($self->can($look));
+  # or it is plural
+  $look .= 's';
+  $self->can($look) or
+    croak("'$name' is not a defined callback title");
+  my $list = $self->$look || [];
+  return(scalar(@$list) > 0);
+} # end subroutine has definition
+########################################################################
+
+=head2 import
+
+Calls install_in() on your current package.
+
+  use dtRdr::Callbacks::Book;
+
+=cut
+
+sub import {
+  my $package = shift;
+  my $caller = caller();
+  $package->install_in($caller);
+} # end subroutine import definition
+########################################################################
+
+=head2 install_in
+
+  dtRdr::Callbacks::Book->install_in($class);
+
+=cut
+
+sub install_in {
+  my $package = shift;
+  my ($dest_class) = @_;
+
+  {
+    no strict 'refs';
+    if(defined(&{$dest_class . '::get_callbacks'})) {
+      # XXX now what?
+      # I guess, do nothing IFF they have both.
+      defined(&{$dest_class . 'callback'}) or
+        croak(
+          "cannot install in '$dest_class' because ",
+          "get_callbacks() is defined, but missing callback() is ",
+          "going to break everything"
+        );
+      return;
+    }
+  }
+  my $object = $package->new;
+
+  my $get_callbacks = sub {
+    my $class = shift;
+    my $class_isa = do { no strict 'refs'; \@{"${class}::ISA"}; };
+    my @callback_objs;
+    my %no_dupes;
+    foreach my $base (@$class_isa) {
+      if(my $check = $base->can('get_callbacks')) {
+        # we'll get a duplicate if we're just inheriting the base
+        # class's get_callbacks method
+        # XXX I don't know what this does in a diamond, maybe NEXT.pm?
+        # but we only go one deep because get_callbacks goes the next
+        # level deep
+        $no_dupes{$check} and next;
+        $no_dupes{$check} = 1;
+        my $obj = $base->get_callbacks;
+        push(@callback_objs, $obj);
+      }
+    }
+    return($object->aggregate(@callback_objs));
+  }; # end $get_callbacks closure def
+  {
+    no strict 'refs';
+    # install the aggregator
+    *{$dest_class . '::get_callbacks'} = $get_callbacks;
+    # and the accessor
+    *{$dest_class . '::callback'} = sub {$object};
+  }
+} # end subroutine install_in definition
+########################################################################
 
 =head1 AUTHOR
 

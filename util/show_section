@@ -36,6 +36,7 @@ sub main {
   my $anno_io = dtRdr::Annotation::IO->new(uri => $storage_dir);
   $anno_io->apply_to($book);
   my $toc = $noswitch ? $book->toc->get_by_id($section) : $book->find_toc($section);
+  $toc or die "didn't get anything for '$section'";
   if($dbg > 1) { # get the canonical cache
     $book->get_content($toc);
   }

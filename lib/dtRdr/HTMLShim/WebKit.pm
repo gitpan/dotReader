@@ -38,7 +38,7 @@ use dtRdr::Logger;
 
 =head1 NAME
 
-WebKitShim.pm - the webkit version of the generic html widget
+dtRdr::HTMLShim::WebKit - the webkit html widget
 
 =cut
 

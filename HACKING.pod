@@ -36,6 +36,11 @@ Or
 
   ./run
 
+=head1 Patches
+
+Release tarballs can quickly become stale.  For best results, work with
+a checkout of the subversion repository.  See below.
+
 =head1 SVN
 
 The most current development is always in:
@@ -60,5 +65,13 @@ There you will find some directories defined with svn:externals.  These
 allow you to checkout all of the latest dependency code into just a few
 working copies and make it more convenient for us to add or change
 dependencies.
+
+=head1 Coding Standards
+
+TODO
+
+=head1 Mailing Lists
+
+TODO
 
 =cut

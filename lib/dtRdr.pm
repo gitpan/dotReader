@@ -1,5 +1,5 @@
 package dtRdr;
-$VERSION = eval{require version}?version::qv($_):$_ for(0.0.8);
+$VERSION = eval{require version}?version::qv($_):$_ for(0.0.9);
 
 use warnings;
 use strict;
@@ -25,9 +25,11 @@ use constant {
 
 =head1 NAME
 
-dtRdr - toplevel data
+dtRdr - toplevel data/environment for dotReader
 
 =head1 SYNOPSIS
+
+For the dotReader documentation, see L<dtRdr::doc>.
 
 This module handles the initialization and locations.  It will probably
 eventually absorb most of the functionality currently found in the

@@ -118,7 +118,7 @@ sub init {
     # de-billify path so URI doesn't get silly
     $icon_dir =~ s#\\#/#g if($OSNAME eq 'MSWin32');
 
-    dtRdr::Book->callbacks->set_core_link(sub {
+    dtRdr::Book->callback->set_core_link_sub(sub {
       use URI;
       my ($file) = @_;
       return( URI->new(
@@ -129,7 +129,7 @@ sub init {
   }
   { # setup the img_src_rewrite callback
     if($widget->can('img_src_rewrite_sub')) {
-      dtRdr::Book->callbacks->set_img_src_rewrite(
+      dtRdr::Book->callback->set_img_src_rewrite_sub(
         $widget->img_src_rewrite_sub
       );
     }
@@ -285,6 +285,9 @@ sub open_book {
 
   $bv->render_node_by_id($book->toc->id);
   $self->enable('_book');
+
+    $self->enable('_no_drm'); # XXX needs a conditional
+
   $self->disable('navigation_page_up');
   $self->disable('file_add_book'); # default to disabled
   # sorry, we can't handle going back to a destroyed view object yet

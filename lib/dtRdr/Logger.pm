@@ -157,9 +157,9 @@ sub editor {
     # enables lazy evals (for optimization sake)
     $string = $string->();
   }
-  require File::Spec;
+
+  require File::Spec; # bah -- File::Temp won't use tmp with a template
   my ($fh, $filename) = File::Temp::tempfile( 'dr-data-' . 'X'x8,
-    #TMPDIR => 1,
     DIR => File::Spec->tmpdir,
     UNLINK => 1
     );

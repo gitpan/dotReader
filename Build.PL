@@ -36,6 +36,7 @@ my $builder = $build_class->new(
     'Method::Alias'            => 0,
     'Data::GUID'               => 0,
     'Log::Log4perl'            => 1.0,
+    'LWP::Parallel::UserAgent' => 0,
     'XML::Twig'                => 3.22,
     'YAML::Syck'               => 0.67,
     ################################################################

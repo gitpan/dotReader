@@ -1,5 +1,14 @@
 Revision history for dotReader
 
+v0.0.9 Jan 04, 2007
+
+  * added preliminary View->Source menu item
+
+  * cleanup source dist tarball
+  * enormous speed gain in Book.insert_nbh() (page loads)
+  * reworked Book.create_node_characters() for speed/correctness
+    (should eliminate off-by-random search highlights)
+
 v0.0.8 Dec 07, 2006
 
   * mac appbundle/webkit alpha

@@ -25,8 +25,11 @@ sub main {
   my $uri = shift(@args);
   (-e $uri) or die "no file: $uri";
 
-  my $book = dtRdr::Book->new_from_uri($uri);
+  my ($book) = dtRdr::Book->identify_by_uri($uri);
   $book or die;
+  $book = $book->new();
+  1 and $book->set_toc_cache_dirty(1);
+  $book->load_uri($uri);
 
   print $book->toc->yaml_dump;
 

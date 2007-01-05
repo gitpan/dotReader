@@ -1,4 +1,7 @@
+benchmark/anno_insert.pl
+benchmark/book.pm-insert_nbh-r74.pm
 benchmark/load_book.pl
+benchmark/profile_get_content.sh
 benchmark/round-robin_search.pl
 benchmark/segfault_search.pl
 benchmark/substr_considered_harmful.pl
@@ -82,7 +85,6 @@ client/data/log.conf
 client/data/log.conf.par
 client/data/log.conf.tmpl
 client/data/menu.conf
-client/glade_src.wxg
 client/setup/default_drconfig.yml
 client/setup/default_SQL_Library.db.sql
 client/setup/default_thoutconfig.db.sql
@@ -92,12 +94,6 @@ client/setup/thoutconfig.db.sql
 COPYING
 drconfig.yml
 drlib.yml
-drlib_store/copy_ok_check/book.xml
-drlib_store/copy_ok_check/css.css
-drlib_store/copy_ok_check/notes.txt
-drlib_store/copy_ok_check/thout_package.properties
-drlib_store/copy_ok_check/toc_data.toc
-drlib_store/copy_ok_check/toc_data.toc.stb
 drlib_store/FreeBSD_Developers_Handbook.jar
 drlib_store/QuickStartGuide.jar
 example_plugins/dotreader_button/dtRdr/GUI/Wx/Plugins/dtRdrButton.pm
@@ -109,7 +105,6 @@ example_plugins/InfoButton/MANIFEST
 example_plugins/twb_button/dtRdr/GUI/Wx/Plugins/TWBButton.pm
 example_plugins/twb_button/dtRdr/GUI/Wx/Plugins/TWBButton.pm.DATA/twb_logo.png
 HACKING.pod
-inc/bin/glade_autogen_fix.pl
 inc/bin/update_exe_data.pl
 inc/dtRdrBuilder.pm
 inc/dtRdrTestUtil.pm
@@ -131,10 +126,14 @@ lib/dtRdr/Book/ThoutBook_1_0/Rules.pod
 lib/dtRdr/Book/ThoutBook_1_0/Traits.pm
 lib/dtRdr/Book/ThoutBook_1_0_jar.pm
 lib/dtRdr/Bookmark.pm
+lib/dtRdr/BookUtil/AnnoInsert.pm
 lib/dtRdr/Callbacks/Book.pm
 lib/dtRdr/Config.pm
 lib/dtRdr/Config/SQLConfig.pm
 lib/dtRdr/Config/YAMLConfig.pm
+lib/dtRdr/doc.pod
+lib/dtRdr/doc/Book/annotree.pod
+lib/dtRdr/doc/Book/whitespace.pod
 lib/dtRdr/GUI/Wx.pm
 lib/dtRdr/GUI/Wx/BookmarkTree.pm
 lib/dtRdr/GUI/Wx/BookTree.pm
@@ -188,7 +187,9 @@ lib/dtRdr/String/Splicer.pm
 lib/dtRdr/TOC.pm
 lib/dtRdr/Traits/Class.pm
 lib/dtRdr/User.pm
+lib/dtRdr/UserAgent.pm
 lib/List/History.pm
+lib/LWP/Iterator/UserAgent.pm
 lib/MultiTask/Manager.pm
 lib/MultiTask/Minion.pm
 lib/Regexp/PosIterator.pm
@@ -197,6 +198,7 @@ lib/WxPerl/MenuMap.pm
 lib/WxPerl/TreeCtrlMapped.pm
 LICENSE
 MANIFEST			This list of files
+MANIFEST.add
 META.yml
 README
 run
@@ -250,9 +252,11 @@ t/book/positions.t
 t/book/pre_preserved.t
 t/book/qs_chars.yml
 t/book/qs_offsets.yml
+t/book/standard_callbacks.t
 t/book/thout_1_0.t
 t/book/thout_1_0_jar_bsd_dev_hbook.t
 t/book/thout_1_0_jar_perl5.8en.t
+t/callbacks/book.t
 t/config/err_handling.t
 t/config/sql_basic.t
 t/config/testconfig.db
@@ -292,17 +296,14 @@ test_packages/anchors.xml
 test_packages/anno_check_nopos.0/book.css
 test_packages/anno_check_nopos.0/book.xml
 test_packages/anno_check_nopos.0/thout_package.properties
-test_packages/big_section/book.css
-test_packages/big_section/book.toc.gz
-test_packages/big_section/book.xml.gz
-test_packages/big_section/images/bullet.jpg
-test_packages/big_section/thout_package.properties
 test_packages/BOOKMANIFEST
+test_packages/check_img/book.xml
+test_packages/check_img/foo.png
+test_packages/check_img/thout_package.properties
 test_packages/copy_ok_check/book.xml
 test_packages/copy_ok_check/css.css
 test_packages/copy_ok_check/notes.txt
 test_packages/copy_ok_check/thout_package.properties
-test_packages/dotReader_beta_QSG.jar
 test_packages/dr_book_demo/book.xml
 test_packages/dr_book_demo/properties.yml
 test_packages/duplicated_ids/book.xml
@@ -406,11 +407,6 @@ test_packages/selection_check/bsd_big.png
 test_packages/selection_check/bsd_sm.png
 test_packages/selection_check/thout_package.properties
 test_packages/testbook.basicbook
-test_packages/thout1_reference/dppbook10.dtd
-test_packages/thout1_reference/dppbook10.xsd
-test_packages/thout1_reference/ThoutPackageDoc.doc
-test_packages/thout1_reference/ThoutPackageDoc.htm
-test_packages/thout1_reference/w2t_default.css
 test_packages/thout1_test/images/content_dir_tree.jpg
 test_packages/thout1_test/images/dotreader_06a.png
 test_packages/thout1_test/images/lvl1_closed.gif
@@ -420,7 +416,6 @@ test_packages/thout1_test/images/thoutlogo.gif
 test_packages/thout1_test/images/xhtml2thout_pl_1.gif
 test_packages/thout1_test/images/xhtml2thout_pl_2.gif
 test_packages/thout1_test/test.css
-test_packages/thout1_test/thout1_test.html
 test_packages/thout1_test/thout1_test.xml
 test_packages/thout1_test/thout_package.properties
 test_packages/thout1_test_cached/images/content_dir_tree.jpg
@@ -432,11 +427,11 @@ test_packages/thout1_test_cached/images/thoutlogo.gif
 test_packages/thout1_test_cached/images/xhtml2thout_pl_1.gif
 test_packages/thout1_test_cached/images/xhtml2thout_pl_2.gif
 test_packages/thout1_test_cached/test.css
-test_packages/thout1_test_cached/thout1_test.html
 test_packages/thout1_test_cached/thout1_test.toc
 test_packages/thout1_test_cached/thout1_test.xml
 test_packages/thout1_test_cached/thout_package.properties
 test_packages/ThoutPackageDoc.jar
+test_packages/xml_uglies.xml
 util/accessor_report
 util/book_do
 util/BREAK_THIS

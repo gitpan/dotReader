@@ -16,6 +16,7 @@ use dtRdr::TOC;
 use dtRdr::Metadata;
 use dtRdr::String::Splicer;
 use dtRdr::Logger;
+# the callback object is magic class data
 use dtRdr::Callbacks::Book;
 use dtRdr::Selection;
 
@@ -38,9 +39,6 @@ dtRdr::Accessor->rw(qw(
   anno_io
 ));
 my $set_fingerprint = dtRdr::Accessor->ro_w('fingerprint');
-
-# the callbacks object is class data
-dtRdr::Accessor->class_ro(callbacks => dtRdr::Callbacks::Book->new());
 
 use Method::Alias qw(
   has_cached_NC has_cached_node_characters
@@ -811,339 +809,15 @@ Insert the note, bookmark, and highlight data for the given node.
 This also creates the C<cache_chars> data needed for C<locate_string()>
 operations.
 
+TODO a better name (like rapidfire_xml_hatchet or something)
+
+ALSO TODO currently, books need to call this from their get_content() or
+else they have no specialness.  Books really must call this though,
+since e.g. mozilla requires that the images get rewritten as base64
+encoded.
+
 =cut
 
-{
-########################################################################
-# this closure could be almost eliminated with a private method
-########################################################################
-my $get_handlers = sub {
-  my $self = shift;
-  (@_ % 2) and croak("odd number of elements");
-  my (%args) = @_;
-
-$args{todo} or die "ack";
-my @todo = @{$args{todo}};
-
-$args{node} or die "ack";
-my $node = $args{node};
-
-my $output = '';
-my $offset = 0;
-my $chars = '';
-# TODO open_hl, et al are not just highlights anymore
-my %open_hl; # {$obj => ...} ?
-my @hl_order;
-
-my $mk_marker = sub { # XXX is this the best place?
-  my ($anno) = @_;
-  # transforms package name into css class
-  # XXX is this the best way?
-  my $type = lc(ref($anno));
-  # e.g. 'dtRdr::Highlight' => dr_highlight
-  $type =~ s/^\w*::/dr_/;
-  $type =~ s/::/_/g;
-  return(qq(<span class="$type ) . $anno->id . '">');
-};
-
-# If the open highlight is not the one that's ending, then the open one
-# has to tag-hop the ending one.  (TODO optimize for nested case?)
-my $hoppers = sub {
-  # close all open tags, and reopen
-  # XXX this is quite naive
-  my $before = '';
-  my $after = '';
-  foreach my $hl (@hl_order) {
-    $before .= '</span>';
-    $after  .= $mk_marker->($hl);
-  }
-  return($before, $after);
-}; # end $hoppers
-########################################################################
-
-my $splice_nbh  = sub {
-  my ($rec_string, $new_offset) = @_;
-
-  my $splicer = dtRdr::String::Splicer->new($rec_string);
-  while(@todo) {
-
-    # NOTE we want to get in after a tag at the start and before it at
-    # the end -- this allows <p><highlight>foo</highlight></p> to DTRT
-    # XXX but does break links when they get bookmarked :-/
-
-    if(
-      ($todo[0][1]->a == $todo[0][0])
-      ? ($todo[0][0] < $new_offset)  # start
-      : ($todo[0][0] <= $new_offset) # end
-      ) {
-      ($offset <= $todo[0][0]) or
-        die "$offset <= $todo[0][0] < $new_offset failure";
-      0 and WARN("handle $todo[0][0] after $offset and before $new_offset");
-      my $marker;
-
-      my $item = shift(@todo);
-      my $target = $item->[0] - $offset;
-      my $anno = $item->[1];
-      if($anno->isa('dtRdr::Annotation::Range')) {
-        if(exists($open_hl{$anno})) { # closing
-          # get rid of it
-          @hl_order = grep({$_ ne $anno} @hl_order);
-          # and rebuild the index:
-          %open_hl = map({$hl_order[$_] => $_} 0..$#hl_order);
-
-          # now get the hopper bits and make a marker
-          my ($before, $after) = $hoppers->();
-          $marker = $before . '</span>' . $after;
-
-          # notes here
-          if($anno->isa('dtRdr::Note')) {
-            # TODO document the note href convention
-            $marker .=
-              '<a class="dr_note" ' .
-              'name="' .  $anno->id .  '" ' .
-              'href="' .
-                URI->new('dr://LOCAL/' . $anno->id . '.drnt')->as_string .
-              '">' .
-              '<img class="dr_note" src="' .
-              $self->callbacks->img_src_rewrite(
-                $self->callbacks->core_link('dr_note_link.png'),
-                $self
-              ) .
-              '" />' .
-              '</a>' .
-              '';
-          }
-        }
-        else { # opening
-          # The hoppers are not needed here iff we stick to only
-          # inserting <span> elements (because closing span "a" is the
-          # same as closing span "b".)
-
-          # remember where it is and in what order
-          $open_hl{$anno} = push(@hl_order, $anno) -1;
-
-          $marker = '';
-
-          # bookmarks here
-          if($anno->isa('dtRdr::Bookmark')) {
-            $marker .=
-              '<a class="dr_bookmark" ' .
-              'name="' .  $anno->id .  '" ' .
-              'href="' .
-              URI->new('dr://LOCAL/' . $anno->id . '.drbm')->as_string .
-              '">' .
-              '<img class="dr_bookmark" src="' .
-              $self->callbacks->img_src_rewrite(
-                $self->callbacks->core_link('dr_bookmark_link.png'),
-                $self
-              ) .
-              '" />' .
-              '</a>' .
-              '';
-          }
-          elsif($anno->isa('dtRdr::Highlight')) {
-            # anchor for highlights
-            $marker .= '<a class="dr_highlight" ' .
-              'name="' .  $anno->id .  '"></a>';
-          }
-          elsif($anno->isa('dtRdr::AnnoSelection')) {
-            # anchor for finds
-            $marker .= '<a class="dr_selection" ' .
-              'name="' .  $anno->id .  '"></a>';
-          }
-
-          # simple marker
-          $marker .= $mk_marker->($anno);
-
-        }
-      } # end range-ish types
-      else {
-        # some new kind of annotation
-        die "ouch, what's a $anno?";
-      }
-      $splicer->insert($target, $marker);
-    } # end if we-should-do-something
-    else {
-      last;
-    }
-  }
-  return($splicer->string);
-}; # end sub $splice_nbh
-########################################################################
-
-# THE PARSER SUBS
-
-my $flusher;
-my $sh = sub {
-  my ($p, $el, %atts) = @_;
-
-  $flusher->();
-  # TODO some way to not hop if tag pair is fully contained? (Twig!)
-  # tag-hopping for the highlight spans
-  my ($before, $after) = ('','');
-  if(@hl_order) {
-    ($before, $after) = $hoppers->();
-  }
-
-  my $rec_string = $p->recognized_string;
-
-  # running callbacks
-  # TODO some way to disable this if we don't need it?
-  if($el eq 'img') {
-    if(my ($s, $src, $e) = $rec_string =~ m/(.*src=")([^"]+)(.*)/) {
-      $src = $self->callbacks->img_src_rewrite($src, $self);
-      $rec_string = $s . $src . $e;
-    }
-    else {
-      warn "oops $rec_string bit me";
-    }
-  }
-  elsif($el eq 'pkg:outlineMarker') { # XXX needs to be book agnostic
-    my $toc = $node->get_by_id($atts{id});
-    $toc or die "cannot find a toc for this subnode";
-    if($toc->copy_ok) {
-      my $copy_link =
-        '<a class="dr_copy" ' .
-        'href="' .
-          URI->new('dr://LOCAL/'. $toc->id . '.copy')->as_string .
-        '">' .
-        '<img class="dr_copy" src="' .
-          $self->callbacks->img_src_rewrite(
-            $self->callbacks->core_link('dr_copy_link.png'),
-            $self
-          ) .
-        '" /></a>';
-      $after .= $copy_link;
-    }
-  }
-
-  $output .= $before . $rec_string . $after;
-}; # end sh
-
-my $eh = sub {
-  my ($p, $el, %atts) = @_;
-
-  $flusher->();
-  my ($before, $after) = ('','');
-  if(@hl_order) {
-    ($before, $after) = $hoppers->();
-    # don't reopen at the end:
-    ($el eq 'justincasewehavenoroot') and ($after = '');
-    # NOTE that $before also properly closes everything that's open as
-    # long as we always wrap with this funny fakeroot tag
-  }
-  $output .= $before . $p->recognized_string . $after;
-}; # end eh
-
-# because $ch could fire willy-nilly, it is a lot saner,  safer, and
-# more efficient to just accumulate the strings between tags, then $eh
-# and $sh fire a flusher that does everything else
-
-# TODO this sanification means $flusher might be doing useless
-# acrobatics, but we are lacking some test coverage ATM
-
-# SPEED NOTE: this gets to 11000 on bsd ch 16
-my $called_char_handler_count = 0;
-
-my $accum_string = '';
-my $ch = sub {
-  my ($p, $string) = @_;
-  $accum_string .= $string;
-  ## print STDERR length($string), " chars\n";
-  $called_char_handler_count++;
-}; # end ch
-
-$flusher = sub {
-  my $rec_string = $accum_string;
-  $accum_string = '';
-  $rec_string =~ s/&/&amp;/g;
-  $rec_string =~ s/</&lt;/g;
-
-  my $word_chars = $rec_string;
-  # for counting, we say all groups of whitespace are one unit
-  # but crossing tags messes with us a little
-  my $lead = '';
-  unless($chars) { # the very beginning
-    # we don't count leading node whitespace if it is in a node before us
-    if((! $node->is_root) and $self->whitespace_before($node)) {
-      $word_chars =~ s/^\s+//;
-      if($rec_string =~ s/^(\s+)//s) {
-        $lead = $1;
-      }
-    }
-    else {
-      # AFAICT, this only happens on completely contrived books
-      0 and warn "\n\nGAH! no whitespace before ", $node->id, "???!\n\n";
-    }
-  }
-  elsif(substr($chars, -1) eq ' ') { # TO_OPT is m/ $/ faster?
-    # strip leading space if the previous chars had a trailing space
-    $word_chars =~ s/^\s+//;
-    # honor this on the $rec_string too
-    if($rec_string =~ s/^(\s+)//s) {
-      $lead = $1;
-    }
-  }
-  $word_chars =~ s/\s+/ /gs;
-  $chars .= $word_chars;
-
-  # get out early
-  unless(length($word_chars)) {
-    # but don't lose "\n"-only entries (breaks pre-formatted text)
-    $output .= $lead . $rec_string;
-    return;
-  }
-
-  my $new_offset = $offset + length($word_chars);
-
-  # do placement within $rec_string, then put on $output
-  my $spliced = '';
-  $spliced = $splice_nbh->($rec_string, $new_offset)
-    if(length($rec_string));
-
-  $output .= $lead . $spliced;
-
-  $offset = $new_offset;
-  0 and warn "offset now $offset\n",
-    (1 ? "spliced '$spliced'\n" : ' '),
-    (1 ? "chars now '$chars'\n " : ' ');
-}; # end flusher
-
-my $done = sub {
-  $self->cache_node_characters($node, $chars);
-
-  #if(0) { # we have a mess with the parent thing again see is_nesty()
-  #  @todo and warn "what's left: \n",
-  #    join("\n", map({
-  #      my $n = $_->[1]; $n . ' ' . $n->id . ' (' . $n->b . ')'
-  #    } @todo)), "\n\n ";
-  #  my $endpoint = $node->word_end;
-  #  # XXX we'll never hit 359560 here!
-  #  warn "end $endpoint with $offset and cache: ", length($chars), "\n";
-  #  # try just lying to the splicer?
-  #  $offset = $endpoint;
-  #  warn 'splicing: ', $splice_nbh->('.....', $endpoint+1);
-  #}
-
-  L('speed')->debug(
-    "called character handler $called_char_handler_count times"
-  );
-
-  DBG_DUMP('CACHE', 'cache', sub {$chars});
-
-  return($output);
-};
-
-  return({
-    handlers => {
-      Start => $sh,
-      End   => $eh,
-      Char  => $ch,
-    },
-    done => $done
-  });
-}; # end sub $get_handlers
-########################################################################
 sub insert_nbh {
   my $self = shift;
   my ($node, $content) = @_;
@@ -1176,49 +850,21 @@ sub insert_nbh {
   # we have to sort it here to get overlapping highlights to work
   @todo = sort({$a->[0] <=> $b->[0]} @todo);
 
+  use dtRdr::BookUtil::AnnoInsert;
+  my $parser = dtRdr::BookUtil::AnnoInsert->new($self,
+    todo => \@todo,
+    node => $node,
+    xml_callbacks => {$self->xml_callbacks},
+  );
+  $parser->parse($content);
+  my $output = $parser->done;
 
-  ######################################################################
-  # some seemingly odd subref juggling here.  Don't worry.
-
-  # get the handlers
-  my $data = $get_handlers->($self, todo => \@todo, node => $node);
-
-  my $parser = XML::Parser::Expat->new(ProtocolEncoding => 'UTF-8');
-  $parser->setHandlers(%{$data->{handlers}});
-
-  # XXX eek, what does this do to us?
-  my $root = 'justincasewehavenoroot';
-
-  # these appear to make no difference
-  $content =~ s/^(\s*)//;
-  my $leading_ws = $1 || '';
-  $content =~ s/(\s*)$//;
-  my $trailing_ws = $1 || '';
-
-  eval { $parser->parse("<$root>$content</$root>") };
-  if($@) {
-    DBG_DUMP('PARSE', 'thecontentin.xml', sub{$content});
-    die "XML parsing failed $@ ";
-  }
-
-  # finish
-  my $output = $data->{done}->();
-
-  $output =~ s/^<$root>// or die 'cannot get rid of my fake start tag';
-  $output =~ s/<\/$root>$// or
-    die 'cannot get rid of my fake end tag >>>' ,
-      substr($output, -100) ,'<<<';
-
-  # put the whitespace back
-  $output = $leading_ws . $output . $trailing_ws;
-  ######################################################################
   DBG_DUMP('INSERT', 'thecontent.xml', sub {$output});
 
   RL('#speed')->info('insert_nbh done');
 
   return($output);
 } # end subroutine insert_nbh definition
-} # and the closure
 ########################################################################
 
 =head2 locate_string
@@ -1423,6 +1069,15 @@ sub reduce_word_scope {
 } # end subroutine reduce_word_scope definition
 ########################################################################
 
+=head1 Character Cache Management
+
+The characters (for use in annotation placement) are cached by
+insert_nbh(), but can also be created and managed with these methods.
+
+The cache is currently permanent WRT the life of the object.  This is,
+of course, a slow memory leak.  If you're short on ram, please send
+code and/or time.
+
 =head2 has_cached_node_characters
 
   my $bool = $book->has_cached_node_characters($node);
@@ -1519,6 +1174,9 @@ sub create_node_characters {
   $content or die("got no content for node: ", $node->id);
 
   my $chars;
+
+  # NOTE the difference is 33.8s vs 20.0s for dr_search perl.book 'open'
+
   if(0) { # these are not the slow droids you're looking for
     my $twig = XML::Twig->new( keep_spaces => 1 );
     eval { $twig->parse($content); };
@@ -1529,12 +1187,38 @@ sub create_node_characters {
     $chars =~ s/</&lt;/g;
   }
   else { # this is slightly faster, but maybe still not correct
+
+    # NOTE particularly, we seem to have trouble with various forms of
+    # whitespace (probably causes some position issues.)
+
+    # ALSO unless we get the utf8 magic straight, HTML::Entities will
+    # get it all wrong
+
+    # NOTE we don't support character declarations doing it like this --
+    # but we would need to weld that into $content to make twig happy
+    # above anyway.
+
     $chars = $content;
     $chars =~ s/<[^>]+>//g;
     require HTML::Entities;
+    require Encode;
+
+    # make sure it is unicode
+    $chars = Encode::decode_utf8($chars); 
+
+    # may want to check that at some point
+    #Encode::is_utf8($chars) or die "ack";
+    #utf8::valid($chars) or die "ack";
+
+    # now de-entity it all
     $chars = HTML::Entities::decode_entities($chars);
-    if(0) { utf8::upgrade($chars); }
-    else { $chars =~ s/[\xA0\x{85}\x{2028}\x{2029}]+/ /g; }
+
+    my $kill_spaces = '' .
+      chr(160) . # is &nbsp;/&#160;
+      "\x{85}" .
+      "\x{2028}\x{2029}" .
+      '';
+    $chars =~ s/[$kill_spaces]+/ /g;
     $chars =~ s/&/&amp;/g;
     $chars =~ s/</&lt;/g;
   }
@@ -1620,6 +1304,200 @@ sub visible_nodes {
   });
   return(@vis);
 } # end subroutine visible_nodes definition
+########################################################################
+
+=head1 XML processing
+
+
+=head2 xml_callbacks
+
+Gets the xml callbacks for xml rewrite processing.
+
+  my %dispatch = $book->xml_callbacks;
+
+This %dispatch table will contain C<start> and C<end> keys, below which
+will be keys for individual xml elements (aka 'a', 'img', etc.)
+
+For the basic case of adding or overriding element handlers, plugins
+should define the augment_xml_callbacks() method rather than overriding
+this method.  No mechanism is provided or planned for chained handlers
+-- in that case you should override, then curry as needed.
+
+Callbacks are fired during the parse() method of
+dtRdr::BookUtil::AnnoInsert.  The parameters are as follows.
+
+  $subref->(
+    $book,
+    node       => $node,
+    parser     => $parser,
+    attributes => \%atts,
+    before     => \$before,
+    during     => \$during,
+    after      => \$after
+  );
+
+The $before, $during, and $after references are strings which the plugin
+should modify as needed.
+
+Note that this is very similar to the XML start/end handler.  The only
+thing missing is the element name (you know that already.)
+
+=over
+
+=item $book
+
+The book object (aka $self.)
+
+=item parser
+
+The Expat object.
+
+=item attributes
+
+The %atts hash which was fed to the tag handler by the parser (only in
+start tag.)
+
+=item before
+
+A reference to the hoppers string intended to be placed before the
+element.
+
+=item during
+
+A referenc to the $parser->recognized_string value.
+
+=item after
+
+A refenece to the hoppers string intended to be placed after the
+element.
+
+=back
+
+Note (again) that before, during, and after are *references* to strings.
+This is speed-critical, or else the API would be more user-friendly.
+
+=over
+
+=item Variably-Named Elements
+
+=over
+
+=item _content_node
+
+This key is replaced with the value of $book->XML_CONTENT_NODE (or
+dropped if there is no such method.)  This builtin callback provides the
+copy_ok handling (and maybe more later.)
+
+=back
+
+=back
+
+=cut
+
+sub xml_callbacks {
+  my $self = shift;
+
+  my %callbacks = $self->_standard_xml_callbacks;
+
+  # rename the _content_node handlers
+  foreach my $set (keys(%callbacks)) {
+    if(my $item = delete($callbacks{$set}{_content_node})) {
+      if($self->can('XML_CONTENT_NODE')) {
+        my $node_name = $self->XML_CONTENT_NODE;
+        exists($callbacks{$set}{$node_name}) and
+          croak("cannot have '$node_name' as your XML_CONTENT_NODE");
+        $callbacks{$set}{$node_name} = $item;
+      }
+    }
+  }
+
+  # TODO the other part
+  # my %child_says = $self->augment_xml_callbacks;
+  # XXX actually won't have a use for that yet
+
+  return(%callbacks);
+} # end subroutine xml_callbacks definition
+########################################################################
+
+=head2 _standard_xml_callbacks
+
+Just a constant, but may be overridden.
+
+  my %dispatch = $self->_standard_xml_callbacks;
+
+=cut
+
+sub _standard_xml_callbacks {
+  my $self = shift;
+
+  # only do this once per xml run
+  my $copy_image = $self->get_callbacks->img_src_rewrite(
+    $self->get_callbacks->core_link('dr_copy_link.png'),
+    $self
+  );
+
+  return(
+  start => {
+    'img' => sub { # TODO only if there's an img_src_rewrite installed
+      my $self = shift;
+      my %params = @_;
+
+      my $str = $params{during};
+      if(my ($s, $src, $e) = $$str =~ m/(.*src=")([^"]+)(.*)/) {
+        $src = $self->get_callbacks->img_src_rewrite($src, $self);
+        $$str = $s . $src . $e;
+      }
+    }, # img
+    '_content_node' => sub { # is hopefully book-agnostic
+      my $self = shift;
+      my %params = @_;
+
+      my $aft = $params{after};
+      my $node = $params{node};
+      my $toc = $node->get_by_id($params{attributes}{id});
+      $toc or die "cannot find a toc for this subnode";
+      if($toc->copy_ok) {
+        my $copy_link =
+          '<a class="dr_copy" ' .
+          'href="' .
+            URI->new('dr://LOCAL/'. $toc->id . '.copy')->as_string .
+          '">' .
+          '<img class="dr_copy" src="' . $copy_image . '" /></a>';
+        $$aft .= $copy_link;
+      }
+    }, # _content_node
+    'a' => sub {
+      my $self = shift;
+      my %params = @_;
+
+      my $str = $params{during};
+      if(my ($s, $href, $e) = $$str =~ m/(.*href=")([^"]+)(.*)/) {
+        my $refsub = sub { # TODO is its own callback?
+          my ($ref) = @_;
+          my $render_id = $self->id;
+          if($ref =~ m/^pkg:/) { # explicit, but maybe dirty
+            my $uri = URI->new($ref);
+            my $auth = $self->_id_escape(
+              URI::Escape::uri_unescape($uri->authority) # bah
+            );
+            my $rstring =
+              'pkg://' . $auth . $uri->path;
+            return($rstring);
+          }
+          elsif($ref !~ m/^\w{3,6}:/) { # relative link
+            my $rstring = 'pkg://'. $render_id . '/'.
+                      URI->new($ref)->as_string;
+            return($rstring);
+          }
+        };
+        $href = $refsub->($href);
+        $$str = $s . $href . $e;
+      }
+    }, # a
+  }, # start
+  end => {},
+  );
+} # end subroutine _standard_xml_callbacks definition
 ########################################################################
 
 =head1 See Also

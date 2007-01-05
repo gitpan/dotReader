@@ -54,6 +54,7 @@ sub new {
   $self = $self->__wx_glade_sub_new(
     $parent, $id, $title, $pos, $size, $style, $name
     );
+  #$self->setup_progressbar;
 
   return $self;
 } # end subroutine new definition

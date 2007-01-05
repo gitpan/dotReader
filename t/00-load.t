@@ -61,7 +61,7 @@ delete($skip{'dtRdr::HTMLShim::WxHTML'});
 # skips
 @modlist = grep({!$skip{$_}} @modlist);
 
-ok(scalar(@modlist));
+ok(scalar(@modlist)) or BAIL_OUT("no modules found");
 
 # try just loading them all and get out if it works
 # (TODO 1.5s is still pretty slow compared to checking md5sums...)

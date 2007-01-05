@@ -20,6 +20,7 @@ if($^O eq 'darwin') {
 BEGIN {
   if($^O eq 'darwin') {
     eval { require Module::Build::Plugins::MacBundle };
+    $@ and warn "features missing -- $@";
     #Module::Build::Plugins::MacBundle->import('ACTION_appbundle')
     #  unless($@);
   }
@@ -108,60 +109,6 @@ sub ACTION_db_version {
   print "DBD::SQLite:  $results[0]\n";
   print "sqlite3:      $results[1]\n";
 
-}
-
-sub ACTION_glade {
-  my $self = shift;
-  # oops, glade expects to see this there
-  my @keepers = qw(
-    MainFrame.pm
-    NoteEditor.pm
-    TextViewer.pm
-  );
-
-  my $src_dir = 'lib/dtRdr/GUI/Wx/';
-  my $gld_dir = 'client/';
-  foreach my $file (@keepers) {
-    rename($src_dir . $file, $gld_dir . $file)
-      or die "error in migrating $file to $gld_dir $!";
-    # glade misbehaves if we use a real package name, so we'll lie
-    system($self->perl, '-i.bak', '-pe',
-      's/^package dtRdr::GUI::Wx::/package /',
-      $gld_dir . $file);
-  }
-  chdir('client') or die;
-  warn "running wxglade\n";
-  system('wxglade', '-g', 'perl', 'glade_src.wxg') and die;
-  chdir('..') or die;
-  warn "running fixup\n";
-  # get the .pm's out of client and into lib ...
-  foreach my $file (@keepers) {
-    rename($gld_dir . $file, $src_dir . $file)
-      or die "error in migrating $file from $gld_dir $!";
-    # two wrongs make a right
-    system($self->perl, '-i.bak', '-pe',
-      's/^package /package dtRdr::GUI::Wx::/',
-      $src_dir . $file);
-    unlink($src_dir . $file . '.bak');
-  }
-  if (1) {
-    # glade should quit generating stubs I don't want!
-    for(glob('client/*.pm'), glob('client/*.pm.bak')) {
-      warn "killing '$_'\n";
-      unlink($_);
-    }
-    require File::Path;
-    File::Path::rmtree('client/dtRdr');
-  }
-  foreach my $file (@keepers) {
-    $self->run_perl_command(
-      [
-        'inc/bin/glade_autogen_fix.pl',
-        $src_dir . $file
-      ],
-    );
-  }
-  # TODO: parse glade file and generate ro accessors
 }
 
 sub ACTION_run_client {
@@ -402,6 +349,13 @@ sub _my_args {
   }
   return(%args);
 }
+sub additional_deps {
+  qw(
+    dtRdr::Library::SQLLibrary
+    Log::Log4perl::Appender::File
+    Log::Log4perl::Appender::Screen
+  );
+}
 sub ACTION_par {
   my $self = shift;
 
@@ -489,10 +443,7 @@ sub ACTION_par {
       ));
   }
   
-  my @add_mods = qw(
-    dtRdr::Library::SQLLibrary
-    Log::Log4perl::Appender::File
-  );
+  my @add_mods = $self->additional_deps;
 
   my @modules = grep({$_ !~ m/^dtRdr::HTMLShim/} keys(%{{$self->_module_map()}}));
 
@@ -593,6 +544,9 @@ sub ACTION_appbundle {
 
   $self->depends_on('datadir');
   local $self->{args}{deps} = 1;
+  my $libs = $self->find_pm_files;
+  local $self->{properties}{mm_also_scan} = [keys(%$libs)];
+  local $self->{properties}{mm_add} = [$self->additional_deps];
   my $mm = # TODO some way to do that with SUPER::
     Module::Build::Plugins::MacBundle::ACTION_appbundle($self, @_);
 
@@ -606,11 +560,11 @@ sub ACTION_appbundle {
     File::Path::mkpath($dest) or die "$dest $!";
   }
   warn "copy to $dest";
-  system('rsync', '-av', '--delete',
+  system('rsync', '-a', '--delete',
     $mm->built_dir . '/', $dest . '/') and die;
 
   # datadir
-  system('rsync', '-av', '--delete',
+  system('rsync', '-a', '--delete',
     $self->datadir . '/', "$dest/Contents/Resources/data/") and die;
 
 } # end subroutine ACTION_appbundle definition
@@ -748,16 +702,16 @@ sub ACTION_starter_data {
   # TODO have a manifest for shippable books?
   # actually, need to get this out of the picture
   my @books = (
-    map({'test_packages/' . $_}
+    map({'books/default/' . $_}
       map({$_ . '.jar'}
         qw(
           dotReader_beta_QSG
-          other/Alienation_Victim
-          other/publication_556
-          other/rebel-w-o-car
-          other/seventy_five_times
-          other/Reflections
-          other/dpp_reader
+          Alienation_Victim
+          publication_556
+          rebel-w-o-car
+          seventy_five_times
+          Reflections
+          dpp_reader
         )
       ),
     ),
@@ -875,7 +829,7 @@ sub ACTION_binpush {
       ),
     )
   ) and die;
-  $dosystem->('rsync', '-rvz', $self->binary_build_dir . '/', 
+  $dosystem->('rsync', '-rz', $self->binary_build_dir . '/', 
     $server . ':' . $dir . '/' . $release . '/') and die;
 
 } # end subroutine ACTION_binpush definition
@@ -953,6 +907,50 @@ sub ACTION_package_push {
     and die;
 } # end subroutine ACTION_package_push definition
 ########################################################################
+# TODO this is getting silly -- refactor
+# TODO also, add cpan-upload http://dotreader.com/site/files/downloads/$file
+sub ACTION_dist_push {
+  my $self = shift;
+
+  my %opts = $self->_my_args;
+
+  my $src = $self->dist_dir . '.tar.gz';
+  (-e $src) or die "no file $src";
+
+  my $data = $self->server_details;
+  my $server = $data->{server} or die;
+  my $dir = $data->{directory} or die;
+  $dir .= '/downloads/';
+
+  my $file = File::Basename::basename($src);
+
+  {
+    # only good way to ensure it isn't there already because BSD won't
+    # return remote command exit status
+    my ($in, $out, $err);
+    require IPC::Run;
+    IPC::Run::run(['ssh', $server,
+      "test '!' -e $dir/$file && echo ok"],
+      \$in, \$out, \$err) or die "command failed $err";
+    ($out eq "ok\n") or die "'$dir/$file' already exists";
+  }
+  my $current = $file;
+  my $ext = $self->distfile_extension;
+  $current =~ s/-v\d.*?(\Q$ext\E)$/-current$1/ or die;
+  $dosystem->('ssh', $server, 
+    join(" && ",
+      "cp -H $dir/$current $dir/$file",
+      (
+  # TODO link for bleed/etc when --version-force (or version-bump) is on
+        $opts{nolink} ? () :
+        ("rm $dir/$current", "ln -s $file $dir/$current")
+      ),
+    )
+  ) and die;
+  $dosystem->('rsync', '-vz', $src, $server . ':' . "$dir/$file")
+    and die;
+} # end subroutine ACTION_dist_push definition
+########################################################################
 } # end closure
 
 # TODO put this in dtRdr.pm?
@@ -1014,16 +1012,15 @@ sub svn_tag {
 
 sub ACTION_binary_release {
   my $self = shift;
-  $self->depends_on('par');
-  $self->depends_on('starter_data');
+  my %args = $self->_my_args;
+  $self->depends_on( ($^O eq 'darwin') ?  'appbundle' : 'par' );
+  $args{bare} or $self->depends_on('starter_data');
 } # end subroutine ACTION_binary_release definition
 ########################################################################
 
 sub ACTION_binary_package {
   my $self = shift;
-  my %args = $self->_my_args;
-  $self->depends_on( ($^O eq 'darwin') ?  'appbundle' : 'par' );
-  $args{bare} or $self->depends_on('starter_data');
+  $self->depends_on('binary_release');
   my %choice = map({$_ => $_} qw(darwin MSWin32));
   my $method = 'binary_package_' . ($choice{$^O} || 'linux');
   $self->$method;
@@ -1347,6 +1344,15 @@ sub ACTION_build {
 } # end subroutine ACTION_build definition
 ########################################################################
 
+sub ACTION_manifest {
+  my $self = shift;
+  $self->SUPER::ACTION_manifest;
+  open(my $afh, '<', 'MANIFEST.add') or die;
+  open(my $mfh, '>>', 'MANIFEST') or die;
+  print $mfh join('', <$afh>);
+} # end subroutine ACTION_manifest definition
+########################################################################
+
 =begin devnotes
 
 =head1 WHAT'S ALL THIS THEN?
@@ -1497,10 +1503,6 @@ db_load.
 
 Displays your DBD::SQlite and sqlite3 versions.
 
-=item glade
-
-Regenerate and fixup MainFrame.pm
-
 =item run_client
 
 basically:
@@ -1570,6 +1572,8 @@ on the next BUILD par)
 
 =item binpush
 
+OBSOLETE
+
 Push and symlink binary_build/ to the server/directory specified in
 server_details.yml
 
@@ -1586,6 +1590,14 @@ server_details.yml file.
 =item traceuse
 
 List used modules.
+
+=item package_push
+
+Push the packaged binary release for the current platform.
+
+=item dist_push
+
+Push the source tarball.
 
 =back
 

@@ -1,9 +1,9 @@
 ---
 name: dotReader
-version: v0.0.8
+version: v0.0.9
 author:
   - OSoft Inc.
-abstract: toplevel data
+abstract: toplevel data/environment for dotReader
 license: gpl
 resources:
   license: http://www.opensource.org/licenses/gpl-license.php
@@ -16,6 +16,7 @@ requires:
   DBI: 0
   Data::GUID: 0
   File::NCopy: 0
+  LWP::Parallel::UserAgent: 0
   Log::Log4perl: 1
   Method::Alias: 0
   Module::Finder: 0.001001
@@ -32,6 +33,9 @@ build_requires:
   Devel::TraceUse: 0
   PAR: 0
 provides:
+  LWP::Iterator::UserAgent:
+    file: lib/LWP/Iterator/UserAgent.pm
+    version: v0.0.1
   List::History:
     file: lib/List/History.pm
     version: 0.01
@@ -57,7 +61,7 @@ provides:
     version: 0.01
   dtRdr:
     file: lib/dtRdr.pm
-    version: v0.0.8
+    version: v0.0.9
   dtRdr::Accessor:
     file: lib/dtRdr/Accessor.pm
     version: 0.01
@@ -92,12 +96,15 @@ provides:
   dtRdr::Book::ThoutBook_1_0_jar:
     file: lib/dtRdr/Book/ThoutBook_1_0_jar.pm
     version: 0.01
+  dtRdr::BookUtil::AnnoInsert:
+    file: lib/dtRdr/BookUtil/AnnoInsert.pm
+    version: v0.0.1
   dtRdr::Bookmark:
     file: lib/dtRdr/Bookmark.pm
     version: 0.01
   dtRdr::Callbacks::Book:
     file: lib/dtRdr/Callbacks/Book.pm
-    version: 0.01
+    version: v0.1.1
   dtRdr::Config:
     file: lib/dtRdr/Config.pm
   dtRdr::Config::SQLConfig:
@@ -253,6 +260,9 @@ provides:
     version: 0.01
   dtRdr::User:
     file: lib/dtRdr/User.pm
+  dtRdr::UserAgent:
+    file: lib/dtRdr/UserAgent.pm
+    version: v0.0.1
 generated_by: Module::Build version 0.280501
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.2.html

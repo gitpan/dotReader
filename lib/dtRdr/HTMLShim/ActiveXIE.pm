@@ -423,13 +423,13 @@ sub get_scroll_pos {
 } # end subroutine get_scroll_pos definition
 ########################################################################
 
-=begin Workaround Notes
+=begin Workaround-Notes
 
 We have to set a trap for the events, since the widget doesn't block on
 a load_url.  It currently looks like only the website scroll position
 will end up in this situation.  No, I'm not happy with it.
 
-=end Workaround Notes
+=end Workaround-Notes
 
 =cut
 

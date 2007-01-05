@@ -26,6 +26,8 @@ dtRdr::Annotation::Range - range-derived annotations
 
 =cut
 
+=head1 Misc Methods
+
 =head2 renode
 
   $hl->renode($node, %props);

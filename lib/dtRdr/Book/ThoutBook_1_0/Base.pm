@@ -26,6 +26,9 @@ ro qw(
 );
 no  Class::Accessor::Classy;
 
+# set this for Book.pm
+use constant XML_CONTENT_NODE => 'pkg:outlineMarker';
+
 use dtRdr::Book::ThoutBook_1_0::Traits qw(
   _boolify
 );
@@ -562,10 +565,12 @@ my $sh = sub {
     }
     ####################################################################
 
-    # range with no ending location. We'll fill that in later
-    my $range = dtRdr::Range->new(id => $id, start => $sloc, end => undef);
+    my $range = dtRdr::Range->new(id => $id,
+      start => $sloc,
+      end   => undef # We'll fill that in later
+    );
 
-    # Create the TOC entry
+    # TOC entry args
     my %args = (
       title   => $name,
       visible => _boolify($atts{visible}),
@@ -586,7 +591,7 @@ my $sh = sub {
       # create child in current parent
       $toc = $toc->create_child($id, $range, \%args);
     }
-    DEBUG and L('toc')->debug("+"x(scalar($toc->ancestors)), $toc->id, "\n");
+    DEBUG and L('toc')->debug("+"x(scalar($toc->ancestors)), $toc->id);
 
   } # pkg:outlinemarker
   elsif($el eq 'pkg:package') {
@@ -612,19 +617,17 @@ my $sh = sub {
   return;
 }; # $sh sub
 
-# TODO if we have storage for the annotation offset table, we won't need
-# to run this except on the first open of a book (though maybe rogue
-# books always run it) -- but there are still issues where the metadata
-# is in the book and not the package so maybe just return an undef $ch
-# handler
-
-# TODO dude!  we don't need to do build_toc() at all for known books!
-# the entire thing could be built server-side
+# TODO there are still issues where the metadata is in the book and not
+# the package so maybe just skip the character counting rather than the
+# entire parse -- or possibly just setup a set of very wee handlers?
+# (e.g. maybe with twig since we can prune the outlineMarker nodes.)
+# Note that we can't actually put everything in the cached toc because
+# it couldn't be encrypted there.
 
 my $w_offset = 0;
 my $tr_wsp = 0;
 my $ch = sub {
-  my ($p, $string) = @_;
+  my ($p, $string) = @_; # XXX $string is utf8
 
   $string =~ s/&/&amp;/g;
   $string =~ s/</&lt;/g;
@@ -664,7 +667,7 @@ my $eh = sub {
   my $eloc = dtRdr::Location->new($self,
     # where we are, plus the rest of the tag
     $p->current_byte + length($p->original_string)
-    );
+  );
 
   # finish the open range object
   $toc->get_range->set_end($eloc);
@@ -674,7 +677,7 @@ my $eh = sub {
     $toc->set_word_end($w_offset);
   }
 
-  DEBUG and L('toc')->debug("-"x(scalar($toc->ancestors)), $toc->id, "\n");
+  DEBUG and L('toc')->debug("-"x(scalar($toc->ancestors)), $toc->id);
 
   # go back up...
   $toc = $toc->get_parent;
@@ -807,7 +810,7 @@ sub get_content {
 
   my $content = $self->get_trimmed_content($toc);
   DBG_DUMP('DBG_TRIMMED', 'trimmed.html', sub {$content});
-  $content = $self->parse_content($content);
+
   # now we should insert nbh data and grab a character cache
   $content = $self->insert_nbh($toc, $content);
 
@@ -945,77 +948,6 @@ sub get_raw_content {
   my ($start, $end) = ($toc->range->a, $toc->range->b);
   return(substr($self->{xml_content}, $start, $end - $start));
 } # end subroutine get_raw_content definition
-########################################################################
-
-=head2 parse_content
-
-Perform fixup on links and remove non-rendered content.
-
-  $content = $self->parse_content($content);
-
-=cut
-
-sub parse_content {
-  my $self = shift;
-  my ($content) = @_;
-
-  my $render_id = $self->id;
-  # TODO there's too much happening here
-  #   we need to
-  #     a.  whittle-down the content
-  #     b.  rewrite links
-  # (b could easily be handled as an insert_nbh() callback)
-  # (a IS NOW done in get_trimmed_content())
-  #   (THUS:  WE DO NOT NEED THIS METHOD!)
-
-  my $cut_counter = 0;
-
-  # NOTE twig is encoding the output so &#8482; turns into one character
-  my $t= XML::Twig->new(
-    keep_spaces => 1, # required!
-    twig_handlers => {
-      # I'm leaving these two here in case we find an example of breakage:
-      # TOCUT {{{
-      'pkg:outlineMarker[@render="false"]' => sub {
-        # XXX why was cut still passing the toplevel when it is render=0 ?
-        $_->cut;
-        $cut_counter and Carp::confess("ack $_");
-        $cut_counter++;
-      },
-      (1 ? ('pkg:outlineMarker[@renderchildren="false"]' => sub {
-        my ($o, $bit) = @_;
-        if(my @c = $bit->children('pkg:outlineMarker')) {
-          die("children! @c");
-        }
-        #$_->cut for($bit->children('pkg:outlineMarker'));
-      }) : ()),
-      # TOCUT }}}
-      # TODO link rewriting as a book callback
-      (1 ? (a => sub {
-        my ($o, $bit) = @_;
-        my $ref = $bit->{att}{href};
-        $ref or return;
-        if($ref =~ m/^pkg:/) { # explicit, but maybe dirty
-          my $uri = URI->new($ref);
-          my $auth = $self->_id_escape(
-            URI::Escape::uri_unescape($uri->authority) # bah
-          );
-          my $rstring =
-            'pkg://' . $auth . $uri->path;
-          $bit->set_att(href => $rstring);
-        }
-        elsif($ref !~ m/^\w{3,6}:/) { # relative link
-          my $rstring = 'pkg://'. $render_id . '/'.
-                    URI->new($ref)->as_string;
-          $bit->set_att(href => $rstring);
-        }
-      }) : ()),
-    },
-  );
-  $t->parse($content);
-  my $html = $t->sprint;
-  return($html);
-} # end subroutine parse_content definition
 ########################################################################
 
 =head2 url_for

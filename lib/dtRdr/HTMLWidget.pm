@@ -20,11 +20,13 @@ use Wx qw(
 
 use dtRdr::Logger;
 
-use dtRdr::Accessor;
-dtRdr::Accessor->rw qw(
+use Class::Accessor::Classy;
+rw qw(
   load_in_progress
   zoom
 );
+rs html_source => \ (my $set_html_source);
+no  Class::Accessor::Classy;
 
 
 =head1 NAME
@@ -194,9 +196,9 @@ sub render_HTML {
   $self->{load_in_progress} = 1;
   # XXX shouldn't need this filtering anymore
   # $html = $self->filter_HTML($html, $dh);
-  if(0) {open(my $fh, '>', File::Spec->tmpdir . '/filtered.html'); print $fh $html};
+  DBG_DUMP('FILTERED', 'filtered.html', sub {$html});
   my $status = $self->SetPage($html);
-  $self->{html_source} = $html;
+  $self->$set_html_source($html);
   $self->{load_in_progress} = 0;
   return $status;
 } # end subroutine render_HTML definition
