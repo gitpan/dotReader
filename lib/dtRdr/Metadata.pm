@@ -1,4 +1,5 @@
 package dtRdr::Metadata;
+$VERSION = eval{require version}?version::qv($_):$_ for(0.0.1);
 
 use warnings;
 use strict;
@@ -66,11 +67,13 @@ sub library {
 }
 
 
-=item add(name, value)
+=head2 add
 
 Add a new value for a key in a metadata object. If there's already a
 value for that named key this is added to it, making the value an
 array of values if it wasn't already.
+
+  $meta->add(name, value);
 
 =cut
 
@@ -86,9 +89,12 @@ sub add {
   }
 }
 
-=item serialize($element, $value)
+=head2 serialize
 
-Takes an element name and a value for that element and returns a serializable version of that value
+Takes an element name and a value for that element and returns a
+serializable version of that value
+
+  $meta->serialize($element, $value);
 
 =cut
 
@@ -97,10 +103,12 @@ sub serialize {
   return $value;
 }
 
-=item deserialize($element, $value)
+=head2 deserialize
 
 Take an element name and a serialized value for that element and
 reconstitute the object for that element.
+
+  $meta->deserialize($element, $value);
 
 =cut
 
@@ -127,11 +135,13 @@ sub matches {
   return 1;
 }
 
-=item within($point)
+=head2 within
 
 Returns true if the metadata element contains the point. Metadata
 elements with no range attached will return false, as will elements in
 a different book.
+
+  $meta->within($point);
 
 =cut
 

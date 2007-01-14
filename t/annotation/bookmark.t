@@ -5,9 +5,19 @@
 use strict;
 use warnings;
 
-use Test::More (
-  'no_plan'
-  );
+use inc::testplan(1,
+  0
+  + 3  # use_ok
+  + 2  # open_book
+  + 3 * 7  # check_toc
+  + 1 * 8  # expect
+  + 4 * 1  # find_test
+  + 1 * 1  # mk_bookmark 
+  + 3 * 3  # bookmark_test
+  + 3 * 2  # note_test
+  + 2 # oddballs
+  - 1 # I dunno
+);
 
 BEGIN { use_ok('dtRdr::Book::ThoutBook_1_0') };
 BEGIN {use_ok('dtRdr::Bookmark');}

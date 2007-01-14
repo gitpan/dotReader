@@ -1,10 +1,10 @@
 package dtRdr::GUI::Wx::BookTree;
+$VERSION = eval{require version}?version::qv($_):$_ for(0.10.1);
 
 use warnings;
 use strict;
 use Carp;
 
-our $VERSION = '0.01';
 
 use base 'dtRdr::GUI::Wx::Tree::Base';
 

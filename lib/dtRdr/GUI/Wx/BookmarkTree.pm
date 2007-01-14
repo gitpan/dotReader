@@ -1,9 +1,9 @@
 package dtRdr::GUI::Wx::BookmarkTree;
+$VERSION = eval{require version}?version::qv($_):$_ for(0.10.1);
 
 use warnings;
 use strict;
 
-our $VERSION = '0.01';
 use Carp;
 
 use base 'dtRdr::GUI::Wx::Tree::AnnoBase';

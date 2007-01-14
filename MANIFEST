@@ -1,10 +1,3 @@
-benchmark/anno_insert.pl
-benchmark/book.pm-insert_nbh-r74.pm
-benchmark/load_book.pl
-benchmark/profile_get_content.sh
-benchmark/round-robin_search.pl
-benchmark/segfault_search.pl
-benchmark/substr_considered_harmful.pl
 Build.PL
 Changes
 client/app.pl
@@ -24,6 +17,7 @@ client/data/gui_default/icons/dr_bookmark_link.png
 client/data/gui_default/icons/dr_copy_link.png
 client/data/gui_default/icons/dr_note_link.png
 client/data/gui_default/icons/dr_note_link_yellow.png
+client/data/gui_default/icons/dr_notethread_link.png
 client/data/gui_default/icons/editpaste.png
 client/data/gui_default/icons/encrypted.png
 client/data/gui_default/icons/exit.png
@@ -112,6 +106,7 @@ inc/dtRdrTestUtil/ABook.pm
 inc/dtRdrTestUtil/Expect.pm
 inc/dtRdrTestUtil/GUI.pm
 inc/loginit.pm
+inc/testplan.pm
 lib/dtRdr.pm
 lib/dtRdr/Accessor.pm
 lib/dtRdr/Annotation.pm
@@ -174,6 +169,7 @@ lib/dtRdr/Logger.pm
 lib/dtRdr/Logger/Appender/File.pm
 lib/dtRdr/Metadata.pm
 lib/dtRdr/Note.pm
+lib/dtRdr/NoteThread.pm
 lib/dtRdr/PluginHelpers/Data.pm
 lib/dtRdr/Plugins.pm
 lib/dtRdr/Plugins/Base.pm
@@ -217,8 +213,10 @@ t/annotation/bookmark.t
 t/annotation/highlight.t
 t/annotation/note.t
 t/annotation/note_nopos.0.t
+t/annotation/note_thread.0.t
 t/annotation/selection.t
 t/annotation/serializer.t
+t/annotation/serializer_note_thread.t
 t/book/1.0_testbook/book_load.t
 t/book/1.0_testbook/book_rules.t
 t/book/1.0_testbook/page-next_back.t
@@ -406,6 +404,13 @@ test_packages/selection_check/bsd.css
 test_packages/selection_check/bsd_big.png
 test_packages/selection_check/bsd_sm.png
 test_packages/selection_check/thout_package.properties
+test_packages/t1.short/book.xml
+test_packages/t1.short/style.css
+test_packages/t1.short/thout_package.properties
+test_packages/t1B/book.xml
+test_packages/t1B/css.css
+test_packages/t1B/thout_package.properties
+test_packages/t1B/wee.png
 test_packages/testbook.basicbook
 test_packages/thout1_test/images/content_dir_tree.jpg
 test_packages/thout1_test/images/dotreader_06a.png
@@ -443,6 +448,7 @@ util/guid
 util/list_plugins
 util/macrun
 util/mk_library
+util/mk_stupid_annotations
 util/piecewise_toc
 util/show_book
 util/show_section

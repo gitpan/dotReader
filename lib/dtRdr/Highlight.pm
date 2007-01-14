@@ -1,11 +1,13 @@
 package dtRdr::Highlight;
+$VERSION = eval{require version}?version::qv($_):$_ for(0.10.1);
 
 use warnings;
 use strict;
 
-our $VERSION = '0.01';
 
 use base 'dtRdr::Annotation::Range';
+
+use constant {ANNOTATION_TYPE => 'highlight'};
 
 =head1 NAME
 

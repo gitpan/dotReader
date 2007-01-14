@@ -3,9 +3,10 @@
 use strict;
 use warnings;
 
-use Test::More (
-  'no_plan'
-  );
+use inc::testplan(1,
+  3 + # use_ok
+  17 * 2
+);
 
 BEGIN { use_ok('dtRdr::Book::ThoutBook_1_0'); }
 BEGIN { use_ok('dtRdr::Annotation::IO'); }
@@ -95,7 +96,7 @@ isa_ok($anno_io, 'dtRdr::Annotation::IO::YAML');
 is(scalar($anno_io->items_for($book)), 4, 'got some files now');
 
 eval { $anno_io->apply_to($book); };
-ok(! $@, 'survived application');
+ok(! $@, 'survived application') or die $@, ' ';
 
 { # count them all again
   my $toc = $book->toc;

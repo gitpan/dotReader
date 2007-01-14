@@ -1,4 +1,5 @@
 package dtRdr::Annotation::IO::YAML;
+$VERSION = eval{require version}?version::qv($_):$_ for(0.10.1);
 
 use warnings;
 use strict;
@@ -6,7 +7,6 @@ use Carp;
 
 use YAML::Syck;
 
-our $VERSION = '0.01';
 
 use base 'dtRdr::Annotation::IO';
 

@@ -1,4 +1,5 @@
 package dtRdr::Logger;
+$VERSION = eval{require version}?version::qv($_):$_ for(0.10.1);
 
 use warnings;
 use strict;
@@ -6,7 +7,6 @@ use strict;
 use Carp;
 use Log::Log4perl ();
 
-our $VERSION = '0.01';
 
 =head1 NAME
 

@@ -63,7 +63,7 @@ For patches and updates to the dependencies, see
 
 There you will find some directories defined with svn:externals.  These
 allow you to checkout all of the latest dependency code into just a few
-working copies and make it more convenient for us to add or change
+working copies and makes it more convenient for us to add or change
 dependencies.
 
 =head1 Coding Standards
@@ -72,6 +72,6 @@ TODO
 
 =head1 Mailing Lists
 
-TODO
+http://dotreader.com/mailman/listinfo
 
 =cut

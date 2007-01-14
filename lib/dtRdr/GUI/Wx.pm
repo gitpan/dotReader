@@ -1,4 +1,5 @@
 package dtRdr::GUI::Wx;
+$VERSION = eval{require version}?version::qv($_):$_ for(0.10.1);
 
 =head1 NAME
 
@@ -9,7 +10,6 @@ dtRdr::GUI::Wx.pm - Wx::App class
 use warnings;
 use strict;
 
-our $VERSION = '0.01';
 
 use Wx qw(:everything);
 use base 'Wx::App';

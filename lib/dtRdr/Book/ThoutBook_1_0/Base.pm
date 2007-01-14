@@ -1,4 +1,5 @@
 package dtRdr::Book::ThoutBook_1_0::Base;
+$VERSION = eval{require version}?version::qv($_):$_ for(0.10.1);
 
 use warnings;
 use strict;
@@ -7,7 +8,6 @@ use English '-no_match_vars';
 
 use URI::Escape ();
 
-our $VERSION = '0.01';
 
 use base qw(
   dtRdr::Book

@@ -1,4 +1,5 @@
 package dtRdr::Config::SQLConfig;
+$VERSION = eval{require version}?version::qv($_):$_ for(0.0.1);
 
 # An SQLite based configuration system
 

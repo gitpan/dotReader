@@ -1,9 +1,9 @@
 package dtRdr::Annotation::Trait::Boundless;
+$VERSION = eval{require version}?version::qv($_):$_ for(0.10.1);
 
 use warnings;
 use strict;
 
-our $VERSION = '0.01';
 
 BEGIN { # naive traits implementation
   use Exporter;

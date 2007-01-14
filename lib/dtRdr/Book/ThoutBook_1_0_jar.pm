@@ -1,10 +1,10 @@
 package dtRdr::Book::ThoutBook_1_0_jar;
+$VERSION = eval{require version}?version::qv($_):$_ for(0.10.1);
 
 use warnings;
 use strict;
 use Carp;
 
-our $VERSION = 0.01;
 
 use base 'dtRdr::Book::ThoutBook_1_0::Base';
 use Class::Accessor::Classy;

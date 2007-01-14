@@ -1,10 +1,10 @@
 package dtRdr::Annotation::Range;
+$VERSION = eval{require version}?version::qv($_):$_ for(0.10.1);
 
 use warnings;
 use strict;
 use Carp;
 
-our $VERSION = '0.01';
 
 use base 'dtRdr::Annotation';
 use base 'dtRdr::Selection';
@@ -14,8 +14,10 @@ rw 'title';
 no  Class::Accessor::Classy;
 
 {
+  # a class for search results, currently pretty sparse
   package dtRdr::AnnoSelection;
   our @ISA = qw(dtRdr::Annotation::Range);
+  use constant {ANNOTATION_TYPE => 'selection'};
 }
 
 =head1 NAME
@@ -26,11 +28,31 @@ dtRdr::Annotation::Range - range-derived annotations
 
 =cut
 
+=head1 Identifier Methods
+
+=head2 IS_RANGE_TYPE
+
+Required for all annotations.  Any annotation derived from this
+class is a range type, so this is just a constant.
+
+=cut
+
+use constant {IS_RANGE_TYPE => 1};
+
+=head2 ANNOTATION_TYPE
+
+Must be implemented by subclasses.
+
+=cut
+
 =head1 Misc Methods
 
 =head2 renode
 
-  $hl->renode($node, %props);
+Change the node of an annotation object.  The resultant object cannot be
+used for serialization.
+
+  my $new_obj = $obj->renode($node, %props);
 
 =cut
 
@@ -51,6 +73,26 @@ sub renode {
 } # end subroutine renode definition
 ########################################################################
 
+
+=head2 dummy
+
+Create a new (not unlinked) copy of an object with different properties.
+
+  $new_obj = $obj->dummy(%props);
+
+=cut
+
+sub dummy {
+  my $self = shift;
+  (@_ % 2) and croak('odd number of elements in argument hash');
+  my %props = @_;
+  my $package = ref($self);
+  my $new_obj = {%$self, %props};
+  bless($new_obj, $package);
+  return($new_obj);
+} # end subroutine dummy definition
+########################################################################
+
 =head2 get_book
 
 Overrides the range get_book alias.
@@ -67,9 +109,23 @@ sub get_book {
 
 =head1 Serialization
 
+The annotation storage (dtRdr::Annotation::IO) classes expect
+annotations objects to support serialize() and deserialize() methods.
+These methods transform an object to/from a plain hash reference (i.e.
+there are no linked objects, circular references, etc.)
+
 =head2 serialize
 
-  my $plain_hashref = $hl->serialize;
+Returns a hashref which contains no book object or other circular
+references.
+
+  my $plain_hashref = $object->serialize;
+
+=over augment_serialize
+
+  %props = $object->augment_serialize;
+
+=back
 
 =cut
 
@@ -100,6 +156,12 @@ sub serialize {
     }
   }
 
+  # generic special case
+  if($self->can('augment_serialize')) {
+    my %props = $self->augment_serialize;
+    $hash{$_} = $props{$_} for(keys(%props));
+  }
+
   # and remember our type
   $hash{type} = ref($self);
 
@@ -112,7 +174,18 @@ sub serialize {
 Transform the stripped-down hashref (as returned by serialize()) into a
 proper object.
 
-  my $hl = dtRdr::Highlight->deserialize($hashref, book => $book);
+  my $object = MyClass->deserialize($hashref, book => $book);
+
+=over
+
+=item augment_deserialize
+
+May be defined by a subclass to augment the deserialization.  The
+returned properties will be added to the arguments to new().
+
+  %props_out = SubClass->augment_deserialize(%props_in);
+
+=back
 
 =cut
 
@@ -141,7 +214,11 @@ sub deserialize {
     ),
     node  => $node,
     range => [$hashref->{start}, $hashref->{end}],
-    id    => $hashref->{id}
+    id    => $hashref->{id},
+    # generic special case
+    ($package->can('augment_deserialize') ?
+      ($package->augment_deserialize(%$hashref, book => $book)) : ()
+    ),
   );
   return($object);
 } # end subroutine deserialize definition

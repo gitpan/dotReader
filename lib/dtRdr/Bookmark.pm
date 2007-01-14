@@ -1,13 +1,15 @@
 package dtRdr::Bookmark;
+$VERSION = eval{require version}?version::qv($_):$_ for(0.10.1);
 
 use warnings;
 use strict;
 
-our $VERSION = '0.01';
 
 use base 'dtRdr::Annotation::Range';
 
 use dtRdr::Annotation::Trait::Boundless;
+
+use constant {ANNOTATION_TYPE => 'bookmark'};
 
 =head1 NAME
 

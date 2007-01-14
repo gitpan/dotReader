@@ -1,4 +1,5 @@
 package dtRdr::Plugins::Book;
+$VERSION = eval{require version}?version::qv($_):$_ for(0.10.1);
 
 use warnings;
 use strict;
@@ -12,7 +13,6 @@ use Module::Pluggable (
   inner => 0, # gotta have it
 );
 
-our $VERSION = '0.01';
 
 use constant {
   DEBUG => ($ENV{PLUGINS_DEBUG} || 0),

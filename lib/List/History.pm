@@ -1,9 +1,9 @@
 package List::History;
+$VERSION = eval{require version}?version::qv($_):$_ for(0.10.1);
 
 use warnings;
 use strict;
 
-our $VERSION = '0.01';
 
 use Carp;
 use Class::Accessor;

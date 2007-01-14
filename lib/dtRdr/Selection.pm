@@ -1,20 +1,21 @@
 package dtRdr::Selection;
+$VERSION = eval{require version}?version::qv($_):$_ for(0.10.1);
 
 use warnings;
 use strict;
 use Carp;
 
-our $VERSION = '0.01';
 
 use dtRdr::Traits::Class qw(claim);
 
 use base 'dtRdr::Range';
 
-use dtRdr::Accessor;
-dtRdr::Accessor->rw qw(
+use Class::Accessor::Classy;
+rw qw(
   selected
   context
 );
+no  Class::Accessor::Classy;
 
 # we can display this many characters
 use constant { limit => 40, };

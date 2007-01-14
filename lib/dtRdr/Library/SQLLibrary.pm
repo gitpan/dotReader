@@ -1,6 +1,6 @@
 package dtRdr::Library::SQLLibrary;
+$VERSION = eval{require version}?version::qv($_):$_ for(0.1.1);
 
-our $VERSION = '0.1.1';
 
 use warnings;
 use strict;

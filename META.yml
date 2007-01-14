@@ -1,9 +1,9 @@
 ---
 name: dotReader
-version: v0.0.9
+version: v0.0.10
 author:
   - OSoft Inc.
-abstract: toplevel data/environment for dotReader
+abstract: Cross-Platform XML Book Reader
 license: gpl
 resources:
   license: http://www.opensource.org/licenses/gpl-license.php
@@ -22,6 +22,7 @@ requires:
   Module::Finder: 0.001001
   Module::Pluggable: 2.96
   Test::More: 0.62
+  Tree::Simple: 0
   Wx: 0.26
   Wx::Event: 0
   Wx::Html: 0
@@ -38,232 +39,249 @@ provides:
     version: v0.0.1
   List::History:
     file: lib/List/History.pm
-    version: 0.01
+    version: v0.10.1
   MultiTask::Manager:
     file: lib/MultiTask/Manager.pm
-    version: 0.01
+    version: v0.10.1
   MultiTask::Minion:
     file: lib/MultiTask/Minion.pm
-    version: 0.01
+    version: v0.10.1
   Regexp::PosIterator:
     file: lib/Regexp/PosIterator.pm
-    version: 0.01
+    version: v0.10.1
   Wx::MozillaBrowser:
     file: lib/dtRdr/HTMLShim/WxMozilla.pm
   WxPerl::MenuMaker:
     file: lib/WxPerl/MenuMaker.pm
-    version: 0.01
+    version: v0.10.1
   WxPerl::MenuMap:
     file: lib/WxPerl/MenuMap.pm
-    version: 0.01
+    version: v0.10.1
   WxPerl::TreeCtrlMapped:
     file: lib/WxPerl/TreeCtrlMapped.pm
-    version: 0.01
+    version: v0.10.1
   dtRdr:
     file: lib/dtRdr.pm
-    version: v0.0.9
+    version: v0.0.10
   dtRdr::Accessor:
     file: lib/dtRdr/Accessor.pm
-    version: 0.01
+    version: v0.10.1
   dtRdr::AnnoSelection:
     file: lib/dtRdr/Annotation/Range.pm
   dtRdr::Annotation:
     file: lib/dtRdr/Annotation.pm
-    version: 0.01
+    version: v0.10.1
   dtRdr::Annotation::IO:
     file: lib/dtRdr/Annotation/IO.pm
-    version: 0.01
+    version: v0.10.1
   dtRdr::Annotation::IO::YAML:
     file: lib/dtRdr/Annotation/IO/YAML.pm
-    version: 0.01
+    version: v0.10.1
   dtRdr::Annotation::Range:
     file: lib/dtRdr/Annotation/Range.pm
-    version: 0.01
+    version: v0.10.1
   dtRdr::Annotation::Trait::Boundless:
     file: lib/dtRdr/Annotation/Trait/Boundless.pm
-    version: 0.01
+    version: v0.10.1
   dtRdr::Book:
     file: lib/dtRdr/Book.pm
-    version: 0.01
+    version: v0.10.1
   dtRdr::Book::ThoutBook_1_0:
     file: lib/dtRdr/Book/ThoutBook_1_0.pm
-    version: 0.01
+    version: v0.10.1
   dtRdr::Book::ThoutBook_1_0::Base:
     file: lib/dtRdr/Book/ThoutBook_1_0/Base.pm
-    version: 0.01
+    version: v0.10.1
   dtRdr::Book::ThoutBook_1_0::Traits:
     file: lib/dtRdr/Book/ThoutBook_1_0/Traits.pm
+    version: v0.0.1
   dtRdr::Book::ThoutBook_1_0_jar:
     file: lib/dtRdr/Book/ThoutBook_1_0_jar.pm
-    version: 0.01
+    version: v0.10.1
   dtRdr::BookUtil::AnnoInsert:
     file: lib/dtRdr/BookUtil/AnnoInsert.pm
     version: v0.0.1
   dtRdr::Bookmark:
     file: lib/dtRdr/Bookmark.pm
-    version: 0.01
+    version: v0.10.1
   dtRdr::Callbacks::Book:
     file: lib/dtRdr/Callbacks/Book.pm
-    version: v0.1.1
+    version: v0.10.1
   dtRdr::Config:
     file: lib/dtRdr/Config.pm
+    version: v0.0.1
   dtRdr::Config::SQLConfig:
     file: lib/dtRdr/Config/SQLConfig.pm
+    version: v0.0.1
   dtRdr::Config::YAMLConfig:
     file: lib/dtRdr/Config/YAMLConfig.pm
-    version: 0.01
+    version: v0.10.1
   dtRdr::ConfigData::LibraryInfo:
     file: lib/dtRdr/Config.pm
   dtRdr::GUI::Wx:
     file: lib/dtRdr/GUI/Wx.pm
-    version: 0.01
+    version: v0.10.1
   dtRdr::GUI::Wx::BVManager:
     file: lib/dtRdr/GUI/Wx/BVManager.pm
-    version: 0.01
+    version: v0.10.1
   dtRdr::GUI::Wx::BookTree:
     file: lib/dtRdr/GUI/Wx/BookTree.pm
-    version: 0.01
+    version: v0.10.1
   dtRdr::GUI::Wx::BookView:
     file: lib/dtRdr/GUI/Wx/BookView.pm
-    version: 0.01
+    version: v0.10.1
   dtRdr::GUI::Wx::BookmarkTree:
     file: lib/dtRdr/GUI/Wx/BookmarkTree.pm
-    version: 0.01
+    version: v0.10.1
   dtRdr::GUI::Wx::Dialog::License:
     file: lib/dtRdr/GUI/Wx/Dialog/License.pm
-    version: 0.01
+    version: v0.10.1
   dtRdr::GUI::Wx::Frame:
     file: lib/dtRdr/GUI/Wx/Frame.pm
-    version: 0.01
+    version: v0.10.1
   dtRdr::GUI::Wx::HighlightTree:
     file: lib/dtRdr/GUI/Wx/HighlightTree.pm
-    version: 0.01
+    version: v0.10.1
   dtRdr::GUI::Wx::LibraryTree:
     file: lib/dtRdr/GUI/Wx/LibraryTree.pm
-    version: 0.01
+    version: v0.10.1
   dtRdr::GUI::Wx::MainFrame:
     file: lib/dtRdr/GUI/Wx/MainFrame.pm
+    version: v0.0.1
   dtRdr::GUI::Wx::NoteEditor:
     file: lib/dtRdr/GUI/Wx/NoteEditor.pm
+    version: v0.0.1
   dtRdr::GUI::Wx::NoteEditorBase:
     file: lib/dtRdr/GUI/Wx/NoteEditorBase.pm
-    version: 0.01
+    version: v0.10.1
   dtRdr::GUI::Wx::NoteTree:
     file: lib/dtRdr/GUI/Wx/NoteTree.pm
-    version: 0.01
+    version: v0.10.1
   dtRdr::GUI::Wx::NoteViewer:
     file: lib/dtRdr/GUI/Wx/NoteViewer.pm
-    version: 0.01
+    version: v0.10.1
   dtRdr::GUI::Wx::Plugins:
     file: lib/dtRdr/GUI/Wx/Plugins.pm
-    version: 0.01
+    version: v0.10.1
   dtRdr::GUI::Wx::SearchPane:
     file: lib/dtRdr/GUI/Wx/SearchPane.pm
-    version: 0.01
+    version: v0.10.1
   dtRdr::GUI::Wx::SearchTree:
     file: lib/dtRdr/GUI/Wx/SearchTree.pm
-    version: 0.01
+    version: v0.10.1
   dtRdr::GUI::Wx::Sidebar:
     file: lib/dtRdr/GUI/Wx/Sidebar.pm
-    version: 0.01
+    version: v0.10.1
   dtRdr::GUI::Wx::State:
     file: lib/dtRdr/GUI/Wx/State.pm
-    version: 0.01
+    version: v0.10.1
   dtRdr::GUI::Wx::TextViewer:
     file: lib/dtRdr/GUI/Wx/TextViewer.pm
+    version: v0.0.1
   dtRdr::GUI::Wx::TextViewerBase:
     file: lib/dtRdr/GUI/Wx/TextViewerBase.pm
-    version: 0.01
+    version: v0.10.1
   dtRdr::GUI::Wx::Tree::AnnoBase:
     file: lib/dtRdr/GUI/Wx/Tree/AnnoBase.pm
-    version: 0.01
+    version: v0.10.1
   dtRdr::GUI::Wx::Tree::Base:
     file: lib/dtRdr/GUI/Wx/Tree/Base.pm
-    version: 0.01
+    version: v0.10.1
   dtRdr::GUI::Wx::Utils:
     file: lib/dtRdr/GUI/Wx/Utils.pm
-    version: 0.01
+    version: v0.10.1
   dtRdr::HTMLShim::WxHTML:
     file: lib/dtRdr/HTMLShim/WxHTML.pm
+    version: v0.0.1
   dtRdr::HTMLShim::WxMozilla:
     file: lib/dtRdr/HTMLShim/WxMozilla.pm
+    version: v0.0.1
   dtRdr::HTMLWidget:
     file: lib/dtRdr/HTMLWidget.pm
-    version: 0.01
+    version: v0.10.1
   dtRdr::HTMLWidget::Shared:
     file: lib/dtRdr/HTMLWidget/Shared.pm
-    version: 0.01
+    version: v0.10.1
   dtRdr::Hack:
     file: lib/dtRdr/Hack.pm
-    version: 0.01
+    version: v0.10.1
   dtRdr::Highlight:
     file: lib/dtRdr/Highlight.pm
-    version: 0.01
+    version: v0.10.1
   dtRdr::Library:
     file: lib/dtRdr/Library.pm
+    version: v0.0.1
   dtRdr::Library::SQLLibrary:
     file: lib/dtRdr/Library/SQLLibrary.pm
-    version: 0.1.1
+    version: v0.1.1
   dtRdr::Library::YAMLLibrary:
     file: lib/dtRdr/Library/YAMLLibrary.pm
-    version: 0.0.1
+    version: v0.0.1
   dtRdr::LibraryData::BookInfo:
     file: lib/dtRdr/Library.pm
   dtRdr::Location:
     file: lib/dtRdr/Location.pm
+    version: v0.0.1
   dtRdr::Logger:
     file: lib/dtRdr/Logger.pm
-    version: 0.01
+    version: v0.10.1
   dtRdr::Logger::Appender::File:
     file: lib/dtRdr/Logger/Appender/File.pm
-    version: 0.01
+    version: v0.10.1
   dtRdr::Metadata:
     file: lib/dtRdr/Metadata.pm
+    version: v0.0.1
   dtRdr::Note:
     file: lib/dtRdr/Note.pm
-    version: 0.01
+    version: v0.10.1
+  dtRdr::NoteThread:
+    file: lib/dtRdr/NoteThread.pm
+    version: v0.0.1
   dtRdr::PluginHelpers::Data:
     file: lib/dtRdr/PluginHelpers/Data.pm
-    version: 0.01
+    version: v0.10.1
   dtRdr::Plugins:
     file: lib/dtRdr/Plugins.pm
-    version: 0.01
+    version: v0.10.1
   dtRdr::Plugins::Base:
     file: lib/dtRdr/Plugins/Base.pm
-    version: 0.01
+    version: v0.10.1
   dtRdr::Plugins::Book:
     file: lib/dtRdr/Plugins/Book.pm
-    version: 0.01
+    version: v0.10.1
   dtRdr::Plugins::Library:
     file: lib/dtRdr/Plugins/Library.pm
-    version: 0.01
+    version: v0.10.1
   dtRdr::Range:
     file: lib/dtRdr/Range.pm
+    version: v0.0.1
   dtRdr::Search::Book:
     file: lib/dtRdr/Search/Book.pm
-    version: 0.01
+    version: v0.10.1
   dtRdr::Search::Result:
     file: lib/dtRdr/Search/Result.pm
-    version: 0.01
+    version: v0.10.1
   dtRdr::Search::Result::Book:
     file: lib/dtRdr/Search/Book.pm
   dtRdr::Selection:
     file: lib/dtRdr/Selection.pm
-    version: 0.01
+    version: v0.10.1
   dtRdr::String::Splicer:
     file: lib/dtRdr/String/Splicer.pm
-    version: 0.01
+    version: v0.10.1
   dtRdr::TOC:
     file: lib/dtRdr/TOC.pm
+    version: v0.0.1
   dtRdr::Traits::Class:
     file: lib/dtRdr/Traits/Class.pm
-    version: 0.01
+    version: v0.10.1
   dtRdr::User:
     file: lib/dtRdr/User.pm
+    version: v0.0.1
   dtRdr::UserAgent:
     file: lib/dtRdr/UserAgent.pm
     version: v0.0.1
-generated_by: Module::Build version 0.280501
+generated_by: Module::Build version 0.2806
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.2.html
   version: 1.2

@@ -5,9 +5,12 @@
 use strict;
 use warnings;
 
-use Test::More (
-  'no_plan'
-  );
+use inc::testplan(1,
+  0
+  + 1  # use_ok
+  + 4 * 2 # create/check
+  + 3 * 2 # serialize
+);
 
 BEGIN {use_ok('dtRdr::Highlight');}
 

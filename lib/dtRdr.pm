@@ -1,5 +1,5 @@
 package dtRdr;
-$VERSION = eval{require version}?version::qv($_):$_ for(0.0.9);
+$VERSION = eval{require version}?version::qv($_):$_ for(0.0.10);
 
 use warnings;
 use strict;

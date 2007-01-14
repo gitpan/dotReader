@@ -1,4 +1,5 @@
 package dtRdr::Book;
+$VERSION = eval{require version}?version::qv($_):$_ for(0.10.1);
 
 use warnings;
 use strict;
@@ -9,7 +10,6 @@ use Digest::MD5;
 use URI;
 use English '-no_match_vars';
 
-our $VERSION = 0.01;
 
 use dtRdr::Plugins::Book;
 use dtRdr::TOC;
@@ -19,6 +19,7 @@ use dtRdr::Logger;
 # the callback object is magic class data
 use dtRdr::Callbacks::Book;
 use dtRdr::Selection;
+use dtRdr::NoteThread;
 
 use dtRdr::Traits::Class qw(
   NOT_IMPLEMENTED
@@ -834,22 +835,32 @@ sub insert_nbh {
     # or just say YAGNI, bah, etc.
   }
 
+  # notes are special
+  my @notes = dtRdr::NoteThread->create($self->node_notes($node));
+  foreach my $note (@notes) { # each is actually a tree
+    $note = $note->note unless($note->has_children);
+  }
+
   # The node_foos() calls give offsets in local coordinates.
   # The todo list is a list of arrays -- we'll shift it down to nothing.
   # First value of each is the position, second is the object.
   my @todo = (
     map({ [ $_->start_pos, $_ ], [ $_->end_pos, $_ ], }
       $self->node_highlights($node),
-      $self->node_notes($node),
+      @notes,
       $self->node_bookmarks($node),
       $self->node_selections($node),
     ),
   );
   #WARN "todo is ", join("|", map({$_->[1]} @todo));
 
+  # kill anything that is the child of a thread
+
   # we have to sort it here to get overlapping highlights to work
   @todo = sort({$a->[0] <=> $b->[0]} @todo);
 
+  RL('#speed')->info(scalar(@todo),
+    ' todo items ... starting insert parse');
   use dtRdr::BookUtil::AnnoInsert;
   my $parser = dtRdr::BookUtil::AnnoInsert->new($self,
     todo => \@todo,
@@ -1364,11 +1375,11 @@ element.
 
 =item during
 
-A referenc to the $parser->recognized_string value.
+A reference to the $parser->recognized_string value.
 
 =item after
 
-A refenece to the hoppers string intended to be placed after the
+A referece to the hoppers string intended to be placed after the
 element.
 
 =back
@@ -1489,8 +1500,11 @@ sub _standard_xml_callbacks {
                       URI->new($ref)->as_string;
             return($rstring);
           }
+          #WARN "unhandled link $ref";
+          return;
         };
         $href = $refsub->($href);
+        defined($href) or return; # don't mess with it
         $$str = $s . $href . $e;
       }
     }, # a

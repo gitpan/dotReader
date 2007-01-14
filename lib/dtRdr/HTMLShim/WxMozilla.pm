@@ -1,4 +1,5 @@
 package dtRdr::HTMLShim::WxMozilla;
+$VERSION = eval{require version}?version::qv($_):$_ for(0.0.1);
 
 use warnings;
 use strict;

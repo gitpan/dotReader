@@ -79,7 +79,6 @@ sub new {
 } # end subroutine new definition
 ########################################################################
 
-
 =head2 parse
 
   $ai->parse($string);
@@ -268,9 +267,8 @@ sub do_chars {
   my $new_offset = $offset + length($word_chars);
 
   # do placement within $rec_string, then put on output
-  my $spliced = '';
-  $spliced = $self->splice($rec_string, $new_offset)
-    if(length($rec_string));
+  my $spliced =
+    length($rec_string) ? $self->splice($rec_string, $new_offset) : '';
 
   push(@{$self->{output}}, $lead, $spliced);
 
@@ -294,9 +292,11 @@ sub splice {
   my $self = shift;
   my ($rec_string, $new_offset) = @_;
 
+  my $todo = $self->todo;
+  @$todo or return($rec_string);
+  
   my $splicer = dtRdr::String::Splicer->new($rec_string);
   my $book = $self->book;
-  my $todo = $self->todo;
   my $open_annos = $self->open_annos;
   my $anno_order = $self->anno_order;
   my $offset = $self->offset;
@@ -307,103 +307,50 @@ sub splice {
     # the end -- this allows <p><highlight>foo</highlight></p> to DTRT
     # XXX but does break links when they get bookmarked :-/
 
-    if(
+    unless(
       ($todo->[0][1]->a == $todo->[0][0])
       ? ($todo->[0][0] < $new_offset)  # start
       : ($todo->[0][0] <= $new_offset) # end
       ) {
-      ($offset <= $todo->[0][0]) or
-        die "$offset <= $todo->[0][0] < $new_offset failure";
-      0 and WARN("handle $todo->[0][0] after $offset and before $new_offset");
-      my $marker;
-
-      my $item = shift(@$todo);
-      my $target = $item->[0] - $offset;
-      my $anno = $item->[1];
-      if($anno->isa('dtRdr::Annotation::Range')) {
-        if(exists($open_annos->{$anno})) { # closing
-          # get rid of it
-          @$anno_order = grep({$_ ne $anno} @$anno_order);
-          # and rebuild the index:
-          %$open_annos = map({$anno_order->[$_] => $_} 0..$#$anno_order);
-
-          # now get the hopper bits and make a marker
-          my ($before, $after) = $self->hoppers;
-          $marker = $before . '</span>' . $after;
-
-          # notes here
-          if($anno->isa('dtRdr::Note')) {
-            # TODO document the note href convention
-            $marker .=
-              '<a class="dr_note" ' .
-              'name="' .  $anno->id .  '" ' .
-              'href="' .
-                URI->new('dr://LOCAL/' . $anno->id . '.drnt')->as_string .
-              '">' .
-              '<img class="dr_note" src="' .
-              # TODO cache this before starting the parse
-              $book->get_callbacks->img_src_rewrite(
-                $book->get_callbacks->core_link('dr_note_link.png'),
-                $book
-              ) .
-              '" />' .
-              '</a>' .
-              '';
-          }
-        }
-        else { # opening
-          # The hoppers are not needed here iff we stick to only
-          # inserting <span> elements (because closing span "a" is the
-          # same as closing span "b".)
-
-          # remember where it is and in what order
-          $open_annos->{$anno} = push(@$anno_order, $anno) -1;
-
-          $marker = '';
-
-          # bookmarks here
-          if($anno->isa('dtRdr::Bookmark')) {
-            $marker .=
-              '<a class="dr_bookmark" ' .
-              'name="' .  $anno->id .  '" ' .
-              'href="' .
-              URI->new('dr://LOCAL/' . $anno->id . '.drbm')->as_string .
-              '">' .
-              '<img class="dr_bookmark" src="' .
-              # TODO cache this before starting the parse
-              $book->get_callbacks->img_src_rewrite(
-                $book->get_callbacks->core_link('dr_bookmark_link.png'),
-                $book
-              ) .
-              '" />' .
-              '</a>' .
-              '';
-          }
-          elsif($anno->isa('dtRdr::Highlight')) {
-            # anchor for highlights
-            $marker .= '<a class="dr_highlight" ' .
-              'name="' .  $anno->id .  '"></a>';
-          }
-          elsif($anno->isa('dtRdr::AnnoSelection')) {
-            # anchor for finds
-            $marker .= '<a class="dr_selection" ' .
-              'name="' .  $anno->id .  '"></a>';
-          }
-
-          # simple marker
-          $marker .= $self->mk_marker($anno);
-
-        }
-      } # end range-ish types
-      else {
-        # some new kind of annotation
-        die "ouch, what's a $anno?";
-      }
-      $splicer->insert($target, $marker);
-    } # end if we-should-do-something
-    else {
       last;
     }
+
+    # otherwise, do something
+    my $item = shift(@$todo);
+    ($offset <= $item->[0]) or
+      die "$offset <= $item->[0] < $new_offset failure";
+    0 and WARN("handle $item->[0] after $offset and before $new_offset");
+    my $marker;
+
+    my $target = $item->[0] - $offset;
+    my $anno = $item->[1];
+
+    # NOTE all annotations appear to be two-part, so no sense in
+    # checking that here.  Even if we break this assumption, we just
+    # need to remove the one-part annotation from @todo upon opening.
+    if(exists($open_annos->{$anno})) { # closing
+      # get rid of it
+      @$anno_order = grep({$_ ne $anno} @$anno_order);
+      # and rebuild the index:
+      %$open_annos = map({$anno_order->[$_] => $_} 0..$#$anno_order);
+
+      # now get the hopper bits and make a marker
+      my ($before, $after) = $self->hoppers;
+
+      $marker = $before . '</span>' . $after .
+        $self->closing_marker($anno);
+    }
+    else { # opening
+      # The hoppers are not needed here iff we stick to only
+      # inserting <span> elements (because closing span "a" is the
+      # same as closing span "b".)
+
+      # remember where it is and in what order
+      $open_annos->{$anno} = push(@$anno_order, $anno) -1;
+
+      $marker = $self->opening_marker($anno)
+    }
+    $splicer->insert($target, $marker);
   }
   return($splicer->string);
 } # end subroutine splice definition
@@ -423,31 +370,131 @@ sub hoppers {
   my $after = '';
   foreach my $hl (@{$self->anno_order}) {
     $before .= '</span>';
-    $after  .= $self->mk_marker($hl);
+    $after  .= $self->start_marker($hl->ANNOTATION_TYPE, $hl->id);
   }
   return($before, $after);
 } # end subroutine hoppers definition
 ########################################################################
 
-=head2 mk_marker
+=head2 opening_marker
 
-Create the start of a <span style="..." id="..."> marker
-
-  my $marker = $self->mk_marker($annotation);
+  $self->opening_marker($anno);
 
 =cut
 
-sub mk_marker {
+our %DO_ON_OPEN = map({$_ => 1} qw(bookmark highlight selection));
+sub opening_marker {
   my $self = shift;
   my ($anno) = @_;
-  # transforms package name into css class
-  # XXX is this the best way?
-  my $type = lc(ref($anno));
-  # e.g. 'dtRdr::Highlight' => dr_highlight
-  $type =~ s/^\w*::/dr_/;
-  $type =~ s/::/_/g;
-  return(qq(<span class="$type ) . $anno->id . '">');
-} # end subroutine mk_marker definition
+
+
+  my $type = $anno->ANNOTATION_TYPE;
+  my $id = $anno->id;
+  my $marker = (
+    $DO_ON_OPEN{$type} ? $self->create_marker($type, $id) : ''
+    ) .
+    $self->start_marker($type, $id);
+
+  return($marker);
+} # end subroutine opening_marker definition
+########################################################################
+
+=head2 closing_marker
+
+  $self->closing_marker($anno);
+
+=cut
+
+our %DO_ON_CLOSE = map({$_ => 1} qw(note notethread));
+sub closing_marker {
+  my $self = shift;
+  my ($anno) = @_;
+
+
+  my $type = $anno->ANNOTATION_TYPE;
+  $DO_ON_CLOSE{$type} or return('');
+
+  my $marker = '';
+  my $id = $anno->id;
+  $marker .= $self->create_marker($type, $id);
+  return($marker);
+} # end subroutine closing_marker definition
+########################################################################
+
+=head2 create_marker
+
+Build the annotation marker.
+
+  $marker .= $self->create_marker($type, $id);
+
+=cut
+
+{
+my %EXT = (
+  note       => 'drnt',
+  notethread => 'drnt',
+  bookmark   => 'drbm',
+);
+sub create_marker {
+  my $self = shift;
+  my ($type, $id) = @_;
+
+  my $ext = $EXT{$type};
+
+  # we make a named anchor for everything, plus a link and image if
+  my $string =
+    qq(<a class="dr_$type" name="$id") .
+      ($ext ? ( # ugly, but hopefully fast
+        qq( href="dr://LOCAL/$id.$ext" ) .
+          '><img class="dr_' . $type . '" src="' .
+            $self->img("dr_${type}_link.png") .
+          '" />'
+      ) : # else just close the anchor
+      '>') .
+      '</a>';
+  return($string)
+} # end subroutine create_marker definition
+} # end closure
+########################################################################
+
+=head2 img
+
+Create (with caching) the img string (runs the book callbacks.)
+
+  my $string = $self->img($png_path);
+
+=cut
+
+sub img {
+  my $self = shift;
+  my ($png_path) = @_;
+
+  my $cache = $self->{_img_cache} ||= {};
+  exists($cache->{$png_path}) and return($cache->{$png_path});
+  ### warn "create cache for $png_path";
+
+  my $book = $self->book;
+  my $string = $book->get_callbacks->img_src_rewrite(
+    $book->get_callbacks->core_link($png_path),
+    $book
+  );
+  return($cache->{$png_path} = $string);
+} # end subroutine img definition
+########################################################################
+
+=head2 start_marker
+
+Create the start of a span marker
+
+  my $marker = $self->start_marker($type, $id);
+
+=cut
+
+sub start_marker {
+  my $self = shift;
+  my ($type, $id) = @_;
+  return(qq(<span class="dr_$type ) . $id . '">');
+} # end subroutine start_marker definition
 ########################################################################
 
 =head1 AUTHOR

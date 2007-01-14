@@ -3,7 +3,11 @@
 use strict;
 use warnings;
 
-use Test::More qw(no_plan);
+use inc::testplan(1,
+    1 + # use_ok
+    3 + # ABook
+    2
+);
 use lib 'inc';
 use dtRdrTestUtil::ABook;
 

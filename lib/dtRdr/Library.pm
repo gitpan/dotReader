@@ -1,4 +1,5 @@
 package dtRdr::Library;
+$VERSION = eval{require version}?version::qv($_):$_ for(0.0.1);
 
 use warnings;
 use strict;
@@ -123,7 +124,7 @@ sub new {
 } # end subroutine new definition
 ########################################################################
 
-=item load_uri
+=head2 load_uri
 
 Load the library stored at C<URI> and set the location property.
 
@@ -131,7 +132,7 @@ Load the library stored at C<URI> and set the location property.
 
 sub load_uri { my $self = shift; $self->NOT_IMPLEMENTED(@_); }
 
-=item books
+=head2 books
 
 Return a list of book objects for the books stored in a library object
 
@@ -145,7 +146,7 @@ sub get_books {
   return @{$self->{books}};
 }
 
-=item get_metadata
+=head2 get_metadata
 
 Return a list of all the metadata objects stored in this library
 
@@ -162,7 +163,7 @@ sub get_metadata {
   }
 }
 
-=item get_book_info
+=head2 get_book_info
 
 Return a list of book info objects.
 
@@ -175,7 +176,7 @@ sub get_book_info {
   return @{$self->book_data};
 }
 
-=item open_book
+=head2 open_book
 
 Return a book object matching a given key/value lookup pair.
 
@@ -237,7 +238,7 @@ Virtual:  find a book with a for a given $key/$value match.
 
 sub find_book_by { my $self = shift; $self->NOT_IMPLEMENTED(@_); }
 
-=item add_metadata
+=head2 add_metadata
 
 Add the C<metadata> object to the C<book>, stored in the library
 
@@ -245,10 +246,12 @@ Add the C<metadata> object to the C<book>, stored in the library
 
 sub add_metadata { my $self = shift; $self->NOT_IMPLEMENTED(@_); }
 
-=item delete_metadata($book, $metadata)
+=head2 delete_metadata
 
 Remove the C<metadata> from the specified C<book>, as it's stored in
 the library.
+
+  $lib->delete_metadata($book, $metadata);
 
 =cut
 
@@ -260,7 +263,7 @@ sub delete_metadata { my $self = shift; $self->NOT_IMPLEMENTED(@_); }
 
 sub add_book { my $self = shift; $self->NOT_IMPLEMENTED(@_); }
 
-=item remove_book
+=head2 remove_book
 
 Remove the book.
 

@@ -5,11 +5,14 @@
 use strict;
 use warnings;
 
-use Test::More (
-  'no_plan'
-  );
+use inc::testplan(1,
+  2 + # use_ok
+  2 + # open_book
+  3 * 13 + # check_toc
+  3 * 26   # note_test
+);
 
-BEGIN { use_ok('dtRdr::Book::ThoutBook_1_0') };
+BEGIN {use_ok('dtRdr::Book::ThoutBook_1_0') };
 BEGIN {use_ok('dtRdr::Note');}
 
 use lib 'inc';

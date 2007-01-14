@@ -1,4 +1,5 @@
 package dtRdr::GUI::Wx::MainFrame;
+$VERSION = eval{require version}?version::qv($_):$_ for(0.0.1);
 
 use strict;
 use warnings;

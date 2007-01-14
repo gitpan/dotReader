@@ -1,4 +1,5 @@
 package dtRdr::Book::ThoutBook_1_0;
+$VERSION = eval{require version}?version::qv($_):$_ for(0.10.1);
 
 use warnings;
 use strict;
@@ -8,7 +9,6 @@ use Carp;
 use File::Basename ();
 use Cwd ();
 
-our $VERSION = 0.01;
 
 =head1 NAME
 

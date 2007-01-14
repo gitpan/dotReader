@@ -1,4 +1,5 @@
 package dtRdr::GUI::Wx::Utils;
+$VERSION = eval{require version}?version::qv($_):$_ for(0.10.1);
 
 use warnings;
 use strict;
@@ -7,7 +8,6 @@ use Carp;
 use Wx ();
 use Wx::Event ();
 
-our $VERSION = '0.01';
 
 =head1 NAME
 

@@ -1,6 +1,6 @@
 package dtRdr::Library::YAMLLibrary;
+$VERSION = eval{require version}?version::qv($_):$_ for(0.0.1);
 
-our $VERSION = '0.0.1';
 
 use warnings;
 use strict;
@@ -14,8 +14,6 @@ use dtRdr::Library (
 );
 sub LIBTYPE {'YAMLLibrary';} # needs to go away when plugins work?
 sub CORE_ATTRIBS {qw(name type id);}
-
-use dtRdr::Metadata;
 
 use Class::Accessor::Classy;
 no  Class::Accessor::Classy;

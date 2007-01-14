@@ -1,5 +1,12 @@
 Revision history for dotReader
 
+v0.0.10 Jan 13, 2007
+
+  * fixed all-external-links-vanish bug in xml rewrite callbacks
+
+  * underlying support for threaded notes (just no interface)
+  * more xml hatchet speed hacking
+
 v0.0.9 Jan 04, 2007
 
   * added preliminary View->Source menu item

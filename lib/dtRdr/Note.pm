@@ -1,17 +1,18 @@
 package dtRdr::Note;
+$VERSION = eval{require version}?version::qv($_):$_ for(0.10.1);
 
 use warnings;
 use strict;
 
-our $VERSION = '0.01';
 use base 'dtRdr::Annotation::Range';
 
 use dtRdr::Annotation::Trait::Boundless;
 
-use dtRdr::Accessor;
-dtRdr::Accessor->rw qw(
-  content
-);
+use Class::Accessor::Classy;
+rw 'content';
+no  Class::Accessor::Classy;
+
+use constant {ANNOTATION_TYPE => 'note'};
 
 =head1 NAME
 
@@ -21,7 +22,69 @@ dtRdr::Note - notes attached to locations
 
 =cut
 
-# move along, nothing to see here
+# see base classes for most functionality
+
+=head2 references
+
+Get the references attribute.
+
+  my @id_list = $nt->references;
+
+=cut
+
+sub references {
+  my $self = shift;
+  $self->{references} or return();
+  return(@{$self->{references}});
+} # end subroutine references definition
+########################################################################
+
+=head2 set_references
+
+  $nt->set_references(@id_list);
+
+=cut
+
+sub set_references {
+  my $self = shift;
+  my @list = @_;
+  $self->{references} = [@list];
+} # end subroutine set_references definition
+########################################################################
+
+=head2 augment_serialize
+
+  my %props = $nt->augment_serialize;
+
+=cut
+
+sub augment_serialize {
+  my $self = shift;
+
+  my @refs = $self->references;
+  return(
+    (scalar(@refs) ? (references => [@refs]) : ()),
+  );
+} # end subroutine augment_serialize definition
+########################################################################
+
+=head2 augment_deserialize
+
+  %props_out = dtRdr::Note->augment_deserialize(%props_in);
+
+=cut
+
+sub augment_deserialize {
+  my $package = shift;
+  my %props = @_;
+
+  return(
+    ($props{references} ?
+      (references => [@{$props{references}}]) : ()
+    ),
+  );
+} # end subroutine augment_deserialize definition
+########################################################################
 
 =head1 AUTHOR
 

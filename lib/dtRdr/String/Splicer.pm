@@ -1,4 +1,5 @@
 package dtRdr::String::Splicer;
+$VERSION = eval{require version}?version::qv($_):$_ for(0.10.1);
 
 use warnings;
 use strict;
@@ -6,7 +7,6 @@ use English '-no_match_vars';
 
 use Carp;
 
-our $VERSION = '0.01';
 
 ########################################################################
 use dtRdr::Accessor;

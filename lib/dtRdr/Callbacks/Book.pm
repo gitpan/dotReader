@@ -1,5 +1,5 @@
 package dtRdr::Callbacks::Book;
-$VERSION = eval{require version}?version::qv($_):$_ for(0.1.1);
+$VERSION = eval{require version}?version::qv($_):$_ for(0.10.1);
 
 use warnings;
 use strict;

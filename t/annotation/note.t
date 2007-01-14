@@ -5,9 +5,12 @@
 use strict;
 use warnings;
 
-use Test::More (
-  'no_plan'
-  );
+use inc::testplan(1,
+  3 + # use_ok
+  2 + # open_book
+  4 +
+  2 * 5
+);
 
 BEGIN {use_ok('dtRdr::Note');}
 BEGIN {use_ok('dtRdr::Location');}

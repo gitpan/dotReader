@@ -9,6 +9,7 @@ my $builder = $build_class->new(
   license             => 'gpl',
   dist_version_from   => 'lib/dtRdr.pm',
   dist_author         => 'OSoft Inc.',
+  dist_abstract       => 'Cross-Platform XML Book Reader',
   recursive_test_files => 1,
   testfile_types       => {
     'gui' => 'gt',
@@ -23,7 +24,6 @@ my $builder = $build_class->new(
     'Archive::Zip::MemberRead' => 0,
     'Class::Accessor'          => '0.25',
     'Class::Accessor::Classy'  => '0.001001',
-    # 'Class::Trait'             => '0.20',
     'DBD::SQLite'              => 0, # 1.12 ??
     'DBI'                      => 0,
     'File::NCopy'              => 0,
@@ -39,6 +39,7 @@ my $builder = $build_class->new(
     'LWP::Parallel::UserAgent' => 0,
     'XML::Twig'                => 3.22,
     'YAML::Syck'               => 0.67,
+    'Tree::Simple'             => 0,
     ################################################################
     # Windows prereqs
     ( $^O eq 'MSWin32' ? (

@@ -1,10 +1,10 @@
 package Regexp::PosIterator;
+$VERSION = eval{require version}?version::qv($_):$_ for(0.10.1);
 
 use warnings;
 use strict;
 use Carp;
 
-our $VERSION = '0.01';
 
 =head1 NAME
 

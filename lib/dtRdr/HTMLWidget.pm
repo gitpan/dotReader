@@ -1,11 +1,11 @@
 package dtRdr::HTMLWidget;
+$VERSION = eval{require version}?version::qv($_):$_ for(0.10.1);
 
 use warnings;
 use strict;
 
 use Carp;
 
-our $VERSION = 0.01;
 
 use dtRdr::Traits::Class qw(
   NOT_IMPLEMENTED

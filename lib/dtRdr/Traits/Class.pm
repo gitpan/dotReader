@@ -1,10 +1,10 @@
 package dtRdr::Traits::Class;
+$VERSION = eval{require version}?version::qv($_):$_ for(0.10.1);
 
 use warnings;
 use strict;
 use Carp;
 
-our $VERSION = '0.01';
 
 # XXX Class::Trait not ready for prime-time?
 # a: "too late to run INIT" -- show stopper

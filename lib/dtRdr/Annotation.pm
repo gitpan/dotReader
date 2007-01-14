@@ -1,15 +1,14 @@
 package dtRdr::Annotation;
+$VERSION = eval{require version}?version::qv($_):$_ for(0.10.1);
 
 use warnings;
 use strict;
 
-our $VERSION = '0.01';
 
 use dtRdr::Traits::Class qw(claim);
 
-# yay! we can't do this here because of MI and Class::Accessor::new()
 use Class::Accessor::Classy;
-ro 'is_fake';
+ro 'is_fake'; sub set_is_fake {$_[0]->{is_fake} = 1};
 no  Class::Accessor::Classy;
 
 =head1 NAME
@@ -20,9 +19,46 @@ dtRdr::Annotation - base class for Note, Bookmark, and Highlight objects
 
 Not much happening here.  See L<dtRdr::Annotation::Range>.
 
+=head1 TYPES
+
+The inheritance and traits isn't very easily drawn.  This is about the
+best a 2D picture can get.
+
+                 Range  <-- Location (start, end)
+                   |
+  Annotation    Selection
+    \             /
+     \           /
+      \         /
+       \       /
+    Annotation::Range
+      |-- Highlight
+      |-- Note     (+ Annotation::Trait::Boundless)
+      |-- Bookmark (+ Annotation::Trait::Boundless)
+      `-- AnnoSelection
+
+Currently, all annotations are range-based.  Point-based annotations
+would be derived from dtRdr::Location, but we haven't found a use for
+those yet.
+
 =cut
 
+=head1 Identifier Methods
 
+=head2 IS_RANGE_TYPE
+
+Required for all annotations.  Any annotation derived from this
+class is a range type, so this is just a constant.
+
+=cut
+
+use constant {IS_RANGE_TYPE => 0};
+
+=head2 ANNOTATION_TYPE
+
+Must be implemented by subclasses.
+
+=cut
 
 
 
