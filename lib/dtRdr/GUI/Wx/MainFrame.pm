@@ -167,7 +167,7 @@ sub __wx_glade_sub_new {
 	$self->{window_1} = Wx::SplitterWindow->new($self, 501, wxDefaultPosition, wxDefaultSize, wxSP_3D|wxSP_BORDER);
 	$self->{right_window} = Wx::SplitterWindow->new($self->{window_1}, -1, wxDefaultPosition, wxDefaultSize, wxSP_3D|wxSP_BORDER);
 	$self->{note_viewer_pane} = dtRdr::GUI::Wx::NoteViewer->new($self->{right_window}, -1, wxDefaultPosition, wxDefaultSize, );
-	$self->{frame_main_statusbar} = $self->CreateStatusBar(2, wxST_SIZEGRIP);
+	$self->{frame_main_statusbar} = $self->CreateStatusBar(2);
 	use dtRdr::GUI::Wx::Sidebar;
 	$self->{sidebar} = dtRdr::GUI::Wx::Sidebar->new($self->{window_1}, -1);
 	use dtRdr::GUI::Wx::BVManager;

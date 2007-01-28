@@ -11,8 +11,10 @@ use Carp;
 #}
 
 use Wx::WebKit;
+
+sub base { 'Wx::WebKitCtrl' };
 use base qw(dtRdr::HTMLWidget);
-  sub base { 'Wx::WebKitCtrl' };
+
 use Wx::WebKit::Event qw(:all);
 #use Wx::Panel;
 

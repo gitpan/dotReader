@@ -20,8 +20,9 @@ use Wx::Event qw(
 use Wx::Html;
 use Wx::Mozilla;
 use Wx::Mozilla::Event qw(:all);
+
+sub base { 'Wx::MozillaBrowser' };
 use base 'dtRdr::HTMLWidget';
-  sub base { 'Wx::MozillaBrowser' };
 
 # TEMPORARY {{{
 use dtRdr::Traits::Class qw(

@@ -1,6 +1,6 @@
 ---
 name: dotReader
-version: v0.0.10
+version: v0.0.11
 author:
   - OSoft Inc.
 abstract: Cross-Platform XML Book Reader
@@ -9,7 +9,6 @@ resources:
   license: http://www.opensource.org/licenses/gpl-license.php
 requires:
   Archive::Zip: 0
-  Archive::Zip::MemberRead: 0
   Class::Accessor: 0.25
   Class::Accessor::Classy: 0.001001
   DBD::SQLite: 0
@@ -21,18 +20,15 @@ requires:
   Method::Alias: 0
   Module::Finder: 0.001001
   Module::Pluggable: 2.96
-  Test::More: 0.62
   Tree::Simple: 0
+  URI: 0
   Wx: 0.26
-  Wx::Event: 0
-  Wx::Html: 0
   Wx::Mozilla: 0.05
   XML::Parser::Expat: 0
   XML::Twig: 3.22
   YAML::Syck: 0.67
 build_requires:
-  Devel::TraceUse: 0
-  PAR: 0
+  Test::More: 0.62
 provides:
   LWP::Iterator::UserAgent:
     file: lib/LWP/Iterator/UserAgent.pm
@@ -62,7 +58,7 @@ provides:
     version: v0.10.1
   dtRdr:
     file: lib/dtRdr.pm
-    version: v0.0.10
+    version: v0.0.11
   dtRdr::Accessor:
     file: lib/dtRdr/Accessor.pm
     version: v0.10.1

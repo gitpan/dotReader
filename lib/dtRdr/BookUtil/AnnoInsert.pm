@@ -382,7 +382,7 @@ sub hoppers {
 
 =cut
 
-our %DO_ON_OPEN = map({$_ => 1} qw(bookmark highlight selection));
+our %DO_ON_OPEN = map({$_ => 1} qw(bookmark highlight annoselection));
 sub opening_marker {
   my $self = shift;
   my ($anno) = @_;

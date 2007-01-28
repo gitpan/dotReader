@@ -17,7 +17,7 @@ no  Class::Accessor::Classy;
   # a class for search results, currently pretty sparse
   package dtRdr::AnnoSelection;
   our @ISA = qw(dtRdr::Annotation::Range);
-  use constant {ANNOTATION_TYPE => 'selection'};
+  use constant {ANNOTATION_TYPE => 'annoselection'};
 }
 
 =head1 NAME

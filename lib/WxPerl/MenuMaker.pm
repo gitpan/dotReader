@@ -214,7 +214,9 @@ sub create_menu {
       );
     }
     else {
-      $menu_item = $menu->Append(Wx::NewId(), $item->{label}, '');
+      my $label = $item->{label};
+      $label =~ s/\\t/\t/; # allow visible tabs
+      $menu_item = $menu->Append(Wx::NewId(), $label, '');
       $self->_mk_event($item, $name, $menu_item);
     }
     $self->_mk_accessor($self->menu_items, $name, $menu_item);

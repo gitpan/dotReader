@@ -1,11 +1,11 @@
 package dtRdr;
-$VERSION = eval{require version}?version::qv($_):$_ for(0.0.10);
+$VERSION = eval{require version}?version::qv($_):$_ for(0.0.11);
+
+use dtRdr::0; # the rest of this package
 
 use warnings;
 use strict;
 use Carp;
-
-use English '-no_match_vars';
 
 use dtRdr::Plugins;
 use dtRdr::User;
@@ -13,7 +13,6 @@ use dtRdr::Logger;
 use File::Copy ();
 
 use dtRdr::Accessor;
-my $set_data_dir = dtRdr::Accessor->class_ro_w( data_dir => '');
 my $set_user = dtRdr::Accessor->class_ro_w( user => '');
 dtRdr::Accessor->class_rw(
   user_dir => './',
@@ -129,6 +128,11 @@ places) if it exists.
 
   dtRdr->init_app_dir(__FILE__); # must be next to data/
 
+The app directory is what would typically be found next to the
+executable in an installed situation.  It contains things like 'data/'
+
+This call also initializes various other parts of the environment.
+
 =cut
 
 sub init_app_dir {
@@ -136,26 +140,9 @@ sub init_app_dir {
   my ($filename) = @_;
   # TODO do we need an 'app_dir' accessor?
 
-  my $app_dir = '';
-  if($ENV{'PAR_TEMP'}) {
-    $app_dir = $ENV{'PAR_TEMP'} . '/inc/';
-  }
-  else {
-    require File::Basename;
-    if(-d $filename) {
-      $app_dir = $filename;
-    }
-    else {
-      $app_dir = File::Basename::dirname($filename);
-    }
-    (-e $app_dir) or die "no app directory: '$app_dir'";
-    require File::Spec;
-    $app_dir = File::Spec->rel2abs($app_dir);
-  }
+  my $app_dir = $package->program_dir($filename);
 
   $package->_init_user_dir;
-  $package->_init_data_dir($app_dir);
-
 } # end subroutine init_app_dir definition
 ########################################################################
 
@@ -168,7 +155,7 @@ sub init_app_dir {
 sub set_user_dir {
   my $package = shift;
   my ($dir) = @_;
-  $dir =~ s#\\#/#g if($OSNAME eq 'MSWin32');
+  $dir =~ s#\\#/#g if($^O eq 'MSWin32');
   $dir ||= './';
   $dir =~ s#/*$#/#;
   $package->SUPER::set_user_dir($dir);
@@ -195,41 +182,14 @@ sub _init_user_dir {
   $did_init_user_dir and return;
   $did_init_user_dir = 1;
 
-  my $loc = eval{PerlWrapper->BundlePath} || $PROGRAM_NAME;
-  # TODO absolute
-
   # TODO check ~/.dotreader and such
 
-  # remove extension (but don't try too hard)
-  $loc =~ s/\.[^.]{2,3}$//;
-
-  $loc = lc($loc . '-data');
+  my $loc = $package->program_base . '-data';
   unless(-d $loc) { L->warn("no $loc"); return; }
 
   $package->set_user_dir($loc);
 } # end subroutine _init_user_dir definition
 ########################################################################
-
-
-=head2 _init_data_dir
-
-This one is for application data.
-
-  dtRdr->_init_data_dir($app_dir);
-
-=cut
-
-sub _init_data_dir {
-  my $package = shift;
-  my ($app_dir) = @_;
-
-  $app_dir =~ s#\\#/#g if($OSNAME eq 'MSWin32');
-  $app_dir =~ s#/*$#/#; # must have a slash at the end
-
-  $set_data_dir->($app_dir . 'data/');
-} # end subroutine _init_data_dir definition
-########################################################################
-
 
 =head2 _reload
 

@@ -1,5 +1,14 @@
 Revision history for dotReader
 
+v0.0.11 Jan 27, 2007
+
+  * fixed CSS highlighting for search results
+  * repaired links in "Publication 556" book
+    (http://svn.dotreader.com/svn/books/default/publication_556.jar)
+
+  * added missing Tree::Simple dependency to mac build
+  * introduced '-mini' binary builds for linux and windows
+
 v0.0.10 Jan 13, 2007
 
   * fixed all-external-links-vanish bug in xml rewrite callbacks

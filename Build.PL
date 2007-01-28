@@ -19,9 +19,8 @@ my $builder = $build_class->new(
   },
   main_pl_file => 'client/app.pl',
   requires => {
-    'Test::More'               => 0.62,
     'Archive::Zip'             => 0,
-    'Archive::Zip::MemberRead' => 0,
+    #'Archive::Zip::MemberRead' => 0,
     'Class::Accessor'          => '0.25',
     'Class::Accessor::Classy'  => '0.001001',
     'DBD::SQLite'              => 0, # 1.12 ??
@@ -30,8 +29,8 @@ my $builder = $build_class->new(
     'Module::Finder'           => '0.001001',
     'Module::Pluggable'        => '2.96',
     'Wx'                       => '0.26',
-    'Wx::Event'                => 0,
-    'Wx::Html'                 => 0,
+    #'Wx::Event'                => 0,
+    #'Wx::Html'                 => 0,
     'XML::Parser::Expat'       => 0,
     'Method::Alias'            => 0,
     'Data::GUID'               => 0,
@@ -40,6 +39,7 @@ my $builder = $build_class->new(
     'XML::Twig'                => 3.22,
     'YAML::Syck'               => 0.67,
     'Tree::Simple'             => 0,
+    'URI'                      => 0,
     ################################################################
     # Windows prereqs
     ( $^O eq 'MSWin32' ? (
@@ -58,6 +58,10 @@ my $builder = $build_class->new(
     ################################################################
   }, # end requires
   build_requires => {
+    'Test::More'               => 0.62,
+  },
+  # XXX Module::Build doesn't speak build_recommends :-(
+  build_recommends => {
     'PAR'             => 0,
     'Devel::TraceUse' => 0,
   },

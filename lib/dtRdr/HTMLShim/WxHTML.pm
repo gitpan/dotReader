@@ -17,8 +17,8 @@ use Wx::Html;
 #   warn "this isn't meant to be used directly";
 # }
 
-our @ISA = ('dtRdr::HTMLWidget');
-  sub base {'Wx::HtmlWindow'};
+sub base {'Wx::HtmlWindow'};
+use base 'dtRdr::HTMLWidget';
 
 # TEMPORARY {{{
 use dtRdr::Traits::Class qw(

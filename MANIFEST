@@ -101,13 +101,19 @@ example_plugins/twb_button/dtRdr/GUI/Wx/Plugins/TWBButton.pm.DATA/twb_logo.png
 HACKING.pod
 inc/bin/update_exe_data.pl
 inc/dtRdrBuilder.pm
+inc/dtRdrBuilder/Accessory.pm
+inc/dtRdrBuilder/DB.pm
+inc/dtRdrBuilder/DepCheck.pm
+inc/dtRdrBuilder/Distribute.pm
 inc/dtRdrTestUtil.pm
 inc/dtRdrTestUtil/ABook.pm
 inc/dtRdrTestUtil/Expect.pm
 inc/dtRdrTestUtil/GUI.pm
 inc/loginit.pm
+inc/MBwishlist.pm
 inc/testplan.pm
 lib/dtRdr.pm
+lib/dtRdr/0.pm
 lib/dtRdr/Accessor.pm
 lib/dtRdr/Annotation.pm
 lib/dtRdr/Annotation/IO.pm
@@ -445,6 +451,7 @@ util/dr_search
 util/dump_char_offsets
 util/dump_toc
 util/guid
+util/link_report
 util/list_plugins
 util/macrun
 util/mk_library

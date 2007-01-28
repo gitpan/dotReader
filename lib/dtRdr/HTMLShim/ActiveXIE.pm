@@ -25,8 +25,8 @@ Win32::OLE->Option(CP => CP_UTF8);
 
 use Win32;
 
+sub base {'Wx::ActiveX::IE'};
 use base 'dtRdr::HTMLWidget';
-  sub base {'Wx::ActiveX::IE'};
 
 use dtRdr;
 use dtRdr::Accessor;

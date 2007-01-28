@@ -100,6 +100,7 @@ ro qw(
   menumap
   taskmaster
 );
+rw 'splash_screen';
 no  Class::Accessor::Classy;
 ########################################################################
 ########################################################################
@@ -140,8 +141,12 @@ sub new {
   $self = $self->SUPER::new(
     $parent, $id, $title, $pos, $size, $style, $name
     );
-  # put the splash out ASAP
-  $self->make_splash();
+
+  if(0) { # splash now handled by app.pl
+    $self->make_splash();
+    my $now = Time::HiRes::time();
+    WARN "splash is out in ", $now - $dtRdr::start_time, " seconds\n";
+  }
 
   return($self);
 } # end subroutine new definition
@@ -799,10 +804,9 @@ sub menu_help_license {
 sub menu_help_about {
   my $self = shift;
 
-  # TODO learn to use xrc
-  #my $dialog = $xr->LoadDialog($self, 'About');
+  # TODO get program name
   my $text =
-    'This is DotReader release ' . dtRdr->release_number .  '.';
+    'This is dotReader ' . dtRdr->release_number .  '.';
   my $dialog = Wx::MessageDialog->new(
     $self,
     $text,
@@ -1094,10 +1098,8 @@ sub kill_splash {
   my $self = shift;
   # destroy the splash after the Show() succeeds
   exists($self->{splash_screen}) or die "splash screen is already gone";
-  my $sp = $self->{splash_screen};
-  my $ret = $sp->Destroy;
-  delete($self->{splash_screen});
-  return($ret);
+  my $sp = delete($self->{splash_screen});
+  return($sp->Destroy);
 } # end subroutine kill_splash definition
 ########################################################################
 
