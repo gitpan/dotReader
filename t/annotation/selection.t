@@ -3,17 +3,30 @@
 use strict;
 use warnings;
 
-use inc::testplan(1,
-    1 + # use_ok
-    3 + # ABook
-    2
-);
+use Test::More;
+use inc::testplan ();
+
+my $book_uri;
+BEGIN {
+  $book_uri = 'books/test_packages/QuickStartGuide/quickstartguide.xml';
+  unless(-e $book_uri) {
+    plan skip_all => 'extra books/ dir not available';
+  }
+  else {
+    inc::testplan->import(1,
+        1 + # use_ok
+        3 + # ABook
+        2
+    );
+  }
+}
+
 use lib 'inc';
 use dtRdrTestUtil::ABook;
 
 BEGIN {use_ok('dtRdr::Selection');}
 
-my $book = ABook_new_1_0('test_packages/QuickStartGuide/quickstartguide.xml');
+my $book = ABook_new_1_0($book_uri);
 my $node = $book->find_toc($book->toc->id);
 $book->get_content($node);
 my $sel = $book->locate_string(

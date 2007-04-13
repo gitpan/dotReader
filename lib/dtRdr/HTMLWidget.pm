@@ -25,6 +25,10 @@ rw qw(
   load_in_progress
   zoom
 );
+ro qw(
+  parent
+  url_handler
+);
 rs html_source => \ (my $set_html_source);
 no  Class::Accessor::Classy;
 
@@ -160,19 +164,30 @@ Returns the base class of the widget.  Subclass must override this.
 sub base { my $self = shift; $self->NOT_IMPLEMENTED; }
 ########################################################################
 
-=head1 Methods
-
 =head1 Callback Methods
 
 =head2 init
 
 Initialization callback.
 
-  $widget->init($parent);
+  $widget->init($parent, url_handler => $handler);
 
 =cut
 
-sub init { my $self = shift; $self->WARN_NOT_IMPLEMENTED; 0;}
+sub init {
+  my $self = shift;
+  my $parent = shift;
+  (@_ % 2) and croak('odd number of elements in argument list');
+  my %args = @_;
+  $self->{parent} = $parent;
+  my @attribs = qw(
+    url_handler
+  );
+  foreach my $arg (@attribs) {
+    $self->{$arg} = $args{$arg} if(exists($args{$arg}));
+  }
+} # end subroutine init definition
+########################################################################
 
 =head1 ...Methods
 

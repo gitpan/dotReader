@@ -112,7 +112,9 @@ sub aggregate {
 The documentation for each callback here should also serve as your
 custom callback's prototype.
 
-=head2 core_link
+=head2 XML things
+
+=head3 core_link
 
 Create a uri to a core file (such as an icon.)  The default is to
 prepend 'dr://CORE/'.
@@ -127,7 +129,7 @@ $defaults{core_link} = sub {
 };
 ########################################################################
 
-=head2 img_src_rewrite
+=head3 img_src_rewrite
 
 Rewrites the img tag's src uri (such as into a base-64 encoded form.)
 The default just parrots the $uri with which it was called.
@@ -140,6 +142,35 @@ $defaults{img_src_rewrite} = sub {
   my ($src, $book) = @_;
   return($src);
 };
+########################################################################
+
+=head2 Annotation Events
+
+=head3 annotation_created
+
+  $callbacks->annotation_created($anno);
+
+=cut
+
+$defaults{annotation_created} = undef;
+########################################################################
+
+=head3 annotation_changed
+
+  $callbacks->annotation_changed($anno);
+
+=cut
+
+$defaults{annotation_changed} = undef;
+########################################################################
+
+=head3 annotation_deleted
+
+  $callbacks->annotation_deleted($anno);
+
+=cut
+
+$defaults{annotation_deleted} = undef;
 ########################################################################
 
 ########################################################################
@@ -183,7 +214,7 @@ sub define {
     # $subname .= 's';
     # also, define the append_foo_subs($sub1, $sub2, $sub3); method
   }
-  elsif(ref($def_subref) eq 'CODE') {
+  elsif((not defined($def_subref)) or (ref($def_subref) eq 'CODE')) {
     use Class::Accessor::Classy;
     rw $subname;
     no  Class::Accessor::Classy;
@@ -204,6 +235,7 @@ sub define {
     my $dosub = sub {
       my $self = shift;
       my $subref = $self->$getter || $def_subref;
+      $subref or return;
       return($subref->(@_));
     };
     $installer->($title, $dosub);
@@ -286,9 +318,9 @@ sub install_in {
     my @callback_objs;
     my %no_dupes;
     foreach my $base (@$class_isa) {
+      # We'll get a duplicate if we're just inheriting the base class's
+      # get_callbacks method, so we get the subref and compare.
       if(my $check = $base->can('get_callbacks')) {
-        # we'll get a duplicate if we're just inheriting the base
-        # class's get_callbacks method
         # XXX I don't know what this does in a diamond, maybe NEXT.pm?
         # but we only go one deep because get_callbacks goes the next
         # level deep

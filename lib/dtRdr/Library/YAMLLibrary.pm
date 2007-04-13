@@ -322,7 +322,7 @@ sub book_data {
   # TODO make those persistent objects
   return([map({
     dtRdr::LibraryData::BookInfo->new(%{$B->[$_]},
-      id => $_, library => $self
+      intid => $_, library => $self
     )
   } 0..$#$B)]);
 } # end subroutine book_data definition

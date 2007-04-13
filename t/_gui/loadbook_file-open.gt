@@ -3,7 +3,8 @@
 use strict;
 use warnings;
 
-use Test::More qw(no_plan);
+use inc::testplan(1, 7);
+use test_inc::loginit;
 
 use constant { D => 0 };
 
@@ -78,4 +79,5 @@ foreach my $item (@checklist) {
 
 ok($idle_ok, 'exit');
 
+done;
 # vim:ts=2:sw=2:et:sta

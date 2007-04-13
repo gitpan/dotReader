@@ -38,7 +38,7 @@ is($toc->get_title, 'Perl 5.8.6 Documentation', "Check TOC title");
 
 my (@children_toc) = $book->toc->children;
 is(scalar(@children_toc), 15, "Check TOC children");
-is_deeply(\@children_toc, [$toc->get_children], 'tops and root children match');
+is_deeply(\@children_toc, [$toc->children], 'tops and root children match');
 isa_ok($_, 'dtRdr::TOC', 'child') for(@children_toc);
 
 is(

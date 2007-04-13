@@ -104,23 +104,10 @@ sub load_uri {
     $self->set_xml_content(<$fh>);
   }
 
-  $filename = Cwd::abs_path($filename);
-  $self->{location} = $filename;
+  $filename = $self->{location} = Cwd::abs_path($filename);
   $self->set_base_dir(File::Basename::dirname($filename).'/');
 
-  my $meta = eval { $self->setup_metadata };
-  $@ and RL('#author')->warn("you may be missing parts of your book -- error: '$@'");
-  # ??? do we need to set class-specific meta here?
-
-  # TODO make metadata and toplevel (id/title) properties make sense
-
-  $self->build_toc(build_aot => 1) or die;
-
-  # XXX get this in Base somehow
-  defined($self->id) or $self->set_id($self->get_metadata->get('id'));
-  defined($self->title) or $self->set_title($self->get_metadata->get('title'));
-
-  return $self;
+  return $self->finish_load;
 } # end subroutine load_uri definition
 ########################################################################
 

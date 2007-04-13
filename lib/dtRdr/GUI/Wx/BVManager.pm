@@ -8,39 +8,45 @@ use strict;
 use dtRdr;
 use dtRdr::Book;
 use dtRdr::HTMLWidget;
+use dtRdr::GUI;
 use dtRdr::GUI::Wx::BookView;
 use dtRdr::Annotation::IO;
 
-use Wx (
-  # ':everything',
-  qw(
+use Wx qw(
   wxHORIZONTAL
   wxVERTICAL
   wxEXPAND
   wxHW_NO_SELECTION
   wxDefaultSize
   wxDefaultPosition
-  ));
+);
 
 use base 'Wx::Panel';
 
-use dtRdr::Accessor;
-dtRdr::Accessor->ro(qw(
-    main_frame
-    book_view
-    sidebar
-    htmlwidget
-    anno_io
-    note_viewer
-));
+use Class::Accessor::Classy;
+ro qw(
+  main_frame
+  book_view
+  sidebar
+  htmlwidget
+  anno_io
+  note_viewer
+  bookbag
+);
+ro 'in_open';
+no  Class::Accessor::Classy;
 
 use dtRdr::Logger;
+use dtRdr::BookBag;
 
 =head1 NAME
 
 dtRdr::GUI::Wx::BVManager - a container of sorts
 
 =head1 SYNOPSIS
+
+This widget acts as a container for multiple book views and
+holding/finding various in-memory data.
 
 =head1 Inheritance
 
@@ -83,10 +89,11 @@ sub init {
   $self->{main_frame} = $frame;
   $self->{sidebar} = $frame->sidebar;
   $self->{note_viewer} = $frame->note_viewer;
+  $self->{bookbag} = dtRdr::BookBag->new;
 
   my $widget = dtRdr::HTMLWidget->new([$self, -1]);
   $self->{htmlwidget}   = $widget;
-  $widget->init($self);
+  $widget->init($self, url_handler => $self);
   $self->show_welcome;
   if($widget->can('meddle')) {$widget->meddle();}
 
@@ -111,28 +118,28 @@ sub init {
   # full-screen noteviewer
   #$self->SetMinSize(Wx::Size->new(-1, 0));
 
-  { # setup the core_link callback
-    use File::Spec;
-    use English '-no_match_vars';
-    my $icon_dir = File::Spec->rel2abs(dtRdr->data_dir);
-    # de-billify path so URI doesn't get silly
-    $icon_dir =~ s#\\#/#g if($OSNAME eq 'MSWin32');
+  # setup the core_link callback
+  dtRdr::Book->callback->set_core_link_sub(sub {
+    use URI;
+    my ($file) = @_;
+    return(
+      URI->new('file://' . dtRdr::GUI->find_icon($file))->as_string
+    );
+  });
 
-    dtRdr::Book->callback->set_core_link_sub(sub {
-      use URI;
-      my ($file) = @_;
-      return( URI->new(
-        'file://' . $icon_dir . '/gui_default/icons/' . $file
-        )->as_string
-      );
-    });
+  # setup the img_src_rewrite callback
+  if($widget->can('img_src_rewrite_sub')) {
+    dtRdr::Book->callback->set_img_src_rewrite_sub(
+      $widget->img_src_rewrite_sub
+    );
   }
-  { # setup the img_src_rewrite callback
-    if($widget->can('img_src_rewrite_sub')) {
-      dtRdr::Book->callback->set_img_src_rewrite_sub(
-        $widget->img_src_rewrite_sub
-      );
-    }
+
+  # setup the sync callbacks
+  # annotation_created, changed, deleted => _annotation_created ...
+  foreach my $event (qw(created changed deleted)) {
+    my $setter = 'set_annotation_' . $event . '_sub';
+    my $action = '_annotation_' . $event;
+    dtRdr::Book->callback->$setter(sub {$self->$action(@_)});
   }
 
   # get ourselves an annotation IO object
@@ -140,7 +147,6 @@ sub init {
     dtRdr::Annotation::IO->new(uri => dtRdr->user_dir . 'annotations/');
 } # end subroutine init definition
 ########################################################################
-
 
 =head2 show_welcome
 
@@ -238,6 +244,7 @@ sub load_url {
   }
 } # end subroutine load_url definition
 ########################################################################
+#sub load_url { my $self = shift; $self->book_view->load_url(@_); }
 
 =head1 Book
 
@@ -255,7 +262,7 @@ sub open_book {
   # TODO clear search results?
 
   # TODO if we have a book_view, freeze it, etc
-  $self->{book_view} and warn "\n\nnot done\n\n ";
+  $self->{book_view} and L->info("\n\nnot done\n\n");
 
   # create and init the bookview
   my $bv = $self->{book_view} = dtRdr::GUI::Wx::BookView->new($book);
@@ -269,7 +276,20 @@ sub open_book {
     htmlwidget     => $self->htmlwidget
   );
 
-  $self->anno_io->apply_to($book);
+  my $bag = $self->bookbag;
+  # TODO we need DESTROY on tab-close somewhere
+  # for now, open one means close another
+  $bag->delete($_) for($bag->list);
+
+  # only apply if we don't have this book in the bookbag
+  unless($bag->find($book->id)) {
+    # disable the callbacks during the anno_io setup (or else the
+    # callbacks would run before the populate() calls)
+    local $self->{in_open} = 1;
+    $self->anno_io->apply_to($book);
+  }
+  $bag->add($book);
+  
   { # populate the sidebar trees
     my @trees = qw(
       book
@@ -294,6 +314,270 @@ sub open_book {
   $self->disable('_history');
   $self->sidebar->select_item('contents');
 } # end subroutine open_book definition
+########################################################################
+
+=head1 Notifications
+
+=head2 _annotation_created
+
+  $self->_annotation_created($anno);
+
+=cut
+
+sub _annotation_created {
+  my $self = shift;
+  my ($anno) = @_;
+
+  $self->in_open and return;
+
+  foreach my $bv ($self->find_book_views($anno->book)) {
+    $bv->annotation_created($anno);
+  }
+  if($anno->ANNOTATION_TYPE eq 'note') {
+    foreach my $nv ($self->find_note_views($anno)) {
+      # rebuild thread
+      $nv->show_note($anno);
+    }
+  }
+} # end subroutine _annotation_created definition
+########################################################################
+
+=head2 _annotation_changed
+
+  $self->_annotation_changed($anno);
+
+=cut
+
+sub _annotation_changed {
+  my $self = shift;
+  my ($anno) = @_;
+
+  $self->in_open and return;
+
+  # SBs for title
+  foreach my $bv ($self->find_book_views($anno->book)) {
+    $bv->annotation_changed($anno);
+  }
+
+  if($anno->ANNOTATION_TYPE eq 'note') {
+    # check NVs if $anno->references;
+    foreach my $nv ($self->find_note_views($anno)) {
+      $nv->render;
+    }
+  }
+} # end subroutine _annotation_changed definition
+########################################################################
+
+=head2 _annotation_deleted
+
+  $self->_annotation_deleted($anno);
+
+=cut
+
+sub _annotation_deleted {
+  my $self = shift;
+  my ($anno) = @_;
+
+  $self->in_open and return;
+
+  foreach my $bv ($self->find_book_views($anno->book)) {
+    $bv->annotation_deleted($anno);
+  }
+
+  if($anno->ANNOTATION_TYPE eq 'note') {
+    # check NVs if $anno->references;
+    foreach my $nv ($self->find_note_views($anno)) {
+      # rebuild thread or maybe just go away
+      $nv->note_deleted($anno);
+    }
+  }
+} # end subroutine _annotation_deleted definition
+########################################################################
+
+=head1 Annotations
+
+=head2 create_note
+
+Open the note editor for a newly created note.  Requires an existing
+note object which is not yet in the book.
+
+  $bvm->create_note($note, %args);
+
+=cut
+
+sub create_note {
+  my $self = shift;
+  my ($note, %args) = @_;
+
+  use dtRdr::GUI::Wx::NoteEditor;
+  my $editor = dtRdr::GUI::Wx::NoteEditor->new();
+  if($args{public}) {
+    # TODO make that be an object?
+    $editor->checkbox_public->SetValue(1);
+  }
+
+  # add the note and let the callbacks deal with the rest
+  # -- user can then background this
+  $note->book->add_note($note);
+
+  my $saver = sub {
+    $note->set_title($editor->text_ctrl_title->GetValue);
+    $note->set_content($editor->text_ctrl_body->GetValue);
+    # XXX icky
+    if($editor->checkbox_public->IsChecked) {
+      # TODO drop-down to pick server
+      my ($server, @plus) = dtRdr->user->config->servers;
+      @plus and die "ok, time to fix this bit";
+      $note->make_public(
+        owner => undef,
+        server => $server->id,
+      );
+    }
+
+    $note->book->change_note($note);
+  };
+  $editor->set_saver($saver);
+
+  # TODO
+  #   Q: what if they decide to come back and edit it again while that
+  #     editor is still open?
+  #   A: have a list of editor objects and just do $editor->Raise
+  my $reverter = sub {
+    $note->book->delete_note($note);
+  };
+  $editor->set_reverter($reverter);
+  $editor->set_fields(
+    title => $note->title,
+    body  => $note->content,
+  );
+
+  # TODO set_autosaver
+
+  # defer the show until here because it messes with focus otherwise
+  $editor->Show(1);
+} # end subroutine create_note definition
+########################################################################
+
+=head2 edit_note
+
+Edit an existing note.
+
+  $bv->edit_note($note);
+
+=cut
+
+sub edit_note {
+  my $self = shift;
+  my ($note) = @_;
+
+  if(my $pub = $note->public) {
+    defined($pub->owner) and die "you do not own that note";
+  }
+
+  use dtRdr::GUI::Wx::NoteEditor;
+  if(0) {
+  # TODO check for existing editor and raise if so
+    WARN("edit_note() not done yet");
+    return;
+  }
+
+  # make a new one with a proper revert
+  my $editor = dtRdr::GUI::Wx::NoteEditor->new();
+  $editor->set_fields(
+    title => $note->title,
+    body  => $note->content,
+  );
+
+  # XXX icky
+  $editor->checkbox_public->SetValue(defined($note->public));
+  $editor->checkbox_public->Enable(0);
+
+  my $book = $note->book;
+  my $saver = sub {
+    $note->set_title($editor->text_ctrl_title->GetValue);
+    $note->set_content($editor->text_ctrl_body->GetValue);
+    # TODO $note->inc_rev ? or do unchange_note below ?
+    $note->book->change_note($note);
+  };
+  $editor->set_saver($saver);
+  # need to have a serialized note
+  # (though this only matters if we have autosave enabled)
+  my $snapshot = $note->clone;
+  my $reverter = sub {
+    WARN("revert not working yet");
+    # we have to write into the existing object
+    %$note = %$snapshot;
+    # XXX only need this when autosave is enabled
+    # $note->book->change_note($note);
+  };
+  $editor->set_reverter($reverter);
+  # TODO autosaver
+  # defer the show until here because it messes with focus otherwise
+  $editor->Show(1);
+} # end subroutine edit_note definition
+########################################################################
+
+=head2 show_note
+
+  $bvm->show_note($note);
+
+=cut
+
+sub show_note {
+  my $self = shift;
+  my ($note) = @_;
+  $self->note_viewer->show_note($note);
+} # end subroutine show_note definition
+########################################################################
+
+=head1 Finding Views
+
+This part is in flux.
+
+=head2 find_book_views
+
+  my @views = $bvm->find_book_views($book);
+
+=cut
+
+sub find_book_views {
+  my $self = shift;
+  my ($book) = @_;
+
+  # TODO a bookbag, viewbag or something
+  my @views = ($self->book_view);
+
+  return(grep({$_->book == $book} @views));
+} # end subroutine find_book_views definition
+########################################################################
+
+=head2 find_note_views
+
+  my @views = $bvm->find_note_views($note);
+
+=cut
+
+sub find_note_views {
+  my $self = shift;
+  my ($note) = @_;
+
+  my @views = ($self->note_viewer);
+
+  my $note_id = $note->id;
+  my $root_id;
+  if(my @refs = $note->references) {
+    $root_id = $refs[-1];
+  }
+  return(
+    grep({
+      my $id = $_->thread_id;
+      defined($id) and (
+        ($id eq $note_id) or (defined($root_id) and ($id eq $root_id))
+      )
+    } @views
+    )
+  );
+} # end subroutine find_note_views definition
 ########################################################################
 
 =head1 AUTHOR

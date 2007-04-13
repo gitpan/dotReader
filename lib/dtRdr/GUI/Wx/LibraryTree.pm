@@ -55,7 +55,7 @@ sub populate {
   my $self = shift;
 
   # hmm. config is like a LibraryCard?
-  my (@libraries) = dtRdr->user->get_libraries();
+  my @libraries = dtRdr->user->libraries;
   #warn "Got ", scalar(@libraries), " libraries";
   my $toplevel = $self->AddRoot("My Libraries", -1, -1, 'root');
   foreach my $library (@libraries) {
@@ -67,9 +67,10 @@ sub populate {
 
     foreach my $book_info ($library->get_book_info()) {
       my $title = $book_info->title;
-      my $id = $library . "\0" . $book_info->id;
+      my $intid = $library . "\0" . $book_info->intid;
+      # TODO may need to change library to use intid for books
       $self->AppendItem($root, $title, -1, -1,
-        [$id, $book_info],
+        [$intid, $book_info],
       )
     }
     # XXX maybe only expand the first (e.g. default) library
@@ -112,7 +113,9 @@ sub item_activated {
   if($data->isa('dtRdr::LibraryData::BookInfo')) {
     0 and warn "got a book";
     my $bvm = $self->bv_manager;
-    my $book = $data->library->open_book(id => $data->id);
+    my $book = eval {$self->main_frame->busy(sub {
+      $data->library->open_book(intid => $data->intid);
+    })} or return $self->main_frame->error("cannot open book -- $@");
     $bvm->open_book($book);
   }
   else {

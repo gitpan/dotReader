@@ -8,13 +8,15 @@ use warnings;
 use strict;
 use Carp;
 
-use base qw(
-  inc::MBwishlist
-  Module::Build
-  inc::dtRdrBuilder::Accessory
-  inc::dtRdrBuilder::DB
-  inc::dtRdrBuilder::DepCheck
-  inc::dtRdrBuilder::Distribute
+use base (
+  #'inc::MBwishlist', # 0.2807 got it
+  qw(
+    inc::dtRdrBuilder::PodCoverage
+    Module::Build
+    inc::dtRdrBuilder::Accessory
+    inc::dtRdrBuilder::DepCheck
+    inc::dtRdrBuilder::Distribute
+  ),
 );
 
 my $perl = $^X;
@@ -88,6 +90,17 @@ sub ACTION_testgui {
   $self->generic_test(type => 'gui');
 }
 
+=item testsync
+
+Run the sync tests.
+
+=cut
+
+sub ACTION_testsync {
+  my $self = shift;
+  $self->generic_test(type => 'sync');
+}
+
 =item testbinary
 
 Test the built binary.  This runs (mostly) in the same context as a
@@ -135,25 +148,28 @@ sub ACTION_runbinary {
 
 =item par
 
+This is now deprecated in favor of the mini.  Still need the --mini
+option to get there though.
+
 Build a binfilename() (e.g. 'binary_build/dotreader.exe') par.
 
-By default, this has no console on windows.  Use the "dev" pseudo-option
-to enable console output (only matters on windows.)
+By default, this has no console on windows.  Use the "--nogui" option to
+enable console output (only matters on windows.)
 
-  build par dev
+  build par --nogui 
 
 =cut
 
 sub ACTION_par {
   my $self = shift;
 
-  my %args = $self->_my_args;
+  my %args = $self->args;
 
   # just switch to mini mode
   return($self->depends_on('par_parts')) if($args{mini});
 
-  my $devmode = $args{dev} || 0; # XXX rename (dev should mean no deps?)
-  $devmode and warn "building with console";
+  my $use_gui = $args{gui};
+  $use_gui or warn "building with console";
 
   my $parfile = $self->binfilename;
   { # do we need to do anything?
@@ -254,7 +270,7 @@ sub ACTION_par {
     ),
     #'-n', # seems to lose a lot of stuff
     qw(-z 9),
-    ($devmode ? () : '--gui'), # only have console if requested
+    ($use_gui ? '--gui' : ()), # only have console if requested
     '-a',  $self->datadir . ';data',
     '--icon',
       File::Spec->rel2abs(
@@ -283,14 +299,16 @@ sub ACTION_par {
 
 =item par_parts
 
+Build the par_mini and then bundle it into an executable.
+
 =cut
 
 sub ACTION_par_parts {
   my $self = shift;
 
-  my %args = $self->_my_args;
+  my %args = $self->args;
 
-  my $devmode = $args{dev};
+  my $use_gui = $args{gui};
 
   $self->depends_on('par_mini');
 
@@ -303,7 +321,7 @@ sub ACTION_par_parts {
     $self->which_pp,
     '-o', $exe_file,
     qw(-z 9),
-    ($devmode ? () : '--gui'), # only have console if requested
+    ($use_gui ? '--gui' : ()), # only have console if requested
     '--icon',
       File::Spec->rel2abs(
         'client/data/gui_default/icons/dotreader.ico'
@@ -318,7 +336,14 @@ sub ACTION_par_parts {
 
 =item par_mini
 
-Build an archive with all of the project code.
+Build a '.par' archive with all of the project code.
+
+The dependencies for this build the par_core, which builds par_deps,
+which builds par_wx.
+
+These four files (the deps, plus the main archive) are all that is
+needed to construct a brand new executable binary on the client.  More
+on this later.
 
 =cut
 
@@ -341,6 +366,20 @@ sub ACTION_par_mini {
     die "failed to add script";
   $zip->overwriteAs($par_mini) == Archive::Zip::AZ_OK or die 'write error';
   warn "par_mini done\n";
+
+  # build the yaml file
+  {
+    require File::Basename;
+    require YAML::Syck;
+
+    my %yml_data = (
+      name => File::Basename::basename($par_mini),
+      requires => [ map({File::Basename::basename($self->$_)}
+          qw(par_core par_deps par_wx)),
+      ],
+    );
+    YAML::Syck::DumpFile($self->par_mini . '.yml', \%yml_data);
+  }
 
 } # end subroutine ACTION_par_mini definition
 ########################################################################
@@ -399,7 +438,11 @@ sub ACTION_par_seed {
 
 =item par_pl
 
-Build the blib/dotReader.pl file
+Build the blib/dotReader.pl file.
+
+This contains hardcoded version numbers for the dependency bits.  It
+gets built into the par_mini file using the seed.par, which solves the
+chicken/egg problem.
 
 =cut
 
@@ -483,6 +526,30 @@ sub ACTION_par_wx {
 } # end subroutine ACTION_par_wx definition
 ########################################################################
 
+=head2 par_blacklist
+
+Module::ScanDeps gets a bit too agressive
+
+  $self->par_blacklist;
+
+=cut
+
+sub par_blacklist {
+  my $self = shift;
+  my @blacklist = qw(
+    Log::Log4perl::Appender::DBI
+    Log::Log4perl::Appender::RRDs
+    Log::Log4perl::Appender::ScreenColoredLevels
+    Log::Log4perl::Appender::Socket
+    Log::Log4perl::Appender::Synchronized
+    Log::Log4perl::Appender::TestArrayBuffer
+    Log::Log4perl::Appender::TestBuffer
+    Log::Log4perl::Appender::TestFileCreeper
+  );
+  return(@blacklist);
+} # end subroutine par_blacklist definition
+########################################################################
+
 =item par_deps
 
 Bundle all of the non-core, non-wx dependencies.
@@ -523,6 +590,7 @@ sub ACTION_par_deps {
     map({('-M', $_)} @modlist),
     '-X', $seed_par,
     '-X', $wx_par,
+    map({('-X', $_)} $self->par_blacklist),
     '-e', ';'
   );
   warn "pp for $parfile\n";
@@ -574,6 +642,7 @@ sub ACTION_par_core {
     '-X', $seed_par,
     '-X', $wx_par,
     '-X', $deps_par,
+    map({('-X', $_)} $self->par_blacklist),
     '-B', # bundle core modules
     '-e', ';'
   );
@@ -585,6 +654,40 @@ sub ACTION_par_core {
   warn "par_core done\n";
   $self->update_dep_version('core');
 } # end subroutine ACTION_par_core definition
+########################################################################
+
+=item restore_par_cache
+
+Assumes ~/.dotreader_dep_cache/
+
+=cut
+
+sub ACTION_restore_par_cache {
+  my $self = shift;
+
+  require File::Basename;
+  require File::Path;
+  require File::Copy;
+
+  my @files = map({$self->$_} qw(par_core par_deps par_wx));
+  my $dir = File::Basename::dirname($files[0]);
+  File::Path::mkpath($dir) unless(-d $dir);
+
+  foreach my $file (@files) {
+    my $base = File::Basename::basename($file);
+    if(-e $file) {
+      warn "already have $base\n";
+      next;
+    }
+    my $cached = $ENV{HOME} . '/.dotreader_dep_cache/' . $base;
+    unless(-e $cached) {
+      warn "no cache for $base\n";
+      next;
+    }
+    1 and warn "$cached -> $file";
+    File::Copy::copy($cached, $file);
+  }
+} # end subroutine ACTION_restore_par_cache definition
 ########################################################################
 
 =item repar
@@ -870,7 +973,7 @@ Builds the binary and starter data for the current platform.
 
 sub ACTION_binary {
   my $self = shift;
-  my %args = $self->_my_args;
+  my %args = $self->args;
   $self->depends_on( ($^O eq 'darwin') ?  'appbundle' : 'par' );
   $args{bare} or $self->depends_on('starter_data');
 } # end subroutine ACTION_binary definition
@@ -905,8 +1008,8 @@ sub ACTION_binary_package {
 
 =head2 binary_package_name
 
-Assembles exception, platform, modifiers, version, and version bump
-values into a name (without .extension)
+Assembles platform, modifiers, version (and previewness) values into a
+name (without .extension)
 
   my $packname = $self->binary_package_name;
 
@@ -921,23 +1024,24 @@ sub binary_package_name {
     darwin => 'mac',
     MSWin32 => 'win32',
   );
+
+  # maybe TODO ignore the --mini option on mac
+    # my %nomini = map({$_ => 1} qw(mac));
+    #((! $nomini{$platform} and $args{mini}) ? 'mini' : ()),
+
   my $platform = $choice{$^O} || $^O;
   my @special = (
     ($args{mini} ? 'mini' : ()),
     ($args{bare} ? 'bare' : ()),
   );
-  my @extra; # ppc, dev, etc
+  my @extra; # ppc, dev, etc (not currently used)
   my $bump; # e.g. pre
   my $name = join('-',
     lc($self->dist_name),
     @special,
     $platform,
     @extra,
-    ($args{'version-force'} ?
-      $args{'version-force'} :
-      $self->dist_version
-    ),
-    ($args{'version-bump'} ? $args{'version-bump'} : ()),
+    $self->bin_version
   );
   return($name);
 } # end subroutine binary_package_name definition
@@ -1175,6 +1279,12 @@ sub run_binary {
 } # end subroutine run_binary definition
 ########################################################################
 
+=head2 binfilename
+
+A filename for the binary.
+
+=cut
+
 sub binfilename {
   my $self = shift;
 
@@ -1187,16 +1297,57 @@ sub binfilename {
       ($args{mini} ? '-mini' : '') .
       ($^O eq 'MSWin32' ? '.exe' : '')
   );
-}
+} # end subroutine binfilename definition
+########################################################################
 
-# slight difference
+=head2 binfilename_sys
+
+The mac binfilename is a directory.  This gets an actual binary
+filename.  On windows and linux it is exactly binfilename().
+
+=cut
+
 sub binfilename_sys {
   my $self = shift;
   return( 
     $self->binfilename . 
     (($^O eq 'darwin') ? '/Contents/MacOS/dotReader' : '')
   );
-}
+} # end subroutine binfilename_sys definition
+########################################################################
+
+=head2 bin_version
+
+Same as dist_version I<iff> C<--release V>
+
+  $self->bin_version;
+
+=cut
+
+sub bin_version {
+  my $self = shift;
+
+  my %args = $self->args;
+  my $v = '' . $self->dist_version;
+
+  my $r = lc($args{release});
+
+  if($r eq 'v') {
+  }
+  elsif($args{release} eq 'p') {
+    $v =~ s/^v/p/ or die "oops";
+    my $preview = uc($args{preview});
+    $preview =~ m/^[A-Z0-9]+$/ or
+      die "invalid preview value: '$args{preview}'";
+    $v .= '.' . $preview;
+  }
+  else { # there was a 't' for 'tag', but I don't like it so...
+    die "invalid release arg '$r'";
+  }
+
+  return($v);
+} # end subroutine bin_version definition
+########################################################################
 
 # the distribution file (depends on current options)
 sub distfilename {
@@ -1236,7 +1387,7 @@ sub par_mini {
   return($self->binary_build_dir . '/' .
     join('-',
       'dotReader-mini',
-      $self->dist_version,
+      $self->bin_version,
       $self->short_archname,
       $Config{version}
     ) .'.par');
@@ -1313,7 +1464,7 @@ sub update_dep_version {
   my $depmethod = 'par_' . $tag;
   my $archive = $self->$depmethod;
   my $new_deps;
-  {
+  { # bunch of details here
     my $man = $self->grab_manifest($archive);
     my @mods = split(/\n/, $man);
     if($^O eq 'MSWin32') { # grr, scandeps problem?
@@ -1351,22 +1502,34 @@ sub update_dep_version {
       $depv{$mod} = defined($v) ? $v : '~';
     }
     $new_deps = join("\n", map({"$_ $depv{$_}"} sort(keys(%depv))));
-  }
+  } # end dep-details
+
   0 and warn "new deps:\n$new_deps\n";
+
   return if($new_deps eq (defined($old_deps) ? $old_deps : ''));
-  my $new_version = $self->dist_version;
-  if($new_version eq ($version || '')) {
-    die "dependencies for '$tag', changed, dist_version didn't";
+
+  # make dep versions vX.Y.Q, where Q is independent, but vX.Y stays
+  # roughly in-sync with the main dist
+  my $dist_version = $self->dist_version;
+  my $dist_XY = $dist_version;
+  $dist_XY =~ s/\.\d+$//;
+  if($version =~ m/^$dist_XY\.(\d+)/) {
+    $version = $dist_XY . '.' . ($1 + 1);
   }
-  warn "$tag version changed to $new_version\n";
+  else {
+    $version = $dist_version;
+  }
+
+  warn "$tag version changed to $version\n";
+
   # save the data
   open(my $fh, '>', $checkfile) or die "cannot write $checkfile";
-  print $fh join("\n", $new_version, $new_deps, '');
+  print $fh join("\n", $version, $new_deps, '');
   close($fh) or die "write $checkfile failed";
   # rename the archive
   rename($archive, $self->$depmethod) or die "cannot rename $archive";
   # and return the new version
-  return($new_version);
+  return($version);
 } # end subroutine update_dep_version definition
 ########################################################################
 
@@ -1398,6 +1561,35 @@ sub dep_version {
 } # end subroutine dep_version definition
 ########################################################################
 
+# just to debug option parser
+sub ACTION_argv {my $self = shift;
+  my %args = $self->args;
+  warn "actual \@ARGV: ", join(',', @ARGV), "\n";
+  warn "ARGV: ", join(',', @{delete($args{ARGV})}), "\n";
+  warn join("\n  ", 'args:', map({"$_ => $args{$_}"} keys %args)), "\n";
+  if(my $do = $args{do}) {
+    eval($do);
+    $@ and die "oops $@";
+  }
+}
+sub get_options {
+  my $self = shift;
+  my $specs = $self->SUPER::get_options;
+  my %own_specs = (
+    #'foo' => {}, # a simple boolean
+    #'bar' => {type => '=s'}
+    mini    => {},
+    bare    => {},
+    release => {type => '=s', default => 'p'},
+    preview => {type => '=s', default => 'A'},
+    nolink  => {}, # not really sure whether that should even exist
+    gui     => {type => '!', default => 1},
+    do      => {type => '=s'},
+  );
+  #warn "specs: ", %$specs;
+  return({%$specs, %own_specs});
+}
+
 =head2 deplist_file
 
   my $checkfile = $self->deplist_file($tag);
@@ -1416,11 +1608,12 @@ sub deplist_file {
 sub _my_args {
   my $self = shift;
 
+  # XXX quit using this
+
   my %args = $self->args;
   # TODO index this by the calling subroutine?
   my @bin_opts = qw(
     clean
-    dev
     nolink
     bare
     mini
@@ -1434,7 +1627,6 @@ sub _my_args {
 # for par (TODO put this elsewhere)
 sub additional_deps {
   qw(
-    dtRdr::Library::SQLLibrary
     Log::Log4perl::Appender::File
     Log::Log4perl::Appender::Screen
   );
@@ -1568,7 +1760,7 @@ sub write_release_file {
   my ($location) = @_;
 
   # let this get a different value from somewhere
-  my %args = $self->_my_args;
+  my %args = $self->args;
   my $release = $args{'release'};
   if($release) {
     if($release eq 'T') { # don't know if I'll use this, but here

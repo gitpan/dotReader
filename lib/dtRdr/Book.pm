@@ -8,8 +8,6 @@ use Carp;
 use XML::Parser::Expat;
 use Digest::MD5;
 use URI;
-use English '-no_match_vars';
-
 
 use dtRdr::Plugins::Book;
 use dtRdr::TOC;
@@ -25,21 +23,21 @@ use dtRdr::Traits::Class qw(
   NOT_IMPLEMENTED
   );
 
-use dtRdr::Accessor;
-dtRdr::Accessor->ro(qw(
+use Class::Accessor::Classy;
+ro qw(
   notes
   bookmarks
   highlights
   selections
   toc
-));
-dtRdr::Accessor->rw(qw(
+);
+ri qw(
   id
   title
-  library
-  anno_io
-));
-my $set_fingerprint = dtRdr::Accessor->ro_w('fingerprint');
+);
+rw 'anno_io';
+rs fingerprint => \ (my $set_fingerprint);
+no  Class::Accessor::Classy;
 
 use Method::Alias qw(
   has_cached_NC has_cached_node_characters
@@ -201,6 +199,8 @@ sub identify_by_uri {
 
 =head1 Base Class API
 
+These methods may be overridden by subclasses.
+
 =head1 Constructor
 
 =head2 new
@@ -221,6 +221,8 @@ sub new {
     notes       => {},
     selections  => {},
   );
+  # TODO if($self->can('METADATA_CLASS') {...}
+  # else {$self->{meta} = dtRdr::BookMetadata->new;}
   foreach my $k (keys(%defaults)) { $self->{$k} = $defaults{$k}; }
 	bless($self, $class);
 	return($self);
@@ -394,6 +396,9 @@ sub get_metadata {
   my $self = shift;
   exists $self->{metadata} or die "metadata doesn't exist";
   @_ or return $self->{metadata};
+
+  # TODO this functionality should not be here
+  #do('./util/BREAK_THIS') or die;
   my ($key) = @_;
 
   # return the value for the given key
@@ -461,6 +466,7 @@ foreach my $foo (qw(note bookmark highlight selection)) {
 
   # methods we'll create and maybe call
   my $add_foo      = 'add_'     . $foo;
+  my $change_foo   = 'change_'  . $foo;
   my $delete_foo   = 'delete_'  . $foo;
   my $find_foo     = 'find_'    . $foo;
   my $node_foos    = 'node_'    . $foos;
@@ -469,9 +475,9 @@ foreach my $foo (qw(note bookmark highlight selection)) {
 
 =head2 add_<annotation>
 
-  $book->add_note($node);
-  $book->add_bookmark($node);
-  $book->add_highlight($node);
+  $book->add_note($note);
+  $book->add_bookmark($bookmark);
+  $book->add_highlight($highlight);
 
 =cut
 
@@ -489,16 +495,60 @@ my $add_foo_sub = sub {
   $data->{$node_id}{$anno->id} = $anno;
   #WARN "added $anno";
 
+  # hope this isn't a speed issue
+  $self->get_callbacks->annotation_created($anno);
+
   # persist it
   $self->do_serialize('insert', $anno) if($persist);
+  return($anno);
 }; # end subroutine $add_foo_sub definition
+########################################################################
+
+=head2 change_<annotation>
+
+Notify callbacks and IO subsystem that the annotation has changed.
+
+  $note      = $book->change_note($note);
+  $bookmark  = $book->change_bookmark($bookmark);
+  $highlight = $book->change_highlight($highlight);
+
+Alternatively, for internal usage, will replace an annotation object
+with a new one bearing the same id.  If the object returned is not the
+same reference that you passed, you should use the one which is
+returned.
+
+=cut
+
+my $change_foo_sub = sub {
+  my $self = shift;
+  my ($anno) = @_;
+
+  my $node_id = $anno->node->id;
+  my $anno_id = $anno->id;
+
+  my $data = $self->$get_foos;
+  $data->{$node_id} or croak("cannot change that annotation");
+  my $had = $data->{$node_id}{$anno_id};
+  unless($had == $anno) {
+    # NOT: $data->{$node_id}{$anno_id} = $anno;
+    # oops, what about those who had a handle on it?
+    # XXX THIS SCARES ME,
+    # but it is probably (at least roughly) the way to go
+    %{$had} = %{$anno};
+  }
+
+  $self->get_callbacks->annotation_changed($had);
+
+  $self->do_serialize('update', $had) if($persist);
+  return($had);
+}; # end subroutine $change_foo_sub definition
 ########################################################################
 
 =head2 delete_<annotation>
 
-  $book->delete_note($node);
-  $book->delete_bookmark($node);
-  $book->delete_highlight($node);
+  $book->delete_note($note);
+  $book->delete_bookmark($bookmark);
+  $book->delete_highlight($highlight);
 
 =cut
 
@@ -515,8 +565,11 @@ my $delete_foo_sub = sub {
   $node_data or return();
   delete($node_data->{$anno->id});
 
+  $self->get_callbacks->annotation_deleted($anno);
+
   # persist it
   $self->do_serialize('delete', $anno) if($persist);
+  return($anno);
 }; # end subroutine $delete_foo_sub definition
 ########################################################################
 
@@ -533,7 +586,7 @@ my $find_foo_sub = sub {
   my ($anno_id) = @_;
 
   my $data = $self->$get_foos;
-  foreach my $key (%$data) {
+  foreach my $key (keys %$data) {
     if(my $anno = $data->{$key}{$anno_id}) {
       return($anno);
     }
@@ -621,6 +674,7 @@ my $package = __PACKAGE__;
 { # now just install them
   no strict 'refs';
   *{$package . '::' . $add_foo}      = $add_foo_sub;
+  *{$package . '::' . $change_foo}   = $change_foo_sub;
   *{$package . '::' . $delete_foo}   = $delete_foo_sub;
   *{$package . '::' . $find_foo}     = $find_foo_sub;
   *{$package . '::' . $node_foos}    = $node_foos_sub;
@@ -629,6 +683,57 @@ my $package = __PACKAGE__;
 }
 } # end pile of nearly identical methods
 ########################################################################
+########################################################################
+
+=head2 note_thread
+
+Look for notes in the same thread and build them into a tree.  Returns a
+dtRdr::NoteThread object, unless the note is a single, in which case it
+returns only the note object.
+
+  my $thread = $book->note_thread($note);
+
+$note may be a note object or note id.
+
+=cut
+
+sub note_thread {
+  my $self = shift;
+  my ($note) = @_;
+
+  my @pile = $self->find_note_references($note);
+  (1 == scalar(@pile)) and return($pile[0]);
+  my ($thread, @other) = dtRdr::NoteThread->create(@pile);
+  @other and die "threading broke"; # should return only one thread
+  return($thread);
+} # end subroutine note_thread definition
+########################################################################
+
+=head2 find_note_references
+
+A really stupid name?  Maybe just in the wrong place.
+
+  my @pile = $book->find_note_references($note);
+
+=cut
+
+sub find_note_references {
+  my $self = shift;
+  my ($note) = @_;
+
+  # TODO let that be an id
+
+  my $root_id = $note->id;
+  if(my @r = $note->references) {
+    $root_id = $r[-1];
+  }
+
+  my @pile = $self->local_notes($note->node);
+  my @thread = grep({ my @r;
+    ((@r = $_->references) ? $r[-1] : $_->id) eq $root_id;
+  } @pile);
+  return(@thread);
+} # end subroutine find_note_references definition
 ########################################################################
 
 =head2 drop_selections
@@ -777,6 +882,22 @@ sub do_serialize {
 } # end subroutine do_serialize definition
 ########################################################################
 
+=head2 io_action
+
+Disable the annotation I/O system while running an action.  Designed for
+use by the I/O system.
+
+  $book->io_action(sub {...});
+
+=cut
+
+sub io_action {
+  my $self = shift;
+  my ($subref) = @_;
+  local $self->{anno_io};
+  $subref->();
+} # end subroutine io_action definition
+########################################################################
 
 =head1 Text Search
 
@@ -853,8 +974,6 @@ sub insert_nbh {
     ),
   );
   #WARN "todo is ", join("|", map({$_->[1]} @todo));
-
-  # kill anything that is the child of a thread
 
   # we have to sort it here to get overlapping highlights to work
   @todo = sort({$a->[0] <=> $b->[0]} @todo);
@@ -1020,8 +1139,8 @@ sub _context_match {
   my @starts;
   my @ends;
   while($$str =~ m/($l)\s*($s)\s*($r)/g) {
-    my @s = @LAST_MATCH_START;
-    my @e = @LAST_MATCH_END;
+    my @s = @-;
+    my @e = @+;
     # we need to shift() each of these since the first will be the
     # entire match
     shift(@s);
@@ -1512,6 +1631,79 @@ sub _standard_xml_callbacks {
   end => {},
   );
 } # end subroutine _standard_xml_callbacks definition
+########################################################################
+
+########################################################################
+{ # Zombie package
+
+package dtRdr::Book::Zombie;
+
+use warnings;
+use strict;
+use Carp;
+
+use base 'dtRdr::Book';
+
+=head1 Zombies
+
+dtRdr::Book::Zombie - Books that walk around mindlessly
+
+Though they don't eat flesh, these are the undead books.  They have no
+content or other book-like capabilities besides an id and possibly a
+uri.
+
+They may be resurrect()ed, though that magic isn't done yet.  Similarly,
+calling $book->kill should turn it into a zombie.
+
+=cut
+
+=head2 new
+
+  dtRdr::Book::Zombie->new(id => $id);
+
+=cut
+
+sub new {
+  my $package = shift;
+  (@_%2) and croak("odd number of elements in argument hash");
+  my (%args) = @_;
+
+  defined($args{id}) or croak("must have id argument for zombie");
+
+  my $self = $package->SUPER::new(@_);
+
+  $self->set_id($args{id});
+  $self->{toc} = dtRdr::Book::Zombie::TOC->new(book => $self);
+
+  return($self);
+} # end subroutine new definition
+########################################################################
+
+# TODO is_alive accessor/constant?
+# kill/revive methods?
+
+{
+  package dtRdr::Book::Zombie::TOC;
+  use Class::Accessor::Classy;
+  with 'new';
+  ro 'id';
+  ro 'book';
+  no  Class::Accessor::Classy;
+  sub isa {
+    my $self = shift;
+    my ($ask) = @_;
+    return(1) if($ask eq 'dtRdr::TOC');
+    return $self->SUPER::isa($ask);
+  }
+  sub get_by_id {
+    my $self = shift;
+    my ($id) = @_;
+    return((ref($self) || $self)->new(id => $id, book => $self->book));
+  }
+
+} # end toc
+
+} # end Zombie
 ########################################################################
 
 =head1 See Also

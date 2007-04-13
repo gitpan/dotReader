@@ -12,7 +12,7 @@ use Carp;
 
 use Wx::WebKit;
 
-sub base { 'Wx::WebKitCtrl' };
+  sub base { 'Wx::WebKitCtrl' };
 use base qw(dtRdr::HTMLWidget);
 
 use Wx::WebKit::Event qw(:all);
@@ -45,6 +45,14 @@ dtRdr::HTMLShim::WebKit - the webkit html widget
 
 =cut
 
+=head2 new
+
+Constructor.  Passes through to shim base.
+
+  dtRdr::HTMLShim::WebKit->new([@args], [@args]);
+
+=cut
+
 sub new {
   my $self = shift;
   my (@others) = @_;
@@ -71,6 +79,8 @@ Registers event handlers.
 sub init {
   my $self = shift;
   my ($parent) = @_;
+
+  $self->SUPER::init(@_);
 
   # setup events
   EVT_WEBKIT_BEFORE_LOAD($self, -1,
@@ -111,9 +121,9 @@ sub before_load {
   #  return;
   #}
 
-  unless($parent->book_view) { # TODO we're stuck as a bookview for now
-    return;
-  }
+  #unless($parent->book_view) { # TODO we're stuck as a bookview for now
+  #  return;
+  #}
 
   # it appears that we don't have to deal with this circularity issue
   # $self->set_load_in_progress(1);
@@ -123,7 +133,7 @@ sub before_load {
     $evt->Cancel;
     # $self->set_load_in_progress(0);
   };
-  if($parent->book_view->load_url($url, $killit)) {
+  if($self->url_handler->load_url($url, $killit)) {
     $evt->Cancel;
   }
 } # end subroutine before_load definition

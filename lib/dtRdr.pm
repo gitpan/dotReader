@@ -1,5 +1,5 @@
 package dtRdr;
-$VERSION = eval{require version}?version::qv($_):$_ for(0.0.11);
+$VERSION = eval{require version}?version::qv($_):$_ for(0.11.1);
 
 use dtRdr::0; # the rest of this package
 
@@ -12,11 +12,10 @@ use dtRdr::User;
 use dtRdr::Logger;
 use File::Copy ();
 
-use dtRdr::Accessor;
-my $set_user = dtRdr::Accessor->class_ro_w( user => '');
-dtRdr::Accessor->class_rw(
-  user_dir => './',
-);
+use Class::Accessor::Classy;
+rs_c user     => \ (my $set_user) => '';
+rw_c user_dir => './';
+no  Class::Accessor::Classy;
 
 use constant {
   home_page => 'http://localhost/',
@@ -60,8 +59,9 @@ sub init {
 
   $package->_init_logger;
 
-  my $user = dtRdr::User->new(getlogin());
-  $set_user->($user);
+  my $user = dtRdr::User->new();
+  $user->init_config($package->user_dir . 'drconfig.yml');
+  $package->$set_user($user);
 
   dtRdr::Plugins->init;
   $package->_init_reloader;
@@ -215,8 +215,9 @@ sub _reload {
 
   # oh well.  If it's really a problem, let's grab stderr and filter it
   no warnings qw(redefine);
+  local $SIG{__WARN__};
   $reloader->refresh;
-  RL('#reload')->info('reloading');
+  RL('#reload')->info('reloaded');
 } # end subroutine _reload definition
 ########################################################################
 
@@ -295,8 +296,7 @@ sub _get_THIS {
   my $file = $package->data_dir . $THIS;
   my $text;
   unless(-e $file) {
-    warn "no $file";
-    if(-e $THIS) {
+    if(-e $THIS) { # fallback to current directory
       $file = $THIS;
     }
     else {

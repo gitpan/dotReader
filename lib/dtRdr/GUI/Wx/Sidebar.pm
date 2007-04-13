@@ -5,7 +5,7 @@ use warnings;
 use strict;
 use Carp;
 
-
+use dtRdr::GUI::Wx::Utils;
 use dtRdr::GUI::Wx::LibraryTree;
 use dtRdr::GUI::Wx::BookTree;
 use dtRdr::GUI::Wx::SearchPane;
@@ -15,16 +15,9 @@ use dtRdr::GUI::Wx::HighlightTree;
 use dtRdr::Logger;
 
 use base 'Wx::Panel';
-use Wx qw(
-  :everything
-  wxVERTICAL
-  wxEXPAND
-  wxADJUST_MINSIZE
-  wxTE_PROCESS_ENTER
-  wxLC_REPORT
-  wxSUNKEN_BORDER
-);
+use Wx ();
 use Wx::Event;
+use WxPerl::ShortCuts;
 
 use dtRdr::Accessor;
 dtRdr::Accessor->ro qw(
@@ -92,10 +85,8 @@ sub __create_children {
   # buttons
   foreach my $attrib ($self->core_attribs) {
     my $button_name = 'button_' . $attrib;
-    my $bitmap_path = dtRdr->data_dir .
-      "gui_default/icons/sb_button_$attrib.png";
     my $button = Wx::BitmapButton->new($self, -1,
-      Wx::Bitmap->new($bitmap_path, wxBITMAP_TYPE_ANY)
+      dtRdr::GUI::Wx::Utils->Bitmap("sb_button_$attrib")
     );
     $button->SetToolTipString(ucfirst($attrib));
     Wx::Event::EVT_BUTTON($button, -1, sub {
@@ -104,23 +95,22 @@ sub __create_children {
     $self->{$button_name} = $button;
   }
 
-  my @PS = (wxDefaultPosition, wxDefaultSize);
-  my $tree_style_1 = wxTR_HAS_BUTTONS|wxTR_NO_LINES|
-    wxTR_LINES_AT_ROOT|wxTR_DEFAULT_STYLE|wxSUNKEN_BORDER;
+  my $tree_style_1 =
+    WX"SUNKEN_BORDER" |
+    TR"HAS_BUTTONS|NO_LINES|LINES_AT_ROOT|DEFAULT_STYLE";
   # two tree thingies
-  $self->{$_->[0]} = $_->[1]->new($self, -1, @PS, $tree_style_1) for(
+  $self->{$_->[0]} = $_->[1]->new($self, -1, DefPS, $tree_style_1) for(
     [qw(libraries dtRdr::GUI::Wx::LibraryTree)],
     [qw(contents  dtRdr::GUI::Wx::BookTree)],
   );
 
   # one of these
-  $self->{search} = dtRdr::GUI::Wx::SearchPane->new($self, -1, @PS, );
+  $self->{search} = dtRdr::GUI::Wx::SearchPane->new($self, -1, DefPS);
 
-  my $tree_style_2 =
-    wxTR_HAS_BUTTONS|wxTR_NO_LINES|wxTR_LINES_AT_ROOT|wxTR_MULTIPLE|
-    wxTR_HIDE_ROOT|wxTR_DEFAULT_STYLE|wxSUNKEN_BORDER;
+  my $tree_style_2 = WX"SUNKEN_BORDER"|
+    TR"HAS_BUTTONS|NO_LINES|LINES_AT_ROOT|MULTIPLE|HIDE_ROOT";
   # three tree thingies
-  $self->{$_->[0]} = $_->[1]->new($self, -1, @PS, $tree_style_2) for(
+  $self->{$_->[0]} = $_->[1]->new($self, -1, DefPS, $tree_style_2) for(
     [qw(notes      dtRdr::GUI::Wx::NoteTree)],
     [qw(bookmarks  dtRdr::GUI::Wx::BookmarkTree)],
     [qw(highlights dtRdr::GUI::Wx::HighlightTree)],
@@ -137,13 +127,13 @@ sub __create_children {
 sub __do_layout {
   my $self = shift;
 
-  my $sizer = $self->{sizer} = Wx::BoxSizer->new(wxVERTICAL);
+  my $sizer = $self->{sizer} = Wx::BoxSizer->new(wV);
   my $grid = $self->{grid_sizer} = Wx::GridSizer->new(1, 6, 0, 0);
 
-  $grid->Add($self->$_, 0, wxADJUST_MINSIZE, 0)
+  $grid->Add($self->$_, 0, Ams, 0)
     for(map({'button_' . $_} $self->core_attribs));
-  $sizer->Add($grid, 0, wxADJUST_MINSIZE, 0);
-  $sizer->Add($self->$_, 1, wxEXPAND, 0) for($self->core_attribs);
+  $sizer->Add($grid, 0, Ams, 0);
+  $sizer->Add($self->$_, 1, Exp, 0) for($self->core_attribs);
   $self->SetAutoLayout(1);
   $self->SetSizer($sizer);
   $sizer->SetSizeHints($self);
@@ -247,7 +237,11 @@ sub select_item {
 
 =head2 focus_current
 
+Focus the current_item.
+
   $self->focus_current($event);
+
+=for podcoverage_private SetFocus
 
 =cut
 
@@ -274,11 +268,11 @@ sub _ad_split {
     my $button = Wx::BitmapButton->new($self, -1,
       Wx::Bitmap->new(
         dtRdr->data_dir . 'gui_default/images/custom_space.png',
-        wxBITMAP_TYPE_ANY
+        BT"PNG"
       )
     );
     $button->SetSize($button->GetBestSize());
-    $self->sizer->Add($button, 0, wxADJUST_MINSIZE, 0);
+    $self->sizer->Add($button, 0, Ams, 0);
     $self->{adwidget} = $button;
   }
   $self->sizer->Layout;

@@ -24,14 +24,43 @@ LWP::Iterator::UserAgent - a non-blocking LWP iterator
 
 =head2 new
 
-  my $pua = LWP::Iterator::UserAgent->new(deadline => 10.5);
+Construct a new LWP::Iterator::UserAgent object.  Passes additional
+%opts through to LWP::UserAgent::new().
+
+  my $pua = LWP::Iterator::UserAgent->new(%opts, deadline => 10.5);
 
 =cut
 
 sub new {
   my $class = shift;
   my (%cnf) = @_;
-  my $self = $class->SUPER::new(%cnf);
+  # XXX huh?  LWP::P::UA isn't playing the same game as LWP::UA!
+  # So... we have to bypass LWP::P::UA::new and then copy/paste the init
+  # stuff into here.  Uh, hello?  That's not how this OO thing is
+  # supposed to work!
+  my $self = $class->LWP::UserAgent::new(%cnf);
+
+  ######################################################################
+  { # Oh, how I wish we had a sane superclass...
+    # So, since we have to rewrite it anyway, let's do it right. 
+    my %defaults = (
+      handle_response   => 1,
+      nonblock          => 0,
+      handle_duplicates => 0,
+      handle_in_order   => 0,
+      remember_failures => 0,
+      max_hosts         => 7,
+      max_req           => 5,
+    );
+    foreach my $att (keys %defaults) {
+      $self->{$att} = $defaults{$att} unless(exists($self->{$att}));
+    }
+
+    $self->initialize;
+  } # end "I wish we had a sane ..."
+  ######################################################################
+
+
   $self->{deadline} = $cnf{deadline};
   return($self);
 } # end subroutine new definition
@@ -78,24 +107,18 @@ sub pester {
   defined($self->{deadline}) or die "must have a deadline";
   $timeout = $self->{'timeout'} unless defined $timeout;
   my $start_time = Time::HiRes::time;
+  $self->{_fate} = $self->{deadline} unless(exists($self->{_fate}));
   my $tick = sub {
     my $diff = Time::HiRes::time - $start_time;
-    DBG and warn "deadline $self->{deadline} - $diff\n";
-    $self->{deadline} -= $diff;
+    DBG and warn "deadline $self->{_fate} - $diff\n";
+    $self->{_fate} -= $diff;
   };
 
   # shortcuts to in- and out-filehandles
   my $fh_out = $self->{'select_out'};
   my $fh_in  = $self->{'select_in'};
 
-  $self->{_is_done} = 1 unless(
-      scalar(keys(%{$self->{'current_connections'}}))  or
-      scalar(
-        $self->{'handle_in_order'} ?
-        @{$self->{'ordpend_connections'}} :
-        keys(%{$self->{'pending_connections'}})
-      )
-    );
+  $self->{_is_done} = 1 unless($self->_check_connections);
   if($self->{_is_done}) {
     $self->_remove_all_sockets();
     DBG and warn "all done\n";
@@ -103,7 +126,10 @@ sub pester {
   }
   elsif(! $self->{_is_connected}) {
     DBG and warn "connect\n";
-    $self->_make_connections;
+    { # allow high-latency on connection create (TODO nonblock https?)
+      local $self->{timeout} = 10 * $self->{timeout};
+      $self->_make_connections;
+    }
     $self->{_is_connected} = 1;
     DBG and warn "connected\n";
     # deadline?
@@ -116,6 +142,9 @@ sub pester {
       DBG and warn "ready!\n";
       # something is ready for reading or writing
       my ($ready_read, $ready_write, $error) = @ready;
+
+      # reset the deadline
+      delete($self->{_fate});
 
       # WRITE QUEUE
       foreach my $socket (@$ready_write) {
@@ -170,6 +199,68 @@ sub pester {
   die "clueless";
 } # end subroutine pester definition
 ########################################################################
+
+=head2 _check_connections
+
+  $bool = $self->_check_connections;
+
+=cut
+
+sub _check_connections {
+  my $self = shift;
+  my $v;
+  $v = 1 if(
+    scalar(keys(%{$self->{'current_connections'}}))  or
+    scalar(
+      $self->{'handle_in_order'} ?
+      @{$self->{'ordpend_connections'}} :
+      keys(%{$self->{'pending_connections'}})
+    )
+  );
+  return($v);
+} # end subroutine _check_connections definition
+########################################################################
+
+=head2 handle_response
+
+  $self->handle_response(thbbt);
+
+=cut
+
+sub handle_response {
+  my $self = shift;
+  DBG and warn "handlinginging\n";
+  local $self->{in_handler} = 1;
+  $self->SUPER::handle_response(@_);
+} # end subroutine handle_response definition
+########################################################################
+
+=head2 request
+
+Internal use only.  Our base class drops everything on the floor when
+this method is called (during authentication), so we need to hatchet on
+it a good bit.
+
+  $self->request(thbbt);
+
+=cut
+
+sub request {
+  my $self = shift;
+
+  $self->{in_handler} or
+    die "cannot use request() method on an iterator";
+
+  0 and warn "connections before: ",
+    ($self->_check_connections ? 'ok' : 'gone'), "\n";
+
+  if(my $res = $self->register(@_)) {
+    die $res->error_as_string;
+  }
+  return;
+} # end subroutine request definition
+########################################################################
+sub _single_request {croak "cannot be used"};
 
 =head1 AUTHOR
 

@@ -88,8 +88,8 @@ sub new {
   return($self);
 } # end subroutine new definition
 ########################################################################
-sub handler {$_[0]->{handler}};
-sub nomethod {$_[0]->{nomethod}};
+  sub handler {$_[0]->{handler}};
+  sub nomethod {$_[0]->{nomethod}};
 
 =head2 create_menubar
 

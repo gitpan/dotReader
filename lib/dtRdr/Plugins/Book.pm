@@ -32,6 +32,7 @@ dtRdr::Plugins::Book - Handle book plugins
   dtRdr::Plugins::Book->init(config => $config);
 
 =cut
+
 # see base
 
 =head2 add_class
@@ -67,6 +68,7 @@ sub add_class {
   dtRdr::Plugins::Book->class_for_type($type);
 
 =cut
+
 sub class_for_type {
   my $self = shift;
   my ($type) = @_;

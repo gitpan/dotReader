@@ -3,22 +3,14 @@ $VERSION = eval{require version}?version::qv($_):$_ for(0.10.1);
 
 use warnings;
 use strict;
-use English '-no_match_vars';
-
 use Carp;
 
+use Class::Accessor::Classy;
+ro 'position';
+rw '_string';
+rw '_remstring';
+no  Class::Accessor::Classy;
 
-########################################################################
-use dtRdr::Accessor;
-dtRdr::Accessor->ro(qw(
-  position
-));
-dtRdr::Accessor->rw(qw(
-  _string
-  _remstring
-));
-########################################################################
-########################################################################
 =head1 NAME
 
 dtRdr::String::Splicer - substr that skips spaces
@@ -75,7 +67,7 @@ sub insert {
   if($pos) {
     if($rstr =~ m/((?:\s+|[^\s]){$pos})/s) {
       defined($1) or warn "eek";
-      $off = $LAST_MATCH_END[0];
+      $off = $+[0];
     }
     else {
       die "no match"; # I hope we don't hit that

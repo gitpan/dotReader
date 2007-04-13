@@ -34,7 +34,7 @@ is(scalar(@children_toc), 15, "Check TOC children");
 
 # TODO: this test should probably check some nodes for ->visible
 
-is_deeply(\@children_toc, [$toc->get_children], 'tops and root children match');
+is_deeply(\@children_toc, [$toc->children], 'tops and root children match');
 
 my $testfile;
 {

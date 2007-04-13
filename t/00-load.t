@@ -90,7 +90,7 @@ foreach my $mod (@modlist) {
   # UNIVERSAL.pm is __broken__
   my $ucheck = '-MUNIVERSAL';
   # run perl, run
-  my $v = run([$^X, $ucheck, '-e', "use $mod;"], \$in, \$out, \$err); 
+  my $v = run([$^X, $ucheck, '-Ilib', '-e', "use $mod;"], \$in, \$out, \$err); 
   if(ok((not $err), "silence")) {
     $now_ok{$chk} = 1;
   }

@@ -2,18 +2,25 @@
 
 # vim:ts=2:sw=2:et:sta
 
-use Test::More (
-  'no_plan'
-  );
-
 use strict;
 use warnings;
+
+use Test::More;
+
+my $uri;
+BEGIN {
+  $uri = 'books/test_packages/FreeBSD_Developers_Handbook.jar';
+  unless(-e $uri) {
+    plan skip_all => 'extra books/ dir not available';
+  }
+  else {
+    plan 'no_plan';
+  }
+}
 
 BEGIN { use_ok('dtRdr::Book') };
 
 BEGIN { use_ok('dtRdr::Book::ThoutBook_1_0_jar') };
-
-my $uri = 'test_packages/FreeBSD_Developers_Handbook.jar';
 
 # go directly to the class
 my $book = dtRdr::Book::ThoutBook_1_0_jar->new();
@@ -43,10 +50,10 @@ is($toc->get_title, 'FreeBSD Developers\' Handbook', "Check TOC title");
 # toplevel toc items
 my @tops = $book->toc->children;
 is(scalar(@tops), 5, 'toplevel items');
-is_deeply(\@tops, [$toc->get_children], 'tops and root children match');
+is_deeply(\@tops, [$toc->children], 'tops and root children match');
 isa_ok($_, 'dtRdr::TOC', 'child') for(@tops);
 
-my @layer2 = map({$_->get_children} @tops);
+my @layer2 = map({$_->children} @tops);
 is(scalar(@layer2), 18, 'layer2 items');
 
 # check a couple nodes
@@ -55,18 +62,18 @@ is(
   'Chapter 1 Introduction', 'Chapter 1 Introduction'
   );
 is(
-  ($layer2[0]->get_children())[0]->get_title,
+  ($layer2[0]->children())[0]->get_title,
   '1.1 Developing on FreeBSD', '1.1 Developing on FreeBSD'
   );
 
 {
   my $node = (((((($toc->
-  get_children)[0] # Basics
-  ->get_children)[1] # Chapter 2
-  ->get_children)[3] # 2.4
-  ->get_children)[0] # 2.4.1
-  ->get_children)[1] # 2.4.1.2
-  ->get_children)[0]; # code
+  children)[0] # Basics
+  ->children)[1] # Chapter 2
+  ->children)[3] # 2.4
+  ->children)[0] # 2.4.1
+  ->children)[1] # 2.4.1.2
+  ->children)[0]; # code
 
   { # check that node against other access methods
     my $nwalk = $toc->_walk_to_node(0,1,3,0,1,0);

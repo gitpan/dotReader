@@ -57,7 +57,7 @@ ok($c2);
 isa_ok($c2, 'dtRdr::TOC');
 
 {
-my @children = $toc->get_children;
+my @children = $toc->children;
 ok(@children == 2, 'children');
 is_deeply(\@children, [$c1,$c2], 'children check');
 }

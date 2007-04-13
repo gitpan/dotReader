@@ -88,10 +88,9 @@ sub new {
   my $self = $class->SUPER::new($parent, @args);
 
   $self->__create_children;
-  $self->__do_layout;
   $self->__do_properties;
+  $self->__do_layout;
 
-  bless($self, $class);
   return($self);
 } # end subroutine new definition
 ########################################################################
@@ -115,36 +114,21 @@ sub __create_children {
 	$self->{text_ctrl} = Wx::TextCtrl->new($self, -1, "", @PS,
     wxTE_PROCESS_ENTER
   );
-    my @buttons = qw(
-      go    std_button_search.png
-      stop  std_button_stop.png
-      stick std_button_sticky.png
-      stuck std_button_stuck.png
-      hide  ctrl_arrow_5_up.png
-      show  ctrl_arrow_5_down.png
-    );
-  my %bmp = map(
-    {
-      $buttons[$_*2] =>
-      Wx::Bitmap->new(
-        dtRdr->data_dir . 'gui_default/icons/' . $buttons[$_*2+1],
-        Wx::wxBITMAP_TYPE_ANY()
-      )
-    } 0..($#buttons/2)
+
+  # some bitmaps
+  my %bmp = qw(
+    go    std_button_search
+    stop  std_button_stop
+    stick std_button_sticky
+    stuck std_button_stuck
+    hide  ctrl_arrow_5_up
+    show  ctrl_arrow_5_down
   );
+  $_ = dtRdr::GUI::Wx::Utils->Bitmap($_) for(values(%bmp));
+
   {
     my @choices = (
-      ['titles', # XXX 17 letters is too much
-         'T.O.C.'
-        #'ToC'
-        #'Table of Contents'
-        #'Titles'
-        #'Titles/Contents'
-        #'TOC/Titles'
-        #'Contents'
-        #'Contents Only'
-        #'Headers'
-        ],
+      ['titles', 'T.O.C.'   ],
       ['text',   'Full Text'],
     );
     $self->{_type_choices} = [map({$_->[0]} @choices)];
@@ -420,7 +404,7 @@ sub search_toc {
   };
 
   require Time::HiRes;
-  my $start_time = Time::HiRes::time;
+  my $start_time = Time::HiRes::time();
   my $hits = 0;
   my $minion = MultiTask::Minion->make(sub {
     my $m = shift;
@@ -500,7 +484,7 @@ sub search_book {
   };
 
   require Time::HiRes;
-  my $start_time = Time::HiRes::time;
+  my $start_time = Time::HiRes::time();
   my $hits = 0;
   my $minion = MultiTask::Minion->make(sub {
     my $m = shift;

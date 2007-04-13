@@ -27,11 +27,13 @@ sub main {
 
   my $anno_store = 'annotations';
   my $node_id;
+  my $target = 50;
   my $hopt = Getopt::Helpful->new(
     usage => 'CALLER [options] <bookfilename>',
     ['a|anno-store=s', \$anno_store, '<dirname>',
       "annotation store (default: '$anno_store')"], 
     ['n|node=s', \$node_id, '<node id>', 'which node to use'],
+    ['t|target=i', \$target, '<target count>', 'make anno every n chars'],
     '+help',
   );
   $hopt->Get_from(\@args);
@@ -56,7 +58,6 @@ sub main {
   my $max = $node->word_end;
 
   my $length = $max - $min;
-  my $target = 50;
   my $count = int($length / $target);
   my $nlength = length($count);
   warn "creating $count annotations...\n";

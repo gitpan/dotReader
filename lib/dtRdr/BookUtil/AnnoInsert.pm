@@ -416,7 +416,18 @@ sub closing_marker {
 
   my $marker = '';
   my $id = $anno->id;
-  $marker .= $self->create_marker($type, $id);
+
+  my %opts;
+  if($type eq 'notethread') { # deal with missing roots
+    # TODO possibly link to the dummy root with some sort of flag?
+    #$opts{path} = 'dummy/' if($anno->is_dummy);
+    if($anno->is_dummy) { # just link to the first real one
+      $anno->rmap(sub { my ($n, $ctrl) = @_;
+        unless($n->is_dummy) { $id = $n->id; $ctrl->{prune} = 1; }
+      });
+    }
+  }
+  $marker .= $self->create_marker($type, $id, %opts);
   return($marker);
 } # end subroutine closing_marker definition
 ########################################################################
@@ -425,7 +436,7 @@ sub closing_marker {
 
 Build the annotation marker.
 
-  $marker .= $self->create_marker($type, $id);
+  $marker .= $self->create_marker($type, $id, %opts);
 
 =cut
 
@@ -437,7 +448,7 @@ my %EXT = (
 );
 sub create_marker {
   my $self = shift;
-  my ($type, $id) = @_;
+  my ($type, $id, %opts) = @_;
 
   my $ext = $EXT{$type};
 
@@ -445,7 +456,8 @@ sub create_marker {
   my $string =
     qq(<a class="dr_$type" name="$id") .
       ($ext ? ( # ugly, but hopefully fast
-        qq( href="dr://LOCAL/$id.$ext" ) .
+        qq( href="dr://LOCAL/) .
+          (exists($opts{path}) ? $opts{path} : '') . qq($id.$ext" ) .
           '><img class="dr_' . $type . '" src="' .
             $self->img("dr_${type}_link.png") .
           '" />'

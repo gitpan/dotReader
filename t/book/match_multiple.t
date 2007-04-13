@@ -1,16 +1,9 @@
 #!/usr/bin/perl
 
-# vim:ts=2:sw=2:et:sta:nowrap
-
 use strict;
 use warnings;
 
-use lib 'inc';
-use loginit;
-
-use Test::More (
-  'no_plan'
-  );
+use inc::testplan(1, 1 + 3);
 
 BEGIN { use_ok('dtRdr::Book') };
 
@@ -28,4 +21,5 @@ my $string = "abcaaaabcbffffabc";
   is_deeply(\@matches, \@expect, 'match positions');
 }
 
-
+done;
+# vim:ts=2:sw=2:et:sta:nowrap

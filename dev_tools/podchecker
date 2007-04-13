@@ -1,0 +1,6 @@
+#!/bin/sh
+
+# Module::Build using Test::Pod, which doesn't catch as many errors as
+# Pod::Checker, so ... hmph.
+
+podchecker $(find lib/ -name '*.pm') 2>&1 | grep '^\*'

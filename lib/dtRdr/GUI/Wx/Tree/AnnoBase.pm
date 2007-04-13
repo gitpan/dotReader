@@ -5,13 +5,17 @@ use warnings;
 use strict;
 use Carp;
 
+use Scope::Guard;
 
 use base 'dtRdr::GUI::Wx::Tree::Base';
 
-use dtRdr::Accessor;
-dtRdr::Accessor->ro qw(
-  context_menu
-);
+use Class::Accessor::Classy;
+ro 'context_menu';
+ro 'menu_item_goto';
+ro 'menu_item_delete';
+no  Class::Accessor::Classy;
+
+use constant DISABLED_ITEMS => 'delete';
 
 use Wx qw(
   wxITEM_NORMAL
@@ -26,6 +30,8 @@ use Wx qw(
 use Wx::Event;
 
 use dtRdr::Logger;
+
+use dtRdr::GUI::Wx::Utils qw(_accel);
 
 =head1 NAME
 
@@ -49,6 +55,12 @@ sub init {
 
   $self->SUPER::init(@_);
   $self->setup_menu;
+
+  $self->SetAcceleratorTable(Wx::AcceleratorTable->new(
+    map({$self->_accel(@$_)}
+      ['DELETE', 'menu_delete'],
+    )
+  ));
 
 } # end subroutine init definition
 ########################################################################
@@ -87,7 +99,8 @@ sub append_menu {
 
   # TODO put a tag in to catch this?
   #$cmenu->AppendSeparator;
-  my $mitem = $cmenu->Append( -1, $label, $help, wxITEM_NORMAL);
+  my $mitem = $self->{"menu_item_$name"} =
+    $cmenu->Append( -1, $label, $help, wxITEM_NORMAL);
   my $method = 'menu_' . $name;
   Wx::Event::EVT_MENU($self, $mitem, sub { $_[0]->$method($_[1]) });
   return($mitem);
@@ -102,13 +115,73 @@ Displays the right click context menu for the tree control.
 
 =cut
 
-# TODO this is also where we should control the en/disabled
-#   example: multiple items selected disables goto
 sub show_context_menu {
   my $self = shift;
   my ($evt) = (@_);
+
+  my $ferret = $self->disable_menu_items($evt);
+
   $self->PopupMenu($self->context_menu, $evt->GetPoint);
 } # end subroutine show_context_menu definition
+########################################################################
+
+=head2 disable_menu_items
+
+Temporarily disables the appropriate menu items, restoring them when the
+ferret gets loose.
+
+  my $ferret = $self->disable_menu_items($evt);
+
+Public annotations owned by other users will have the results of
+$self->DISABLED_ITEMS() disabled.
+
+Example: multiple items selected disables goto.
+
+=cut
+
+sub disable_menu_items {
+  my $self = shift;
+  my ($evt) = @_;
+
+  # I guess just use GetSelections?
+  # my @items = $self->event_or_selection_items($evt);
+  my @items = $self->GetSelections;
+  @items = $evt->GetItem unless(@items);
+  
+  my @disable;
+  if(@items == 1) {
+    my $anno = $self->get_data($items[0]);
+    unless($anno->is_mine) {
+      @disable = $self->DISABLED_ITEMS;
+    }
+  }
+  else {
+    @disable = qw(goto);
+  }
+
+  $self->_enables(0, @disable);
+
+  return(Scope::Guard->new(sub { $self->_enables(1, @disable); }));
+} # end subroutine disable_menu_items definition
+########################################################################
+
+=head2 _enables
+
+  $self->_enables($bool, @shortlist);
+
+=cut
+
+sub _enables {
+  my $self = shift;
+  my ($bool, @list) = @_;
+
+  my $menu = $self->context_menu;
+  @list = map({'menu_item_' . $_} @list);
+
+  foreach my $name (@list) {
+    $menu->Enable($self->$name->GetId, $bool);
+  }
+} # end subroutine _enables definition
 ########################################################################
 
 =head1 Menu Events
@@ -126,7 +199,7 @@ sub menu_delete {
   my @items = $self->GetSelections;
   @items or return;
   my $count = scalar(@items);
-  if($count > 1) {
+  if($count > 1) { # TODO & maybe eval{$event->isa('Wx::CommandEvent')}
     my $dialog = Wx::MessageDialog->new(
       $self,
       'Are you sure you want to delete ' .
@@ -138,10 +211,19 @@ sub menu_delete {
     return unless(wxID_YES == $dialog->ShowModal);
   }
 
+  # TODO the actual delete should talk to the BVM?
   foreach my $item (@items) {
     my $anno = $self->get_data($item);
+    unless($anno->is_mine) {
+      # TODO something like "delete it anyway", or rather "ignore it"
+      $self->main_frame->error(
+        join(' ', 'The', $anno->ANNOTATION_TYPE, '"'.$anno->title.'"',
+        'does not belong to you.')
+      );
+      next;
+    }
     my $delete_this = 'delete_' . $self->anno_type;
-    $self->bv_manager->book_view->$delete_this($anno);
+    $anno->book->$delete_this($anno);
   }
 } # end subroutine menu_delete definition
 ########################################################################
@@ -149,6 +231,10 @@ sub menu_delete {
 =head2 menu_goto
 
   $self->menu_goto($event);
+
+=for podcoverage_private item_activated
+
+Is also the default event on double-click/enter.
 
 =cut
 
@@ -166,6 +252,7 @@ sub menu_goto {
 
   my $anno = $self->get_data($item);
   $anno or die "no annotation at that item";
+  # XXX we should have our very own bv
   my $bv = $self->bv_manager->book_view;
   $bv->jump_to($anno);
   $bv->hw->SetFocus;

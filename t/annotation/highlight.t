@@ -66,6 +66,11 @@ my $hl;
     title    => undef,
     context  => undef,
     selected => undef,
+    # NOTE these will stay unset as long as we're doing that in the IO
+    mod_time    => undef,
+    create_time => undef,
+    revision    => undef,
+    # TODO public
   };
   is_deeply($href, $expect, 'deep expect');
 }

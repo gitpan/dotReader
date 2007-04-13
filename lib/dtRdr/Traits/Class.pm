@@ -86,7 +86,7 @@ sub WARN_NOT_IMPLEMENTED {
     $method =~ m/::WARN_NOT_IMPLEMENTED$/ or last;
   }
   $method =~ s/.*:://;
-  warn "WARNING: method '$method' not implemented for class '",
+  0 and warn "WARNING: method '$method' not implemented for class '",
     ref($self) || $self, "'";
   return(undef);
 } # end subroutine WARN_NOT_IMPLEMENTED definition

@@ -13,6 +13,37 @@ dtRdr::Metadata - arbitrary metadata
 This module is scheduled to get some nice concrete boots and a trip to
 the lake.
 
+=head1 Bah
+
+None of this is quite right, but it also has no pod, so I'm just going
+to list them.
+
+=over
+
+=item  book
+
+=item  get
+
+=item  has_item
+
+=item  library
+
+=item  matches
+
+=item  name
+
+=item  new
+
+=item  set
+
+=item  set_book
+
+=item  set_library
+
+=item  type
+
+=back
+
 =cut
 
 sub new { # XXX fix this constructor

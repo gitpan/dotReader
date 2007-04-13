@@ -121,7 +121,12 @@ references.
 
   my $plain_hashref = $object->serialize;
 
-=over augment_serialize
+=over
+
+=item augment_serialize
+
+A subclass may define this method to add properties to the serialized
+hash reference.
 
   %props = $object->augment_serialize;
 
@@ -129,24 +134,38 @@ references.
 
 =cut
 
-sub _IF_CANS () {qw(content title selected context)};
+sub _IF_CANS () {
+  qw(
+    content
+    title
+    selected
+    context
+    revision
+    create_time
+    mod_time
+  );
+}
 sub serialize {
   my $self = shift;
-  $self->is_fake and croak("cannot serialize a fake (localized) annotation");
-  my $lsub = sub {
-    my $foo = shift;
-    return($foo->offset);
-  };
+  $self->is_fake and
+    croak("cannot serialize a fake (localized) annotation");
+
+  my $get_loc = sub { $_[0]->offset};
+  my $get_id  = sub { $_[0]->id};
   my %serializer = (
-    book  => sub { my $foo = shift; $foo->id; },
-    node  => sub { my $foo = shift; $foo->id; },
-    start => $lsub,
-    end   => $lsub,
-    id    => sub {$_[0]}, # by definition
+    book   => $get_id,
+    node   => $get_id,
+    start  => $get_loc,
+    end    => $get_loc,
+    id     => sub {$_[0]}, # by definition
+    public => sub {return({%{$_[0]}})}, # so long as it stays plain
   );
 
-  my %hash = map({$_ => $serializer{$_}->($self->$_)}
-    qw(book node start end id)
+  my %hash = map({
+      my $val = $self->$_;
+      defined($val) ? ($_ => $serializer{$_}->($val)) : ()
+    }
+    keys(%serializer)
   );
 
   # some special cases
@@ -203,9 +222,12 @@ sub deserialize {
   ($hashref->{book} eq $book->id) or croak("wrong book");
 
   my $node = $hashref->{node};
-  defined($node) or die;
+  defined($node) or croak "no node";
   $node = $book->toc->get_by_id($node);
   defined($node) or die;
+  my %deserializer = (
+    public => sub { dtRdr::AnnotationMeta::Public->new(%{$_[0]}) },
+  );
 
   my $object = $package->create(
     map({
@@ -215,6 +237,10 @@ sub deserialize {
     node  => $node,
     range => [$hashref->{start}, $hashref->{end}],
     id    => $hashref->{id},
+    map({exists($hashref->{$_}) ?
+          ($_ => $deserializer{$_}->($hashref->{$_})) : ()
+      } keys(%deserializer)
+    ),
     # generic special case
     ($package->can('augment_deserialize') ?
       ($package->augment_deserialize(%$hashref, book => $book)) : ()

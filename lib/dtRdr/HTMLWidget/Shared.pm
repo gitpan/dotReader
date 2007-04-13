@@ -133,16 +133,30 @@ sub base64_images_rewriter {
 } # end subroutine base64_images_rewriter definition
 ########################################################################
 
-sub get_scroll_pos { my $self = shift; $self->WARN_NOT_IMPLEMENTED; 0;}
-########################################################################
-sub set_scroll_pos { my $self = shift; $self->WARN_NOT_IMPLEMENTED; 0;}
-########################################################################
-sub scroll_page_down { my $self = shift; $self->WARN_NOT_IMPLEMENTED; 0;}
-########################################################################
-sub scroll_page_up { my $self = shift; $self->WARN_NOT_IMPLEMENTED; 0;}
-########################################################################
-sub jump_to_anchor { my $self = shift; $self->WARN_NOT_IMPLEMENTED; 0;}
-########################################################################
+=head1 Hacks
+
+The following would be errors according to the base class, but we've
+made them warnings here.  Really need to get the widgets whipped into
+shape.
+
+  get_scroll_pos
+  jump_to_anchor
+  scroll_page_down
+  scroll_page_up
+  set_scroll_pos
+
+=cut
+
+ sub get_scroll_pos { my $self = shift; $self->WARN_NOT_IMPLEMENTED; 0;}
+ ########################################################################
+ sub set_scroll_pos { my $self = shift; $self->WARN_NOT_IMPLEMENTED; 0;}
+ ########################################################################
+ sub scroll_page_down { my $self = shift; $self->WARN_NOT_IMPLEMENTED; 0;}
+ ########################################################################
+ sub scroll_page_up { my $self = shift; $self->WARN_NOT_IMPLEMENTED; 0;}
+ ########################################################################
+ sub jump_to_anchor { my $self = shift; $self->WARN_NOT_IMPLEMENTED; 0;}
+ ########################################################################
 
 =head1 AUTHOR
 

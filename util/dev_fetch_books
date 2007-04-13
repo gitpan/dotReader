@@ -1,0 +1,64 @@
+#!/usr/bin/perl
+
+# Copyright (C) 2007 Eric L. Wilhelm
+
+use warnings;
+use strict;
+
+=head1 NAME
+
+dev_fetch_books - emulate svn:externals
+
+=head1 Synopsis
+
+Run this only if you have the tarball or svk and want to get the
+secondary books for extra testing, etc.
+
+=cut
+
+package bin::dev_fetch_books;
+
+use File::Basename ();
+
+my $svn = `which svn` or die "you have no svn"; chomp($svn);
+my $start_url = 'http://svn.dotreader.com/svn/dotreader/trunk/books';
+my $book_dir = 'books/';
+
+sub main {
+  my (@args) = @_;
+
+  unless(-e $book_dir) {
+    print "checkout to $book_dir\n";
+    system($svn, 'checkout', $start_url) and die "oops $?";
+    return;
+  }
+
+  # otherwise, go into update mode
+
+  my %defs = map({split(/\s+/, $_, 2)}
+    split(/\n/, `svn propget svn:externals $start_url`)
+  );
+  %defs or die "something wrong";
+  foreach my $dir (keys(%defs)) {
+    local $| = 1;
+    print "$dir ... ";
+    my $dest_dir = $book_dir.$dir;
+    if(-e $dest_dir) {
+      system($svn, 'update', $dest_dir) and die "update $dir failed";
+    }
+    else {
+      system($svn, 'checkout', $defs{$dir}, $dest_dir) and
+        die "checkout $dir failed";
+    }
+  }
+
+}
+
+package main;
+
+if($0 eq __FILE__) {
+  bin::dev_fetch_books::main(@ARGV);
+}
+
+# vi:ts=2:sw=2:et:sta
+my $package = 'bin::dev_fetch_books';

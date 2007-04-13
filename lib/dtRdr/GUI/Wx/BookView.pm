@@ -204,9 +204,7 @@ sub load_url {
         return(1);
       }
 
-      eval {
-        $self->render_node_by_id($id);
-      };
+      eval {$self->render_node_by_id($id);};
       $@ and $self->_error("Follow link to '$id' failed ($@).");
       return(1);
     }
@@ -315,6 +313,9 @@ Returns true if the TOC node is visible.
 sub is_visible {
   my $self = shift;
   my ($node) = @_;
+
+  return unless($node->book == $self->book);
+
   my $toc = $self->current_toc;
   my @to_check = ($toc, $self->book->descendant_nodes($toc));
   @to_check = grep({$_ eq $node} @to_check);
@@ -353,6 +354,28 @@ sub jump_to {
   $self->hw->jump_to_anchor($obj->id);
 
 } # end subroutine jump_to definition
+########################################################################
+
+=head2 show_note
+
+  $self->show_note($id);
+
+=cut
+
+sub show_note {
+  my $self = shift;
+  my ($note_id) = @_;
+
+  # TODO enable the manager->anno_io to lookup by id?
+
+  my $book = $self->book;
+  if(my $note = $book->find_note($note_id)) {
+    $self->manager->show_note($note);
+  }
+  else {
+    $self->_error("nothing found for $note_id");
+  }
+} # end subroutine show_note definition
 ########################################################################
 
 =head2 set_requested_toc
@@ -398,7 +421,7 @@ sub selection_as_range {
 
 =head2 highlight_at_selection
 
-  $bv->highlight_at_selection;
+  my $hl = $bv->highlight_at_selection;
 
 =cut
 
@@ -414,9 +437,6 @@ sub highlight_at_selection {
   my $book = $self->book;
   # put it in the book
   $book->add_highlight($highlight);
-  # and the highlight tree (does that really need to have the book?)
-  $self->highlight_tree->add_item($highlight);
-  $self->refresh;
   return($highlight);
 } # end subroutine highlight_at_selection definition
 ########################################################################
@@ -427,7 +447,7 @@ sub highlight_at_selection {
 
 Create a note and launch the note editor.
 
-  $bv->note_at_selection;
+  my $nt = $bv->note_at_selection;
 
 =cut
 
@@ -449,48 +469,14 @@ sub note_at_selection {
     $note->set_title('');
   }
 
-  use dtRdr::GUI::Wx::NoteEditor;
-  my $editor = dtRdr::GUI::Wx::NoteEditor->new();
-
-  # we could do this as ShowModal, but that seems a bit too strict
-  # since it's going to ~thread, we need to pass it subrefs
-
-  # but add the note and render it -- user can then background this
-  my $book = $self->book;
-  $book->add_note($note);
-  # and render that
-  $self->refresh;
-
-  $self->note_tree->add_item($note);
-
-  my $saver = sub {
-    $note->set_title($editor->text_ctrl_title->GetValue);
-    $note->set_content($editor->text_ctrl_body->GetValue);
-    $book->do_serialize('update', $note);
-    $self->manager->note_viewer->note_changed($note); # XXX icky
-    $self->note_tree->item_changed($note);
-  };
-  $editor->set_saver($saver);
-
-  # TODO
-  #   Q: what if they decide to come back and edit it again while that
-  #     editor is still open?
-  #   A: have a list of editor objects and just do $editor->Raise
-  my $reverter = sub {
-    $self->delete_note($note);
-  };
-  $editor->set_reverter($reverter);
-
-  # TODO set_autosaver
-
-  # defer the show until here because it messes with focus otherwise
-  $editor->Show(1);
+  $self->manager->create_note($note);
+  return($note);
 } # end subroutine note_at_selection definition
 ########################################################################
 
 =head2 bookmark_at_selection
 
-  $bv->bookmark_at_selection;
+  my $bm = $bv->bookmark_at_selection;
 
 =cut
 
@@ -512,6 +498,8 @@ sub bookmark_at_selection {
     );
     $bm->set_title($node->get_title);
   }
+
+  # XXX probably also for the bvm {{{
   my $ask = Wx::TextEntryDialog->new(
     $self->manager,
     '',
@@ -525,183 +513,82 @@ sub bookmark_at_selection {
   $bm->set_title($ask->GetValue);
   my $book = $self->book;
   $book->add_bookmark($bm);
-  $self->bookmark_tree->add_item($bm);
-  $self->refresh;
+  # XXX probably also for the bvm }}}
+
+  return($bm);
 } # end subroutine bookmark_at_selection definition
 ########################################################################
 
-=head2 show_note
+=head1 Notifications
 
-  $self->show_note($id);
 
-=cut
+=head2 annotation_created
 
-sub show_note {
-  my $self = shift;
-  my ($note_id) = @_;
-
-  # TODO enable the manager->anno_io to lookup by id?
-
-  if(my $note = $self->book->find_note($note_id)) {
-    $self->manager->note_viewer->show_note($note);
-  }
-  else {
-    $self->_error("nothing found for $note_id");
-  }
-} # end subroutine show_note definition
-########################################################################
-
-=head2 edit_note
-
-Edit an existing note.
-
-  $bv->edit_note($note);
+  $bv->annotation_created($anno);
 
 =cut
 
-sub edit_note {
-  my $self = shift;
-  my ($note) = @_;
-  eval{$note->isa('dtRdr::Note')} or
-    croak("'$note' is not a dtRdr::Note");
-
-  # check whether we have this book
-  unless($self->book eq $note->book) {
-    # eek
-    RL('#gui')->error('cannot edit notes for non-open books yet');
-    return();
-  }
-
-  use dtRdr::GUI::Wx::NoteEditor;
-  if(0) {
-  # TODO check for existing editor and raise if so
-    WARN("edit_note() not done yet");
-  }
-  else {
-    # make a new one with a proper revert
-    my $editor = dtRdr::GUI::Wx::NoteEditor->new();
-    $editor->set_fields(
-      title => $note->title,
-      body  => $note->content,
-    );
-
-    my $book = $self->book;
-    my $saver = sub {
-      $note->set_title($editor->text_ctrl_title->GetValue);
-      $note->set_content($editor->text_ctrl_body->GetValue);
-      $book->do_serialize('update', $note);
-      $self->manager->note_viewer->note_changed($note); # XXX icky
-      $self->note_tree->item_changed($note);
-    };
-    $editor->set_saver($saver);
-    # need to have a serialized note
-    # (though this only matters if we have autosave enabled)
-    my $snapshot = $note->clone;
-    my $reverter = sub {
-      WARN("revert not working yet");
-      # we have to write into the existing object
-      %$note = %$snapshot;
-      $book->do_serialize('update', $note);
-      $self->manager->note_viewer->note_changed($note); # XXX icky
-      $self->note_tree->item_changed($note);
-    };
-    $editor->set_reverter($reverter);
-    # TODO autosaver
-    # defer the show until here because it messes with focus otherwise
-    $editor->Show(1);
-  }
-} # end subroutine edit_note definition
-########################################################################
-
-=head2 _delete_anno
-
-Actions common to all deletions.
-
-  $self->_delete_anno($anno);
-
-=cut
-
-sub _delete_anno {
+sub annotation_created {
   my $self = shift;
   my ($anno) = @_;
 
-  # check whether we have this book
-  unless($self->book == $anno->book) {
-    # eek
-    RL('#gui')->error('cannot edit notes for non-open books yet');
-    return();
-  }
-  my $type = {
-    'dtRdr::Note'      => 'note',
-    'dtRdr::Bookmark'  => 'bookmark',
-    'dtRdr::Highlight' => 'highlight',
-  }->{ref($anno)};
-  $type or die;
-  my $book_method = 'delete_' . $type;
-  $self->book->$book_method($anno);
+  my $type = eval {$anno->ANNOTATION_TYPE};
+  $type or die "$anno is of unknown type";
 
   my $tree = $type . '_tree';
 
-  $self->$tree->delete_item($anno);
+  if($self->can($tree)) {
+    $self->$tree->add_item($anno);
+  }
+
+  # TODO this is not needed in the case of extending an existing
+  # multi-note thread
+  $self->refresh if($self->is_visible($anno->node));
+} # end subroutine annotation_created definition
+########################################################################
+
+=head2 annotation_changed
+
+  $bv->annotation_changed($anno);
+
+=cut
+
+sub annotation_changed {
+  my $self = shift;
+  my ($anno) = @_;
+
+  my $type = eval {$anno->ANNOTATION_TYPE};
+  $type or die "$anno is of unknown type";
+
+  my $tree = $type . '_tree';
+
+  $self->can($tree) or return; # annoselection_tree
+  $self->$tree->item_changed($anno);
+} # end subroutine annotation_changed definition
+########################################################################
+
+=head2 annotation_deleted
+
+  $bv->annotation_deleted($anno);
+
+=cut
+
+sub annotation_deleted {
+  my $self = shift;
+  my ($anno) = @_;
+
+  my $type = eval {$anno->ANNOTATION_TYPE};
+  $type or die "$anno is of unknown type";
+
+  my $tree = $type . '_tree';
+
+  if($self->can($tree)) {
+    $self->$tree->delete_item($anno);
+  }
   # can't click with deleted anno => rerender iff we're still there.
   $self->refresh if($self->is_visible($anno->node));
-  return(1);
-} # end subroutine _delete_anno definition
+} # end subroutine annotation_deleted definition
 ########################################################################
-
-=head2 delete_note
-
-Definitive place to delete a note WRT to GUI.
-
-  $bv->delete_note($note);
-
-=cut
-
-sub delete_note {
-  my $self = shift;
-  my ($note) = @_;
-  eval{$note->isa('dtRdr::Note')} or
-    croak("'$note' is not a dtRdr::Note");
-
-
-  $self->_delete_anno($note) or return;
-  # let the note viewer know
-  my $nv = $self->manager->note_viewer;
-  $nv->no_note if($note eq ($nv->note || ''));
-
-} # end subroutine delete_note definition
-########################################################################
-
-=head2 delete_bookmark
-
-  $bv->delete_bookmark($bm);
-
-=cut
-
-sub delete_bookmark {
-  my $self = shift;
-  my ($bookmark) = @_;
-  eval{$bookmark->isa('dtRdr::Bookmark')} or
-    croak("'$bookmark' is not a bookmark");
-  $self->_delete_anno($bookmark) or return;
-} # end subroutine delete_bookmark definition
-########################################################################
-
-=head2 delete_highlight
-
-  $bv->delete_highlight($hl);
-
-=cut
-
-sub delete_highlight {
-  my $self = shift;
-  my ($highlight) = @_;
-  eval{$highlight->isa('dtRdr::Highlight')} or
-    croak("'$highlight' is not a highlight");
-  $self->_delete_anno($highlight) or return;
-} # end subroutine delete_highlight definition
-########################################################################
-
 
 =head1 Book Handling
 
@@ -716,19 +603,27 @@ Probably a private method -- else you break the history.
 sub render_node {
   my $self = shift;
   my ($toc) = @_;
-  eval { $toc->isa('dtRdr::TOC') } or croak("not a toc");
-  $self->set_current_toc($toc);
 
-  # set state
+  eval { $toc->isa('dtRdr::TOC') } or croak("not a toc");
 
   # trying to prevent input from impatient users -- not working
   # TODO do the load in a worker?
   #      use a progress dialog? (only on large nodes?)
-  $self->manager->main_frame->Enable(0);
-  my $html = $self->book->get_content($toc);
-  $self->htmlwidget->render_HTML($html, $self->book);
-  $self->manager->main_frame->Enable(1);
-  $self->htmlwidget->SetFocus;
+  my $frame = $self->manager->main_frame;
+  my $said = $frame->mew("Loading section" . $toc->title);
+  # XXX it is distracting and slow to lock for very small sections
+  # TODO calculate size?
+  #my $lock = $frame->lock_gui;
+  $frame->busy(sub {
+    my $html = $self->book->get_content($toc);
+    $self->htmlwidget->render_HTML($html, $self->book);
+    $self->htmlwidget->SetFocus;
+  });
+
+  $self->set_current_toc($toc);
+
+  # TODO set state
+
 } # end subroutine render_node definition
 ########################################################################
 
@@ -749,15 +644,26 @@ to the found node and renders that.
 sub render_node_by_id {
   my $self = shift;
   my ($id) = @_;
+
   my $book = $self->book;
 
   my $root = $book->toc;
   my $reqtoc = $root->get_by_id($id);
-  $self->book_tree->select_item($id);
-  $self->set_requested_toc($reqtoc);
 
   my $toc = $book->find_toc($id);
   $toc or croak("could not find toc $id");
+
+  # We need to render it before we change the state or else we'll need
+  # to reset our history and such if it fails.  TODO The one exception
+  # might be setting the requested item in the sidebar via a scopeguard.
+  eval {$self->render_node($toc);};
+  if(my $err = $@) {
+    (caller eq __PACKAGE__) and die $err;
+    return $self->_error("Loading node '$id' failed ($@).");
+  }
+
+  $self->book_tree->select_item($id);
+  $self->set_requested_toc($reqtoc);
 
   $self->history_add;
 
@@ -765,8 +671,6 @@ sub render_node_by_id {
   my $url = URI->new('pkg://'.$book->id.'/'.$toc->id)->as_string;
   $self->set_current_url($url);
 
-
-  $self->render_node($toc);
 } # end subroutine render_node_by_id definition
 ########################################################################
 
@@ -994,7 +898,7 @@ sub history_add {
   $self->history_in_progress and return;
 
   if(defined(my $old_url = $self->current_url)) {
-  RL('#history')->debug("\nadd history\n\n");
+    RL('#history')->debug("\nadd history\n\n");
     # add the page we are leaving
     $self->history->add(
       url => $old_url,

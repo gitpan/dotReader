@@ -37,6 +37,14 @@ This pod needs work.
 
 =cut
 
+=head1 Plugin Methods
+
+=head2 identify_uri
+
+Determine whether the uri appears to be on of ours.
+
+=cut
+
 sub identify_uri {
   my $class = shift;
   my ($filename, $cache) = @_;
@@ -60,7 +68,8 @@ sub identify_uri {
   else {
     return(0, {zip => $zip});
   }
-}
+} # end subroutine identify_uri definition
+########################################################################
 
 =head1 Constructors
 
@@ -125,43 +134,41 @@ sub load_from_zip {
   my @xmlfiles = $zip->membersMatching( '.*\.xml' );
   # we should have only one xml file in the archive
 
-  # read file into mem
-  {
-    my $cont = $zip->contents($xmlfiles[0]) or die "no contents for $xmlfiles[0]";
-    $self->set_xml_content($cont);
-  }
-
-  my $meta = $self->setup_metadata;
-
-  # setup the tempdir
-  {
-    my $name = $meta->get('id');
-    # TODO get/fake a book title that tests this --Eric
-    $name = uri_escape($name);
-    my $tmp_dir = File::Temp::tempdir(
-      'dtrdr-' . $name . '-' . 'X'x8,
-      TMPDIR => 1,
-      CLEANUP => 1,
-      ) . '/';
-    RL('#book')->debug('extracting to: ' . $tmp_dir);
-    $self->set_base_dir($tmp_dir);
-  }
-
-  # dump into tmp_dir
-  my $status = $zip->extractTree('', $self->get_base_dir);
-  die "error in extract ($status) $!" unless(AZ_OK == $status);
-
-  # ??? should this try to do the right thing WRT cache or what?
-  $self->build_toc(build_aot => 1) or die;
-
-  # XXX get this in Base somehow
-  defined($self->id) or $self->set_id($self->get_metadata->get('id'));
-  defined($self->title) or $self->set_title($self->get_metadata->get('title'));
+  # read file into memory
+  $self->set_xml_content($zip->contents($xmlfiles[0])) or
+      die "no contents for $xmlfiles[0]";
 
   $self->{location} = Cwd::abs_path($zip->fileName);
+  $self->_to_tempdir($zip);
 
-  return 1;
+  return $self->finish_load;
 } # end subroutine load_from_zip definition
+########################################################################
+
+=head2 _to_tempdir
+
+  $self->_to_tempdir($zip);
+
+=cut
+
+sub _to_tempdir {
+  my $self = shift;
+  my ($zip) = @_;
+
+  # setup the tempdir
+  my $name = ''; # TODO maybe debug based on escape($self->location)
+  my $tmp_dir = File::Temp::tempdir(
+    'dtrdr-' . $name . '-' . 'X'x8,
+    TMPDIR => 1,
+    CLEANUP => 1,
+    ) . '/';
+  RL('#book')->debug('extracting to: ' . $tmp_dir);
+  $self->set_base_dir($tmp_dir);
+
+  # dump into tmp_dir
+  my $status = $zip->extractTree('', $tmp_dir);
+  die "error in extract ($status) $!" unless($status == AZ_OK);
+} # end subroutine _to_tempdir definition
 ########################################################################
 
 =head2 add_to_library
@@ -185,6 +192,8 @@ sub add_to_library {
   File::Copy::copy($self->location, $libdir) or
     die "cannot copy myself to $libdir -- $!";
 
+  # NOTE books which have a faulty toc will stay that way.
+  # TODO just externalize the toc or something
   unless($self->toc_is_cached) {
     my $zip = Archive::Zip->new("$libdir/$basename");
     my $unhooked = $self->toc->unhooked;
@@ -260,7 +269,6 @@ Returns virtual-file content as string.
 sub get_member_string {
   my $self = shift;
   my ($file_path) = @_;
-  RL('#book')->debug('load_from_zip() ok');
   return $self->zip_obj->contents($file_path);
 } # end subroutine get_member_string definition
 ########################################################################

@@ -1,9 +1,8 @@
 package dtRdr::User;
-$VERSION = eval{require version}?version::qv($_):$_ for(0.0.1);
+$VERSION = eval{require version}?version::qv($_):$_ for(0.1.1);
 
 use warnings;
 use strict;
-
 use Carp;
 
 use dtRdr;
@@ -12,6 +11,9 @@ use dtRdr::Library;
 
 use Class::Accessor::Classy;
 ro 'config';
+ro 'username';
+ro 'name';
+ls libraries => \ (my $set_libraries), add => \ (my $add_libraries);
 no  Class::Accessor::Classy;
 
 =head1 NAME
@@ -27,32 +29,26 @@ dtRdr::User.pm - user class
 
 =head2 new
 
-  $user = dtRdr::User->new($username);
+  $user = dtRdr::User->new(username => $username);
 
 =cut
-sub new {
-  my $package = shift;
-  my ($username) = @_;
-  #$username or carp("null username");
 
-  my $class = ref($package) || $package;
+sub new {
+  my $class = shift;
+  ref($class) and croak("not an object method");
+  (@_%2) and croak("odd number of elements in argument list");
+  my (%attr) = @_;
+
+  unless(defined($attr{username})) {
+    $attr{username} = getlogin || getpwuid($<) || "Kilroy";
+  }
+
   my $self = {
-    libraries => [],
-    info => {},
-    username => $username,
-    #directory => XXX ?
+    name      => 'me',
+    %attr,
+    #info      => {}, # XXX why not just self?
   };
   bless($self, $class);
-
-  # my $filename = "file:drconfig";
-  # XXX MAYBE better than reworking SQLConfig?
-  # XXX we should stop doing this prefix thing
-  my $filename = 'yaml:' . dtRdr->user_dir . 'drconfig.yml';
-  #my $filename = 'sql:' . dtRdr->user_dir . 'drconfig.db';
-
-  $self->init_config($filename);
-
-  # dtRdr::Plugins->init($config); # ?
 
   return($self);
 } # end subroutine new definition
@@ -70,125 +66,57 @@ sub init_config {
   my $self = shift;
   my ($filename) = @_;
 
-  $filename or croak("must have a filename");
   $self->{config} and croak("can only init once");
+
+  die "config requires filename" unless(defined($filename));
+
+  # dtRdr::Plugins->init($config); # ?
 
   my $config = $self->{config} = dtRdr::Config->new($filename);
 
-  my @libraries = $config->get_library_info;
+  my @libraries = $config->libraries;
 
-  # XXX why?
+  # XXX should definitely go elsewhere
+  $self->$set_libraries();
   foreach my $info (@libraries) {
     # lookup the type
     my $library_class = dtRdr::Library->class_by_type($info->type);
     my $library = $library_class->new();
-    $library->load_uri(dtRdr->user_dir . $info->uri); # XXX shouldn't be here?
-    $self->_add_library_noupdate($library);
+    $library->load_uri(dtRdr->user_dir . $info->uri);
+    $self->$add_libraries($library);
   }
   1;
 } # end subroutine init_config definition
 ########################################################################
 
-# Add a library to the current list of libraries the user has open
-sub add_library { # XXX why?
+=head2 add_library
+
+Add a library and store it.
+
+  $self->add_library($lib);
+
+=cut
+
+sub add_library {
   my $self = shift;
   my ($lib) = @_;
 
   my ($libname, $libtype) = ($lib->location, $lib->handler);
   do('./util/BREAK_THIS') or die;
   $self->config->insert_library($libname, $libtype);
-  $self->_add_library_noupdate($lib);
-}
-
-sub _add_library_noupdate {
-  my $self = shift;
-  my ($lib) = @_;
-
-  push @{$self->{libraries}}, $lib;
-}
-
-sub get_libraries {
-  my $self = shift;
-
-  return @{$self->{libraries}};
-}
-
-sub set_info {
-  my $self = shift;
-  my ($thing, $value) = @_;
-
-  if (exists $self->{info}{lc $thing}) {
-    $self->{config}->delete_userinfo(lc $thing);
-  }
-  $self->{config}->insert_userinfo(lc $thing, $value);
-  $self->_set_info_noupdate($thing, $value);
-}
-
-sub _set_info_noupdate {
-  my $self = shift;
-  my ($thing, $value) = @_;
-
-  $self->{info}{lc $thing} = $value;
-}
-
-
-sub get_info {
-  my $self = shift;
-  my ($thing) = @_;
-
-  return $self->{info}{lc $thing};
-}
-
-sub username { # XXX accessor
-  my $self = shift;
-  return $self->{username};
-}
-
-sub add_module { # XXX why?
-  my $self = shift;
-  my ($modulename) = @_;
-
-  $self->{config}->insert_module($modulename);
-}
-
-sub list_modules { # XXX why?
-  my $self = shift;
-  return $self->{config}->list_modules();
-}
-
-sub add_library_handler { # XXX why?
-  my $self = shift;
-  my ($type, $handler_name) = @_;
-  $self->{config}->insert_libraryhandler($type, $handler_name);
-}
-
-sub list_library_handlers { # XXX why?
-  my $self = shift;
-  return $self->{config}->list_library_handlers();
-}
-
-sub add_book_handler { # XXX why?
-  my $self = shift;
-  my ($type, $handler_name) = @_;
-
-  $self->{config}->insert_bookhandler($type, $handler_name);
-}
-
-sub list_book_handlers { # XXX why?
-  my $self = shift;
-
-  return $self->{config}->list_book_handlers();
-}
+  $self->$add_libraries($lib);
+} # end subroutine add_library definition
+########################################################################
 
 =head1 AUTHOR
 
-Dan Sugalski <dan@sidhe.org>
-
 Eric Wilhelm <ewilhelm at cpan dot org>
+
+Dan Sugalski <dan@sidhe.org>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2006 by Dan Sugalski, Eric L. Wilhelm, and OSoft, All
+Copyright (C) 2006-2007 by Eric L. Wilhelm, Dan Sugalski, and OSoft, All
 Rights Reserved.
 
 =head1 NO WARRANTY

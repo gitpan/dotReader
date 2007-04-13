@@ -1,0 +1,27 @@
+upload:
+  url_base: "http://dotreader.com/downloads/"
+publish:
+  process:
+    - clean
+    - create_build
+    - .check
+    - .testall
+    - .testpod
+    - .testpodcoverage
+    - check_manifest
+    - .dist
+    - check_changes
+    - check_kwalitee
+    - .disttest
+    - .restore_par_cache
+    - ".testbinary --mini --release V"
+    - ".binary_package --mini --release V"
+    - ".binary_package --bare --mini --release V"
+    - check_version_control
+  shipit:
+    - stop
+    - ".package_push --mini --release V"
+    - ".package_push --bare --mini --release V"
+    - ".parts_push --release V"
+    - .dist_push
+    - .release_links

@@ -24,12 +24,6 @@ rs parent => \(my $set_parent);
 no  Class::Accessor::Classy;
 ########################################################################
 
-use Method::Alias (
-  child    => 'get_child',
-  root     => 'get_root',
-  children => 'get_children',
-);
-
 use dtRdr::Logger;
 
 =head1 NAME
@@ -41,28 +35,6 @@ dtRdr::TOC - a linked Table of Contents tree
 This pod needs work.
 
 =cut
-
-# =head1 TODO
-# 
-# (Might be done at this point.)
-# 
-#     # named parameters and private info
-#     my %args = (
-#           title   => $name,
-#           visible => $bool,
-#           icons   => {
-#             closed  => $cfle,
-#             open    => $ofile,
-#             leaf    => $lfile
-#           },
-#           info    => {
-#             foo     => 'bar',
-#           },
-#           );
-#     $self->{toc} = $toc = dtRdr::TOC->new($self, $id, $range, \%args);
-#     $toc->get_title;
-#     $toc->get_info('render_children');
-#     $toc->get_visible;
 
 =head1 Constructor
 
@@ -143,17 +115,17 @@ sub new {
     id => $id,
     visible => 1,
     %args
-    };
+  };
 
   bless($self, $class);
   if($parent) {
-    my $root = $self->{_root} = $parent->get_root || $parent;
+    my $root = $self->{_root} = $parent->root || $parent;
     $root->_add_to_index($self);
   }
   else {
     $self->{_index} = {
       id => {$id => $self},
-      };
+    };
   }
   return($self);
 } # end subroutine new definition
@@ -195,7 +167,7 @@ foreach my $node (@toc) {
 
 =head1 Accessors
 
-All accessors are get_foo() and set_foo().  foo() is an alias to get_foo().
+All accessors are foo() and set_foo().  get_foo() is an alias to foo().
 
 =head2 id
 
@@ -245,20 +217,20 @@ displayed in the TOC widget.
 
 =head1 Tree Operations
 
-=head2 get_children
+=head2 children
 
 Returns all the child TOC objects for this TOC object. Returns the
 empty list if there are none.
 
-  my @children = $toc->get_children;
+  my @children = $toc->children;
 
 =cut
 
-sub get_children {
+sub children {
   my $self = shift;
   $self->{children} and return(@{$self->{children}});
   return();
-} # end subroutine get_children definition
+} # end subroutine children definition
 ########################################################################
 
 =head2 descendants
@@ -295,23 +267,16 @@ sub older_siblings {
   $self->is_root and return();
   my @siblings = $self->parent->children;
 
-  my @older = ();
+  while(my $s = pop(@siblings)) {($s == $self) and last;}
 
-  for(@siblings){
-    last if($_ == $self);
-    push (@older,$_);
-    L->debug("older_siblings:",$_->id);
-  }
-  return @older;
+  return(@siblings);
 } # end subroutine older_siblings definition
 ########################################################################
 
 
 =head2 younger_siblings
 
-Nodes after this, at same level
-
-  $toc->younger_siblings
+  my @nodes = $toc->younger_siblings;
 
 =cut
 
@@ -321,28 +286,16 @@ sub younger_siblings {
   $self->is_root and return();
   my @siblings = $self->parent->children;
 
-  my $match;
-  my @younger = ();
+  while(my $s = shift(@siblings)) {($s == $self) and last;}
 
-  for(@siblings){
-    if($match){
-      push (@younger,$_);
-      L->debug('younger=',$_->get_info('title'));
-    }
-    else{
-      if($_ eq $self){
-        $match = 1;
-      }
-    }
-  }
-  return @younger;
+  return(@siblings);
 } # end subroutine younger_siblings definition
 ########################################################################
 
 
 =head2 next_sibling
 
-Returns the next sibling or undef if there is none.
+Returns the next sibling or undef.
 
   $younger = $toc->next_sibling;
 
@@ -350,14 +303,15 @@ Returns the next sibling or undef if there is none.
 
 sub next_sibling {
   my $self = shift;
-  my @younger = $self->younger_siblings;
-  return $younger[0];
+
+  my @younger = $self->younger_siblings or return();
+  return($younger[0]);
 } # end subroutine next_sibling definition
 ########################################################################
 
 =head2 prev_sibling
 
-Returns the previous sibling or undef if there is none.
+Returns the previous sibling or undef.
 
   $older = $toc->prev_sibling;
 
@@ -365,13 +319,9 @@ Returns the previous sibling or undef if there is none.
 
 sub prev_sibling {
   my $self = shift;
-  my $prev;
-  if(my @older = $self->older_siblings){
-    $prev = $older[-1];
-    L->debug('prev_sibling=',$prev->id);
-  }
 
-  return $prev;
+  my @older = $self->older_siblings or return();
+  return($older[-1]);
 } # end subroutine prev_sibling definition
 ########################################################################
 
@@ -444,38 +394,38 @@ sub add_child {
 } # end subroutine add_child definition
 ########################################################################
 
-=head2 get_child
+=head2 child
 
 Get the child with index $i.
 
-  my $child = $toc->get_child($i);
+  my $child = $toc->child($i);
 
 =cut
 
-sub get_child {
+sub child {
   my $self = shift;
   my ($i) = @_;
   (1 == @_) or croak "wrong number of arguments";
 
-  my @children = $self->get_children;
+  my @children = $self->children;
   $children[$i] or croak 'no child there';
   return($children[$i]);
-} # end subroutine get_child definition
+} # end subroutine child definition
 ########################################################################
 
-=head2 get_root
+=head2 root
 
-  my $root = $toc->get_root;
+  my $root = $toc->root;
   $root ||= $toc; # it was the root
 
 =cut
 
-sub get_root {
+sub root {
   my $self = shift;
   if($self->parent) {
     return($self->{_root});
   }
-} # end subroutine get_root definition
+} # end subroutine root definition
 ########################################################################
 
 =head2 is_root
@@ -503,7 +453,7 @@ sub _walk_to_node {
   my (@list) = @_;
   my $child = $self;
   foreach my $i (@list) {
-    $child = $child->get_child($i);
+    $child = $child->child($i);
   }
   return($child);
 } # end subroutine _walk_to_node definition
@@ -616,7 +566,7 @@ sub set_info {
 ########################################################################
 
 # XXX unused?
-sub set_range { # XXX is this even valid
+ sub set_range { # XXX is this even valid
   my ($self, $range) = @_;
   do('./util/BREAK_THIS') or die;
   unless(defined $self->{range}) {
@@ -627,7 +577,7 @@ sub set_range { # XXX is this even valid
   }
 }
 
-sub set_id { # XXX is this even valid
+ sub set_id { # XXX is this even valid
   my ($self, $id) = @_;
   do('./util/BREAK_THIS') or die;
   unless(defined $self->{id}) {
@@ -677,6 +627,33 @@ sub validate_ranges {
 } # end subroutine validate_ranges definition
 ########################################################################
 
+=head2 validate_ids
+
+  my @errors = $toc->validate_ids;
+
+=cut
+
+sub validate_ids {
+  my $self = shift;
+  my @errors;
+  $self->rmap(sub {
+    my $id = $_->id;
+    unless(defined($id)) {
+      push(@errors, "undefined id (title: " . $_->title . ")");
+      return;
+    }
+    unless(length($id)) {
+      push(@errors, "zero-length id (title: " . $_->title . ")");
+      return;
+    }
+    unless($id =~ m/^[A-Z0-9_-]+$/i) {
+      push(@errors, "malformed: '$id'");
+      return;
+    }
+  });
+  return(@errors);
+} # end subroutine validate_ids definition
+########################################################################
 
 =head2 _dump
 
@@ -700,7 +677,7 @@ sub _dump {
     '[' . $self->id . ']',
     )
     );
-  if(my @children = $self->get_children) {
+  if(my @children = $self->children) {
     foreach my $child (@children) {
       my @cnodes = $child->_dump;
       $_ = '  ' . $_ for (@cnodes);
@@ -731,9 +708,12 @@ sub rmap {
   my $self = shift;
   my ($subref) = @_;
   my %ctrl;
-  $subref->($self, \%ctrl);
+  {
+    local $_ = $self;
+    $subref->($self, \%ctrl);
+  }
   $ctrl{prune} and return;
-  foreach my $child ($self->get_children) {
+  foreach my $child ($self->children) {
     $child->rmap($subref);
   }
 } # end subroutine rmap definition
@@ -751,7 +731,7 @@ sub _rmap {
   my $self = shift;
   my ($subref) = @_;
   $subref->($self);
-  foreach my $child ($self->get_children) {
+  foreach my $child ($self->children) {
     $child->_rmap($subref);
   }
 } # end subroutine _rmap definition
@@ -801,7 +781,7 @@ sub _unhook {
   $simple{range} = [$range->id, $range->a, $range->b];
   $simple{wrange} = [$self->get_word_start, $self->get_word_end];
   $simple{children} = [] if($self->{children});
-  foreach my $child ($self->get_children) {
+  foreach my $child ($self->children) {
     push(@{$simple{children}}, $child->_unhook);
   }
   return(\%simple);

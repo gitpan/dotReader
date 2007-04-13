@@ -9,7 +9,7 @@ use Time::HiRes ();
 my $start_time = Time::HiRes::time();
 # equals the beginning of this module's runtime
 # (undef if we're not there yet)
-sub start_time {$start_time};
+  sub start_time {$start_time};
 
 
 =head1 NAME
@@ -79,8 +79,8 @@ This one is for application data.
 
 =cut
 
-my $data_dir;
-sub data_dir {$data_dir};
+  my $data_dir;
+  sub data_dir {$data_dir};
 sub _init_data_dir {
   my $package = shift;
   my ($app_dir) = @_;
@@ -115,7 +115,7 @@ sub program_base {
 
   # remove extension and anything else odd
   $loc =~ s/^(\w+).*$/$1/;
-  warn "loc is $loc\n";
+  #warn "loc is $loc\n";
   $dir =~ s#\\#/#g if($^O eq 'MSWin32');
   $dir =~ s#/*$#/#;
   $loc = $dir . lc($loc);

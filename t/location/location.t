@@ -45,16 +45,6 @@ BEGIN { use_ok('dtRdr::Location') };
   isa_ok($loc->node, 'dtRdr::Book');
 }
 
-warn "finish this test";
-TODO: {
-  local $TODO = "finish operator overloading";
-  # are we going to have math operators?
-  my $book = bless({}, 'dtRdr::Book');
-  my $loc1 = dtRdr::Location->new($book, 7);
-  my $loc2 = dtRdr::Location->new($book, 8);
-  ok((7+8) == eval{($loc1 + $loc2)->offset}, 'add');
-}
-
 sub complain {
   0 and warn @_, "-- at " , join(" line ", (caller(0))[1,2]);
 } # end subroutine complain definition

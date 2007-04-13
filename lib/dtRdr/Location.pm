@@ -36,6 +36,7 @@ Takes a node object and an offset (in bytes.)
   my $loc = dtRdr::Location->new($node, $offset);
 
 =cut
+
 sub new {
   my $class = shift;
   my ($node, $offset) = @_;

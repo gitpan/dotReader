@@ -3,8 +3,10 @@
 use warnings;
 use strict;
 
+use inc::testplan(1, 46);
+use test_inc::loginit;
+
 use lib 'inc';
-use Test::More qw(no_plan);
 use dtRdrTestUtil::ABook;
 
 BEGIN { use_ok('dtRdr::Highlight') };
@@ -79,7 +81,7 @@ set_dosub(sub {
   }
 
   # delete it
-  $bv->delete_highlight($hl);
+  $hl->book->delete_highlight($hl);
   # check it
   is($tr->GetCount, 0, 'count them');
 
@@ -167,5 +169,6 @@ set_dosub(sub {
 });
 
 run();
-ok($did_run, 'actually ran');
+
+done;
 # vim:ts=2:sw=2:et:sta

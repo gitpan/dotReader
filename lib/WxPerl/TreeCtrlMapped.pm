@@ -232,7 +232,9 @@ sub _clear {
 
 =head2 get_item
 
-  $self->get_item;
+Get the item for a given $id.
+
+  my $item = $self->get_item($id);
 
 =cut
 

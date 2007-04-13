@@ -11,23 +11,25 @@ my $builder = $build_class->new(
   dist_author         => 'OSoft Inc.',
   dist_abstract       => 'Cross-Platform XML Book Reader',
   recursive_test_files => 1,
-  testfile_types       => {
-    'gui' => 'gt',
+  test_types       => {
+    gui  => 'gt',
+    sync => 'ct',
   },
   build_requires => { # should be test_requires, but not in 0.28
     'IPC::Run' => 0,
   },
   main_pl_file => 'client/app.pl',
+  macmaker_icon => 'client/icons/dotreader.tiff',
   requires => {
     'Archive::Zip'             => 0,
     #'Archive::Zip::MemberRead' => 0,
     'Class::Accessor'          => '0.25',
-    'Class::Accessor::Classy'  => '0.001001',
-    'DBD::SQLite'              => 0, # 1.12 ??
-    'DBI'                      => 0,
+    'Class::Accessor::Classy'  => '0.001003',
+    'Date::Format'             => 0, # TODO DateTime?
     'File::NCopy'              => 0,
     'Module::Finder'           => '0.001001',
     'Module::Pluggable'        => '2.96',
+    'wxPerl::Constructors'     => '0.000002',
     'Wx'                       => '0.26',
     #'Wx::Event'                => 0,
     #'Wx::Html'                 => 0,
@@ -38,6 +40,7 @@ my $builder = $build_class->new(
     'LWP::Parallel::UserAgent' => 0,
     'XML::Twig'                => 3.22,
     'YAML::Syck'               => 0.67,
+    'Scope::Guard'             => 0,
     'Tree::Simple'             => 0,
     'URI'                      => 0,
     ################################################################
@@ -58,7 +61,12 @@ my $builder = $build_class->new(
     ################################################################
   }, # end requires
   build_requires => {
+    'Module::Build'            => 0.2807,
     'Test::More'               => 0.62,
+  },
+  # XXX Module::Build doesn't speak test_recommends :-(
+  test_recommends => {
+    'Test::HTTP::Server::Simple' => 0.04,
   },
   # XXX Module::Build doesn't speak build_recommends :-(
   build_recommends => {

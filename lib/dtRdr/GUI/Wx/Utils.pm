@@ -5,8 +5,13 @@ use warnings;
 use strict;
 use Carp;
 
+use dtRdr;
+use dtRdr::GUI;
+
 use Wx ();
 use Wx::Event ();
+
+use WxPerl::ShortCuts ();
 
 
 =head1 NAME
@@ -17,6 +22,25 @@ dtRdr::GUI::Wx::Utils - wx shortcut functions
 
 =cut
 
+=head1 Class Methods
+
+=head2 Bitmap
+
+Loads a png from somewhere.
+
+  dtRdr::GUI::Wx::Utils->Bitmap($png_name);
+
+=cut
+
+sub Bitmap {
+  my $package = shift;
+  my ($name) = @_;
+
+  my $loc = dtRdr::GUI->find_icon("$name.png");
+  return(Wx::Bitmap->new($loc, WxPerl::ShortCuts::BT('PNG')));
+} # end subroutine Bitmap definition
+########################################################################
+
 BEGIN {
   use Exporter;
   *{import} = \&Exporter::import;
@@ -25,6 +49,8 @@ BEGIN {
   );
 }
 
+
+=head1 Trait-like methods
 
 =head2 _accel
 
@@ -43,9 +69,8 @@ sub _accel {
   defined($stroke) or croak("must have keystroke");
   my $mod = 0;
   while($stroke =~ s/^([^\+]+)\+//) {
-    my $mk = 'wxACCEL_' . $1;
-    Wx->can($mk) or croak("cannot find modifier key $mk");
-    $mod |= Wx->$mk;
+    my $mk = $1;
+    $mod |= WxPerl::ShortCuts::get_constant('Wx::wxACCEL_' . $mk);
   }
 
   my $key = $stroke;
@@ -53,9 +78,7 @@ sub _accel {
   $kl or croak("keystroke invalid ('PLUS'?)");
   if($kl > 1) {
     # it's a constant
-    my $key_const = 'WXK_' . $key;
-    Wx->can($key_const) or croak("cannot find key constant $key_const");
-    $key = Wx->$key_const;
+    $key = WxPerl::ShortCuts::get_constant('Wx::WXK_' . $key);
   }
   else {
     # it's a letter

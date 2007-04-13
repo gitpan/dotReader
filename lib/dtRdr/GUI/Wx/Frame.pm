@@ -7,6 +7,7 @@ use strict;
 
 use dtRdr;
 use dtRdr::Logger;
+use dtRdr::GUI;
 use dtRdr::GUI::Wx::State;
 use dtRdr::GUI::Wx::Utils qw(_accel);
 use dtRdr::GUI::Wx::Sidebar;
@@ -15,18 +16,17 @@ use dtRdr::GUI::Wx::Plugins;
 use WxPerl::MenuMaker;
 use MultiTask::Manager;
 use YAML::Syck;
+use Scope::Guard;
 
-use Wx;
-use base qw(Wx::Frame);
+use Wx ();
+use base 'dtRdr::GUI::Wx::layout::Frame';
 
 use constant {
   SIDEBAR_MINSIZE => 1,
   SIDEBAR_DROPSIZE => 157,
 };
 
-use Wx (
-  ':everything',
-  qw(
+use Wx qw(
   wxBITMAP_TYPE_PNG
   wxSPLASH_CENTRE_ON_PARENT
   wxSPLASH_TIMEOUT
@@ -38,31 +38,19 @@ use Wx (
   wxSTAY_ON_TOP
   wxACCEL_CTRL
   wxACCEL_SHIFT
-  WXK_F2
-  WXK_F5
-  WXK_F6
-  WXK_F7
-  WXK_F8
-  WXK_F9
   WXK_F10
   wxID_EXIT
   wxOK
   wxICON_INFORMATION
-  ));
+);
 
 use Wx::Event qw(
-  EVT_TREE_ITEM_MENU
-  EVT_CONTEXT_MENU
-  EVT_TREE_ITEM_ACTIVATED
-  EVT_TREE_SEL_CHANGED
-  EVT_SIZE
   EVT_IDLE
-  EVT_MENU
   EVT_SPLITTER_SASH_POS_CHANGED
-  EVT_SPLITTER_SASH_POS_CHANGING
   EVT_SPLITTER_DOUBLECLICKED
-  EVT_NOTEBOOK_PAGE_CHANGED
 );
+
+use WxPerl::ShortCuts;
 
 ########################################################################
 use Method::Alias ();
@@ -72,38 +60,27 @@ my $mk_alias = sub { Method::Alias->import(@_); };
 
 use Class::Accessor::Classy;
 ro qw(
+  state
+  menumap
+  taskmaster
+);
+ri 'plugins';
+rw 'splash_screen';
+
+# widgets:
+ro qw(
   bv_manager
-  frame_main_statusbar
+  statusbar
   sizer_1
   sizer_3
   window_1
   sidebar
   right_window
-  note_viewer_pane
-  note_viewer_sizer
-  nv_htmlwidget
-  nv_title_bar
-  nv_button_goto
-  nv_button_edit
-  nv_button_delete
-  nv_button_close
+  note_viewer
   sb_htmlwidget
 );
-
-$mk_alias->(note_viewer    => 'note_viewer_pane');
-$mk_alias->(status_bar     => 'frame_main_status_bar'); # temp
-
-# non-glade accessors go here
-# (XXX everything is non-glade now, but we're transitioning)
-ro qw(
-  state
-  menumap
-  taskmaster
-);
-rw 'splash_screen';
+rw_c TESTING => undef; # allow tests to die on error()
 no  Class::Accessor::Classy;
-########################################################################
-########################################################################
 ########################################################################
 
 =head1 NAME
@@ -116,31 +93,18 @@ This gives finer-grained control than inheriting Wx::Frame directly.
 
 =cut
 
+=head1 Widget Construction
 
-=head1 Constructor
+See L<dtRdr::GUI::Wx::layout::Frame>
 
-=head2 new
+=head2 _create_children
 
-  $frame = dtRdr::GUI::Wx::Frame->new(
-              $parent,
-              $id,
-              $title,
-              $pos,
-              $size,
-              $style,
-              $name
-              );
+  $self->_create_children;
 
 =cut
 
-sub new {
+sub _create_children {
   my $self = shift;
-  my ($parent, $id, $title, $pos, $size, $style, $name) = @_;
-  # XXX not setting defaults here, but maybe should --Eric
-
-  $self = $self->SUPER::new(
-    $parent, $id, $title, $pos, $size, $style, $name
-    );
 
   if(0) { # splash now handled by app.pl
     $self->make_splash();
@@ -148,8 +112,8 @@ sub new {
     WARN "splash is out in ", $now - $dtRdr::start_time, " seconds\n";
   }
 
-  return($self);
-} # end subroutine new definition
+  $self->SUPER::_create_children(@_);
+} # end subroutine _create_children definition
 ########################################################################
 
 =head1 Methods
@@ -169,7 +133,7 @@ sub init {
     sidebar_position => $self->window_1->GetSashPosition,
     sidebar_open     => 1,
     notebar_open     => 0,
-    notebar_position => 80,
+    notebar_position => 280,
   );
 
   # don't allow splitter window to unsplit at all
@@ -204,19 +168,35 @@ sub init {
     );
 
     my $is_working = 0; # only here for diagnostics
+    my $is = {in => 0};
     EVT_IDLE($self, sub {
       my ($obj, $evt) = @_;
+
+      $is->{in} and return; # prevent piling-on
+      local $is->{in} = 1;
+
       if($master->has_work) {
         $is_working = 1;
-        $master->work; Wx::WakeUpIdle() if($master->has_work);
+        #WARN "work";
+        $master->work;
+        # hmm, which is better?
+        #Wx::WakeUpIdle() if($master->has_work);
+        $evt->RequestMore if($master->has_work);
       }
       else { # no work to do
-        $is_working and warn "no workers";
+        $is_working and WARN "no workers";
         $is_working = 0;
       }
       $evt->Skip;
     });
   } # idle
+
+  if(0) { # huh?  Mouse events don't work on windows -- maybe Wx.pm release?
+    Wx::Event::EVT_RIGHT_DOWN($self, sub {WARN("right down")});
+    0 and Wx::Event::EVT_RIGHT_DOWN($self->sidebar->libraries,
+      sub {WARN("RIGHT_DOWN")});
+    Wx::Event::EVT_MOUSE_EVENTS($self, sub {WARN("MOUSE_EVENTS")});
+  }
 
 } # init
 ########################################################################
@@ -247,11 +227,7 @@ sub init_menumap {
         die("no icon: $item->{name} (", join(", ", %$item), ")");
       next;
     }
-    $item->{icon} =
-      # XXX this needs to look in the user directory too
-      # XXX dtRdr->find_icon ?
-      dtRdr->data_dir . 'gui_default/icons/' .
-      $item->{icon};
+    $item->{icon} = dtRdr::GUI->find_icon($item->{icon});
   }
   $mm->create_toolbar(\@toolbar);
   return($mm);
@@ -305,7 +281,8 @@ sub setup {
       ['CTRL+K', 'menu_tb_bookmark'],
       # ANYTHING BELOW HERE IS A HACK
       ['F7', '_resize'],
-      ['CTRL+SHIFT+F5', sub { dtRdr->_reload; $self->setup}],
+      ['CTRL+SHIFT+F5', # grr KDE wants this to "switch to desktop #17"!
+        sub { dtRdr->_reload; $self->setup}],
       ['CTRL+A', sub {$self->sidebar->_ad_split}],
       ['CTRL+G', sub { $self->bv_manager->show_welcome}],
       ['CTRL+F', sub {
@@ -351,8 +328,11 @@ sub setup {
 
   $self->_disable_not_dones;
 
-  my $plugins = dtRdr::GUI::Wx::Plugins->new;
-  $plugins->init($self);
+  #$self->setup_progressbar;
+
+  unless($self->plugins) { # TODO some way to re-init these
+    $self->set_plugins(dtRdr::GUI::Wx::Plugins->new->init($self));
+  }
 
 } # end subroutine setup definition
 ########################################################################
@@ -373,12 +353,6 @@ sub _disable_not_dones {
   my @nots = qw(
     view_refresh
     view_source
-    notes_private_notes_export_current
-    notes_private_notes_export_all
-    notes_private_notes_import
-    notes_public_notes_create
-    notes_public_notes_download
-    notes_servers_add
     help_update
     toolbar.help
   );
@@ -396,28 +370,46 @@ sub _disable_not_dones {
 
 sub setup_progressbar {
   my $self = shift;
+
+  my $field_i = 1;
   { # statusbar hack
-    my $sb = $self->frame_main_statusbar;
-    Wx::Event::EVT_SIZE($sb, sub {
+    my $sb = $self->statusbar;
+    my $thesub = sub {
       WARN "size";
-      my $rect = $sb->GetFieldRect(0);
+      my $rect = $sb->GetFieldRect($field_i);
       unless($self->{mygauge}) {
         $self->{mygauge} = Wx::Gauge->new($sb, -1,
           100_000,
           [-1,-1],[-1,-1],
-          wxGA_HORIZONTAL|wxFULL_REPAINT_ON_RESIZE
+          WX"GA_HORIZONTAL|FULL_REPAINT_ON_RESIZE"
         );
         #$gauge->Show(1);
       }
       my $gauge = $self->{mygauge};
-      #$gauge->Move($rect->GetPosition);
-      $gauge->SetSize($rect->GetSize);
-      $gauge->SetSize($rect);
+      if(0) { # half-height it (not going to work on mac)
+        my ($x, $y, $w, $h) = map({$rect->$_}
+          qw(GetX GetY GetWidth GetHeight));
+        warn "status height is $h";
+        $gauge->Move($x, $y);
+        $gauge->SetSize($w, $h/2);
+        #warn 'uh, ? ', $gauge->GetSize->GetHeight; # cool! 156
+      }
+      elsif(1) { # two-part set pos,size
+        warn "status height is ", $rect->GetHeight;
+        $gauge->Move($rect->GetPosition);
+        $gauge->SetSize($rect->GetSize); # useless?
+      }
+      else { # be the rectangle
+        $gauge->SetSize($rect);
+      }
       $gauge->SetValue(50_000);
+      #$gauge->SetLabel("whee"); # does nothing
+      #$self->statusbar->SetStatusText('foo', $field_i); # nothing
       $sb->Refresh;
       #$gauge->SetBackgroundColour(Wx::Colour->new(255, 0, 0));
-    }
-    );
+    };
+    $thesub->();
+    Wx::Event::EVT_SIZE($sb, $thesub);
   }
   # TODO SetStatusWidths(-3,-1,-1,-1) (once we get rid of glade)
 } # end subroutine setup_progressbar definition
@@ -569,16 +561,20 @@ sub menu_file_open {
 sub backend_file_open {
   my $self = shift;
   my ($filename) = @_;
-  (-e $filename) or die "no file '$filename'";
 
-  $self->frame_main_statusbar->SetStatusText('Loading '.$filename, 0);
+  # don't do this, let it be a uri
+  #(-e $filename) or return $self->error("no file '$filename'");
+
+  my $kitten = $self->mew('Loading '.$filename);
 
   # this will get us by until config is operable
   # (and shouldn't break after it works either)
   require dtRdr::Plugins::Book; dtRdr::Plugins::Book->init();
 
-  # TODO break this down a bit and set a callback for status
-  my $book = eval { dtRdr::Book->new_from_uri($filename) };
+  # TODO break this down a bit and set a callback for progress
+  my $book = eval {$self->busy(sub {
+    dtRdr::Book->new_from_uri($filename);
+  })};
   if($@) {
     $self->error("problem loading book '$filename'\n$@");
     return;
@@ -586,7 +582,6 @@ sub backend_file_open {
   $self->bv_manager->open_book($book);
   $self->enable('file_add_book');
   $self->activate_reader;
-  $self->frame_main_statusbar->SetStatusText('', 0);
 } # end subroutine backend_file_open definition
 ########################################################################
 
@@ -603,20 +598,13 @@ sub _open_first_book {
 
   my $tr = $self->sidebar->libraries;
 
-  # XXX this is stupid, but the library needs to get smarter about
-  # reusing items so that the object ref can be the librarytree id
-  if(1) {
-    my $id = $tr->GetRootItem;
-    $tr->Expand($id);
-    ($id) = $tr->GetFirstChild($id); # My Libraries
-    $tr->Expand($id);
-    ($id) = $tr->GetFirstChild($id); # default library
-    $tr->SelectItem($id); # quickstart
-  }
-
-  my ($library) = dtRdr->user->get_libraries();
+  my ($library) = dtRdr->user->libraries;
   my ($data) = $library->get_book_info();
-  my $book = $library->open_book(id => $data->id);
+  my $book = $library->open_book(intid => $data->intid);
+
+  # TODO the tree should have a select($library, $data) or something
+  $tr->SelectItem($tr->get_item("$library" . "\0" . $data->intid));
+
   $self->bv_manager->open_book($book);
   $self->activate_reader;
 } # end subroutine _open_first_book definition
@@ -639,7 +627,7 @@ sub menu_file_add_book {
   my $book = $bv->book;
 
   # TODO some options here
-  my (@libraries) = dtRdr->user->get_libraries();
+  my @libraries = dtRdr->user->libraries;
 
   $book->add_to_library($libraries[0]);
 
@@ -680,13 +668,21 @@ sub menu_view_source {
 } # end subroutine menu_view_source definition
 ########################################################################
 
-=head2 menu_view_toggle_sidebar
+=head2 menu_view_toggle_notebar
+
+Toggles the embedded note viewer visibility.
 
 =cut
 
 sub menu_view_toggle_notebar {$_[0]->note_viewer->notebar_toggle};
 $mk_alias->( menu_view_toggle_sidebar => 'sidebar_toggle' );
 ########################################################################
+
+=head2 menu_view_tab_<foo>
+
+Menu callbacks which activate the respective <foo> sidebar item.
+
+=cut
 
 # the sub menu_view_tab_<foo> callbacks
 foreach my $item (dtRdr::GUI::Wx::Sidebar->core_attribs) {
@@ -782,6 +778,70 @@ sub menu_navigation_history_next {
 } # end subroutine menu_navigation_history_next definition
 ########################################################################
 
+=head2 menu_connect_anno_sync
+
+This will need to change when we are dealing with multiple servers.
+
+  $frame->menu_connect_anno_sync;
+
+=cut
+
+sub menu_connect_anno_sync {
+  my $self = shift;
+
+  my ($server, @plus) = dtRdr->user->config->servers;
+  @plus and die "ok, time to fix this bit";
+
+  # XXX this is a bad hack
+  use URI::Escape (); # TODO eliminate the need for that?
+  my @book_list = map({URI::Escape::uri_escape($_)}
+    map({$_->book_id} map({$_->get_book_info} dtRdr->user->libraries)));
+
+  use dtRdr::Annotation::Sync::Standard;
+  my $sync = dtRdr::Annotation::Sync::Standard->new($server->uri,
+    anno_io => $self->bv_manager->anno_io,
+    server  => $server,
+    bookbag => $self->bv_manager->bookbag,
+    books   => [@book_list],
+    auth_sub => sub {
+      my ($s, $uri, $realm) = @_;
+      # TODO a better password dialog
+      defined(my $user = $s->username) or
+        die "TODO: support server config";
+      my $p = $s->password;
+      # TODO if there was a $p, we had a problem
+      my $prompt = Wx::TextEntryDialog->new($self,
+        "Enter password for $uri",
+        'Authentication Required',
+        undef,
+        &Wx::wxOK|&Wx::wxTE_PASSWORD
+      );
+      $prompt->ShowModal;
+      my $v = $prompt->GetValue;
+      return($user, $v);
+    },
+  );
+
+  # let the sync's DESTROY takes care of resetting the mew
+  $sync->{'--kitten'} = $self->mew(
+    "Synchronizing '". $server->id . "'..."
+  );
+
+  $self->taskmaster->add($sync);
+} # end subroutine menu_connect_anno_sync definition
+########################################################################
+
+=head2 menu_connect_anno_settings
+
+  $frame->menu_connect_anno_settings;
+
+=cut
+
+sub menu_connect_anno_settings {
+  my $self = shift;
+} # end subroutine menu_connect_anno_settings definition
+########################################################################
+
 =head2 menu_help_license
 
   $frame->menu_help_license;
@@ -831,7 +891,6 @@ sub menu_tb_highlight {
   my ($event) = @_;
 
   my $bv = $self->bv_manager->book_view;
-  # TODO we need to disable this button if there's no book
   $bv or return; # nothing to highlight
   $bv->highlight_at_selection;
 } # end subroutine menu_tb_highlight definition
@@ -848,7 +907,6 @@ sub menu_tb_note {
   my ($evt) = @_;
 
   my $bv = $self->bv_manager->book_view;
-  # TODO we need to disable this button if there's no book
   $bv or return;
   $bv->note_at_selection;
 } # end subroutine menu_tb_note definition
@@ -865,15 +923,12 @@ sub menu_tb_bookmark {
   my ($evt) = @_;
 
   my $bv = $self->bv_manager->book_view;
-  unless($bv) { # assert
-    $self->error("You must open a book before you can add highlights");
-    return;
-  }
+  $bv or return;
   $bv->bookmark_at_selection;
 } # end subroutine menu_tb_bookmark definition
 ########################################################################
 
-=head2 menu_file_print
+=head2 menu_file_print_page
 
   $self->menu_file_print_page($event);
 
@@ -934,24 +989,115 @@ sub Show {
   my $self = shift;
   my $ret = $self->SUPER::Show(@_);
   $self->kill_splash;
+  # $self->setup_progressbar;
   #warn "focus is on '", Wx::Window::FindFocus() || 'nil', "'";
   dtRdr->_init_reloader;
   return($ret);
 } # end subroutine Show definition
 ########################################################################
 
+=head1 Feedback and User Alerts
+
 =head2 error
 
-  $self->error($message);
+Show a (blocking) error dialog.
+
+  $frame->error($message);
 
 =cut
 
 sub error {
   my $self = shift;
   my ($message) = @_;
+
+  $self->TESTING and die $message;
+
+  { # trace-back
+    my $level = 1;
+    my ($pack, $file, $line, $sub);
+    while(($pack, $file, $line, $sub) = caller($level)) {
+      ($sub || '') =~ m/error$/ or last; # skip sub error {frame->error}
+      $level++;
+    }
+    L->error($message, " from $file line $line");
+  }
+  # TODO a dialog box with button for traceback and/or other info?
   Wx::MessageBox($message, 'Error', wxSTAY_ON_TOP, $self);
 } # end subroutine error definition
 ########################################################################
+
+=head2 busy
+
+Run a subroutine while showing a busy cursor.
+
+  my $retval = $frame->busy(sub {...});
+
+=cut
+
+sub busy {
+  my $self = shift;
+  my ($subref) = @_;
+  ((ref($subref) || '') eq 'CODE') or croak("not a subref");
+
+  # The BusyCursor blocks the die error handler dialog, but we don't
+  # want to throw out a dialog ourself because this might be an eval, so
+  # just trap it, and reset, then propagate.
+  my $c = Wx::BusyCursor->new;
+  my @retv = eval { $subref->() };
+  if($@) {
+    my $err = $@;
+    undef $c;
+    die $err;
+  }
+  return($retv[0]) if(@retv == 1);
+  return(@retv);
+} # end subroutine busy definition
+########################################################################
+
+=head2 mew
+
+Sets a status message and returns an object which resets the status text
+when it goes out of scope.
+
+  { # some lexical scope
+    my $kitten = $frame->mew($text);
+  }
+  # no more kitten :'(
+
+=cut
+
+sub mew {
+  my $self = shift;
+  my ($text) = @_;
+
+  my $num = 0;
+  my $st = $self->statusbar;
+  my $orig = $st->GetStatusText($num);
+  defined($orig) or ($orig = '');
+
+  $st->SetStatusText($text, $num);
+  return(Scope::Guard->new(sub { $st->SetStatusText($orig, $num); }));
+} # end subroutine mew definition
+########################################################################
+
+=head2 lock_gui
+
+Lock the user input.  Returns an object which unlocks it when destroyed.
+
+  my $lock = $frame->lock_gui;
+
+=cut
+
+sub lock_gui {
+  my $self = shift;
+
+  $self->Enable(0);
+  Wx::wxTheApp->Yield;
+  return(Scope::Guard->new(sub { $self->Enable(1); }));
+} # end subroutine lock_gui definition
+########################################################################
+
+=head1 Menu and Toolbar Empowerment
 
 =head2 enable
 
@@ -1112,7 +1258,7 @@ http://scratchcomputing.com/
 
 =head1 COPYRIGHT
 
-Copyright (C) 2006 Eric L. Wilhelm and Osoft, All Rights Reserved.
+Copyright (C) 2006-2007 Eric L. Wilhelm and Osoft, All Rights Reserved.
 
 =head1 NO WARRANTY
 

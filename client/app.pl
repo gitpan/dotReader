@@ -28,7 +28,7 @@ BEGIN {
   );
   #Wx::Yield();
   my $now = Time::HiRes::time();
-  warn "splash is out in ", $now - dtRdr->start_time, " seconds\n";
+  #warn "splash is out in ", $now - dtRdr->start_time, " seconds\n";
   }
 }
 
@@ -39,11 +39,9 @@ dtRdr->init_app_dir(__FILE__); # requires us to be next to data/
 
 use base 'dtRdr::GUI::Wx';
 
-use File::Spec;
-
-use dtRdr::GUI::Wx::MainFrame;
-use Wx;
-use Wx::DND; # clipboard+drag-n-drop support
+use dtRdr::GUI::Wx::Frame;
+use Wx ();
+use Wx::DND (); # clipboard+drag-n-drop support
 
 
 # testing accessor:
@@ -65,7 +63,7 @@ sub OnInit {
   Wx::InitAllImageHandlers();
   # XXX wish I could: Wx::Image::RemoveHandler('wxPCXHandler');
 
-  $frame_main = dtRdr::GUI::Wx::MainFrame->new();
+  $frame_main = dtRdr::GUI::Wx::Frame->new();
   $splash and $frame_main->set_splash_screen($splash);
   $self->SetTopWindow($frame_main);
 
@@ -127,9 +125,9 @@ unless($ENV{JUST_DIE}) {
       MainApp->_main_frame,
       "Exception caught:\n\n  @error\n\n      Would you like to continue?",
       'Oops!',
-      Wx::wxICON_ERROR|Wx::wxSTAY_ON_TOP|Wx::wxYES_NO,
+      &Wx::wxICON_ERROR|&Wx::wxSTAY_ON_TOP|&Wx::wxYES_NO,
     ) or die("Could not create Wx::MessageDialog");
-    if(Wx::wxID_YES == $dialog->ShowModal) {
+    if(&Wx::wxID_YES == $dialog->ShowModal) {
       goto &recover; # only way to break out of a die handler
     }
   };
@@ -159,10 +157,15 @@ sub recover {
 sub main {
   my @args = @_;
 
-  if(@args) { # XXX no, not pretty
-    MainApp->_set_on_first_idle(sub {
-      MainApp->_main_frame->backend_file_open($args[0]);
-    });
+  if(@args) { # XXX no, not pretty TODO actual GetOpt
+    my $do;
+    if($args[0] =~ m/-url/) {
+      $do = sub {shift->bv_manager->load_url($args[1])};
+    }
+    else {
+      $do = sub {shift->backend_file_open($args[0])};
+    }
+    MainApp->_set_on_first_idle(sub {$do->(MainApp->_main_frame)});
   }
   else {
     # unfortunately, we have to run this as a deferred sub because we

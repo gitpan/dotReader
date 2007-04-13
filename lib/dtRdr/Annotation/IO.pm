@@ -6,10 +6,9 @@ use strict;
 use Carp;
 
 
-use dtRdr::Accessor;
-dtRdr::Accessor->ro qw(
-  uri
-);
+use Class::Accessor::Classy;
+ro 'uri';
+no  Class::Accessor::Classy;
 
 =head1 NAME
 
@@ -94,28 +93,7 @@ sub apply_to {
   $book->anno_io and croak("that's going to hurt");
 
   foreach my $item ($self->items_for($book)) {
-    my $type = $item->{type};
-
-    { # long form of require
-      my $type_pm = $type;
-      $type_pm =~ s#::#/#g;
-      $type_pm .= '.pm';
-      eval { require "$type_pm" };
-      $@ and croak("bah $@");
-    }
-
-    my $object = $type->deserialize($item, book => $book);
-
-    # XXX if subclassing, we'll have to loop over $type's @ISA ?
-    my $addtype = {
-      'dtRdr::Highlight' => 'highlight',
-      'dtRdr::Bookmark'  => 'bookmark',
-      'dtRdr::Note'      => 'note',
-    }->{$type};
-    $addtype or die "$type breaks me here";
-
-    my $method = "add_$addtype";
-    $book->$method($object);
+    $self->_tell_book('add', $item, $book);
   }
 
   $book->set_anno_io($self);
@@ -123,7 +101,58 @@ sub apply_to {
 } # end subroutine apply_to definition
 ########################################################################
 
+=head2 _tell_book
 
+Deserialize the annotation and tell the book to C<$action> ('add',
+'change', or 'delete') it.
+
+  $self->_tell_book($action, $hashref, $book);
+
+=cut
+
+sub _tell_book {
+  my $self = shift;
+  my ($action, $item, $book) = @_;
+
+  my $type = $item->{type};
+
+  my $anno_type = $self->_anno_type($type);
+
+  # TODO could be more efficient on delete
+  my $object = $type->deserialize($item, book => $book);
+
+  my $method = $action . '_' . $anno_type;
+  $book->io_action(sub {$book->$method($object);});
+} # end subroutine _tell_book definition
+########################################################################
+
+=head2 _anno_type
+
+Caches annotation type and loads annotation class as needed.
+
+  my $anno_type = $package_or_self->_anno_type($type);
+
+=cut
+
+{
+my %got_types; # as-you-go caching of addtype + require
+sub _anno_type {
+  my $self = shift;
+  my ($type) = @_;
+
+  my $anno_type;
+  unless($anno_type = $got_types{$type}) { # long form of require
+    my $type_pm = $type;
+    $type_pm =~ s#::#/#g;
+    $type_pm .= '.pm';
+    eval { require "$type_pm" };
+    $@ and croak("bah $@");
+    $anno_type = $got_types{$type} = $type->ANNOTATION_TYPE;
+  }
+  return($anno_type);
+} # end subroutine _anno_type definition
+} # and closure
+########################################################################
 
 =head1 AUTHOR
 

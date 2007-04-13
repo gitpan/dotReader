@@ -45,18 +45,24 @@ Test cases that we need for point and span annotations.
 
 =cut
 
-use XML::Parser::Expat;
+use Test::More;
+my $test_book;
+BEGIN {
+  $test_book = 'books/test_packages/QuickStartGuide.jar';
+  unless(-e $test_book) {
+    plan skip_all => 'extra books/ dir not available';
+  }
+  else {
+    plan 'no_plan';
+  }
+}
 
-use Test::More (
-  'no_plan'
-  );
+use XML::Parser::Expat;
 
 BEGIN { use_ok('dtRdr::Book::ThoutBook_1_0_jar') };
 BEGIN { use_ok('dtRdr::Highlight') };
 
 local $SIG{__WARN__};
-my $test_book = 'test_packages/QuickStartGuide.jar';
-(-e $test_book) or die "missing '$test_book' file!";
 
 my $book = dtRdr::Book::ThoutBook_1_0_jar->new();
 ok($book, 'constructor');

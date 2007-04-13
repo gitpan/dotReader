@@ -3,12 +3,13 @@
 use strict;
 use warnings;
 
+use inc::testplan(1, 8);
+use test_inc::loginit;
+
 # TODO migrate this to the dtRdrTestUtil::GUI framework?
 
 # a little hack to let this be a quick way to test the editor box
 my $testing = scalar(@ARGV);
-
-use Test::More qw(no_plan);
 
 BEGIN { use_ok('dtRdr::GUI::Wx::NoteEditor') };
 
@@ -71,4 +72,5 @@ ok((not $@), "MainLoop done") or
 ok(1, 'MainLoop');
 ok($idle_ok, 'exit');
 
+done;
 # vim:ts=2:sw=2:et:sta

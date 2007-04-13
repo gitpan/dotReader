@@ -66,6 +66,23 @@ allow you to checkout all of the latest dependency code into just a few
 working copies and makes it more convenient for us to add or change
 dependencies.
 
+=head1 Directory Layout
+
+  ./ ................. archive or working-copy root (e.g. trunk)
+  |-- client/ ........ wx gui code
+  |-- inc/ ........... Build utilities (some testing junk too)
+  |-- lib/ ........... core modules
+  |-- prototype/ ..... experiments
+  |-- t/ ............. tests
+  |   |-- _gui/ ...... gui tests
+  |   |-- _sync/ ..... client/server tests
+  |   `-- */ ......... various categorized tests
+  |-- test_data/ ..... test input
+  |-- test_inc/ ...... test utility modules (hacks)
+  |-- test_packages/ . test books
+  |-- test_lib/ ...... test-specific modules (more formalized)
+  `-- util/ .......... command-line demo and utilities
+
 =head1 Coding Standards
 
 TODO

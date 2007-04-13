@@ -28,9 +28,21 @@ use Method::Alias (
   'end_pos'   => 'get_end_pos',
 );
 
-sub has_children {return(! $_[0]->isLeaf);}
-sub get_start_pos {return($_[0]->note->get_start_pos)};
-sub get_end_pos {return($_[0]->note->get_end_pos)};
+  sub has_children {return(! $_[0]->isLeaf);}
+  sub get_start_pos {return($_[0]->note->get_start_pos)};
+  sub get_end_pos {return($_[0]->note->get_end_pos)};
+
+  sub is_dummy {return($_[0]->note->is_fake)}; # for now
+
+  # the text 'root' makes a terrible object, and yet it is a true value,
+  # which is about useless thank you very much
+  sub getParent {
+    my $self = shift;
+    my $p = $self->SUPER::getParent;
+    $p or die "now what?";
+    ($p eq 'root') and return();
+    return($p);
+  }
 
 =head1 NAME
 
@@ -221,8 +233,12 @@ The %ctrl hash allows you to send commands back to the dispatcher.
 sub rmap {
   my $self = shift;
   my ($subref) = @_;
+
   my %ctrl;
-  my @answers = $subref->($self, \%ctrl);
+  my @answers = do {
+    local $_ = $self;
+    $subref->($self, \%ctrl);
+  };
   $ctrl{prune} and return(@answers);
   foreach my $child ($self->children) {
     push(@answers, $child->rmap($subref));

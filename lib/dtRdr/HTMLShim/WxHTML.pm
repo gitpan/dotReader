@@ -4,7 +4,7 @@ $VERSION = eval{require version}?version::qv($_):$_ for(0.0.1);
 use warnings;
 use strict;
 
-use Wx qw(:everything); #TODO: only import what is needed
+use Wx ();
 use Wx::Event qw(
   EVT_MENU
   EVT_KEY_UP
@@ -17,8 +17,10 @@ use Wx::Html;
 #   warn "this isn't meant to be used directly";
 # }
 
-sub base {'Wx::HtmlWindow'};
+use constant base => 'Wx::HtmlWindow';
 use base 'dtRdr::HTMLWidget';
+
+use dtRdr::Logger;
 
 # TEMPORARY {{{
 use dtRdr::Traits::Class qw(
@@ -60,9 +62,9 @@ sub new {
   my ($parent, @b_args) = @$b_args;
   my @defaults = (
     -1,
-    wxDefaultPosition,
-    wxDefaultSize,
-    #wxHW_NO_SELECTION
+    &Wx::wxDefaultPosition,
+    &Wx::wxDefaultSize,
+    #&Wx::wxHW_NO_SELECTION
   );
   defined($b_args[$_]) or $b_args[$_] = $defaults[$_] for(0..$#defaults);
 
@@ -119,18 +121,22 @@ sub init {
   my $self = shift;
   my ($parent) = @_;
 
+  $self->SUPER::init(@_);
+
   $self->{parent} = $parent;
 
   # TODO
   # self->SetRelatedStatusBar(...)
 
   # This gets us web browsing, but requires file:// on local stuff
+  # XXX and crashes on windows (bad build?)
   use Wx::FS;
-  Wx::FileSystem::AddHandler(Wx::InternetFSHandler->new);
+  eval{Wx::FileSystem::AddHandler(Wx::InternetFSHandler->new)};
+  $@ and WARN("error initializing FSHandler, maybe no browsing");
   {
     # this does nothing unless we make a menu/hotkey for it
     # and might as well keep it in Frame.pm or something
-    EVT_MENU($parent, wxID_COPY, sub { my ($h, $e) = @_;
+    EVT_MENU($parent, &Wx::wxID_COPY, sub { my ($h, $e) = @_;
       warn "copy event";
     });
   }
@@ -150,6 +156,12 @@ sub init {
 } # end subroutine init definition
 ########################################################################
 
+=head2 start_print
+
+Hmm, what's this do?  I think it is more like a do_print().
+
+=cut
+
 sub start_print {
   my $self = shift;
   my $page = $self->GetOpenedPage();
@@ -161,45 +173,48 @@ sub start_print {
     $status = $self->{print_object}->PrintText($page, '');
   }
   return $status;
-}
+} # end subroutine start_print definition
+########################################################################
 
 # Not implemented
-sub get_cursor_pos {
+ sub get_cursor_pos {
   return;
 }
 
 # Not implemented
-sub get_selection_boundary {
+ sub get_selection_boundary {
   return;
 }
 
-sub register_get_file {
+# XXX what are these? {{{
+ sub register_get_file {
   my ($self, $code) = @_;
   my $old_code = $self->{WxHTMLShim}{get_file};
   $self->{WxHTMLShim}{get_file} = $code;
   return $old_code;
 }
 
-sub register_url_changed {
+ sub register_url_changed {
   my ($self, $code) = @_;
   my $old_code = $self->{WxHTMLShim}{url_changed};
   $self->{WxHTMLShim}{url_changed} = $code;
   return $old_code;
 }
 
-sub register_form_post {
+ sub register_form_post {
   my ($self, $code) = @_;
   my $old_code = $self->{WxHTMLShim}{form_post};
   $self->{WxHTMLShim}{form_post} = $code;
   return $old_code;
 }
 
-sub register_form_get {
+ sub register_form_get {
   my ($self, $code) = @_;
   my $old_code = $self->{WxHTMLShim}{form_get};
   $self->{WxHTMLShim}{form_get} = $code;
   return $old_code;
 }
+# XXX }}}
 
 ########################################################################
 
@@ -221,7 +236,7 @@ sub OnLinkClicked {
   warn "link:  '", $url, "'";
 
   # XXX complete hack XXX
-  return($self->{parent}->book_view->load_url($url));
+  return($self->url_handler->load_url($url));
 
   return $self->SUPER::OnLinkClicked($link);
   #if (exists $self->{WxHTMLShim}{url_changed}) {

@@ -12,7 +12,7 @@ BEGIN {use_ok('dtRdr::Book::ThoutBook_1_0')};
 BEGIN {use_ok('dtRdr::Book::ThoutBook_1_0_jar')};
 
 my $LIBLOC = 't/library/';
-my $LIBFILE = $LIBLOC . 'testlib.yml';
+my $LIBFILE = $LIBLOC . $$ . 'testlib.yml';
 
 # Toss the test library if it exists
 unlink $LIBFILE if (-e $LIBFILE);
@@ -52,7 +52,7 @@ $book0->toc_is_cached and
   my @books = $library->get_book_info();
   is(scalar(@books), 1);
   my $b = $books[0];
-  is($b->id, 0);
+  is($b->intid, 0);
   is($b->book_id, $book0->id,  'book_id');
   is($b->title, $book0->title, 'title');
   my $lib_again = dtRdr::Library::YAMLLibrary->new();
@@ -67,7 +67,7 @@ ok(-e "$sdirpath/indexing_check/toc_data.toc.stb", 'cache');
 {
   my $lib_again = dtRdr::Library::YAMLLibrary->new();
   $lib_again->load_uri($LIBFILE);
-  my $rebook = $lib_again->open_book(id => 0);
+  my $rebook = $lib_again->open_book(intid => 0);
   ok($rebook);
   is($rebook->id, $book0->id);
   ok($rebook->toc_is_cached, 'cache loaded');
@@ -83,7 +83,7 @@ $book1->add_to_library($library);
   my @books = $library->get_book_info();
   is(scalar(@books), 2);
   my $b = $books[1];
-  is($b->id, 1);
+  is($b->intid, 1);
   is($b->book_id, $book1->id,  'book_id');
   is($b->title, $book1->title, 'title');
   my $lib_again = dtRdr::Library::YAMLLibrary->new();
@@ -95,11 +95,13 @@ $book1->add_to_library($library);
 {
   my $lib_again = dtRdr::Library::YAMLLibrary->new();
   $lib_again->load_uri($LIBFILE);
-  my $rebook = $lib_again->open_book(id => 1);
+  my $rebook = $lib_again->open_book(intid => 1);
   ok($rebook);
   is($rebook->id, $book1->id);
   ok($rebook->toc_is_cached, 'cache loaded');
 
 }
+
+unlink $LIBFILE if (-e $LIBFILE);
 
 # vim:ts=2:sw=2:et:sta

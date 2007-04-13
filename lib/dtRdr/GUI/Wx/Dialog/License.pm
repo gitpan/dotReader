@@ -127,18 +127,19 @@ sub init {
   my $self = shift;
   my ($frame) = @_;
 
-  my $text_main = dtRdr->get_LICENSE;
-  my $text_other = dtRdr->get_COPYING;
-  $self->text_ctrl->SetValue($text_main);
-  my ($label_main, $label_other) = ('&Details', 'No &Details');
-  $self->details_button->SetLabel($label_main);
-  Wx::Event::EVT_BUTTON($self, $self->details_button, sub {
-    $self->text_ctrl->SetValue($text_other);
-    ($text_other, $text_main) = ($text_main, $text_other);
-    $self->details_button->SetLabel($label_other);
-    ($label_main, $label_other) = ($label_other, $label_main);
-
-  });
+  {
+    my @profiles = (
+      {text => dtRdr->get_LICENSE, label => '&Details'},
+      {text => dtRdr->get_COPYING, label => 'No &Details'},
+    );
+    my $switch = sub {
+      push(@profiles, (my $current = shift(@profiles)));
+      $self->text_ctrl->SetValue($current->{text});
+      $self->details_button->SetLabel($current->{label});
+    };
+    $switch->(); # init
+    Wx::Event::EVT_BUTTON($self, $self->details_button, $switch);
+  }
 
   Wx::Event::EVT_BUTTON($self, $self->dismiss_button, sub {$self->Close});
   $self->SetAcceleratorTable(Wx::AcceleratorTable->new(

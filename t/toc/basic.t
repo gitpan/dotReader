@@ -12,8 +12,6 @@ use Test::More (
 BEGIN { use_ok('dtRdr::TOC');   }
 BEGIN { use_ok('dtRdr::Book::ThoutBook_1_0_jar');  }
 BEGIN { use_ok('dtRdr::Range'); }
-local $SIG{__WARN__};
-use inc::loginit;
 
 { # first just fake it
   my $book = bless({}, 'dtRdr::Book');

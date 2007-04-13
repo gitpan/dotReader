@@ -7,6 +7,8 @@ use dtRdr::Book;
 use dtRdr::Plugins;
 dtRdr::Plugins->init;
 
+use inc::testplan(1, 2);
+
 use warnings;
 use strict;
 
@@ -15,4 +17,9 @@ my $uri = shift(@ARGV);
 
 my $book = dtRdr::Book->new_from_uri($uri);
 $book or die;
-print ''. ($book->toc->validate_ranges ? 'ok' : 'not ok'), "\n";
+ok($book->toc->validate_ranges, 'ranges are valid');
+my @errors = $book->toc->validate_ids;
+ok(! @errors, 'no id errors') or
+  warn join("\n  ", 'id errors:', @errors), "\n";
+
+# vim:ts=2:sw=2:et:sta

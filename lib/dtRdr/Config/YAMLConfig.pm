@@ -1,5 +1,5 @@
 package dtRdr::Config::YAMLConfig;
-$VERSION = eval{require version}?version::qv($_):$_ for(0.10.1);
+$VERSION = eval{require version}?version::qv($_):$_ for(0.10.2);
 
 use warnings;
 use strict;
@@ -12,12 +12,16 @@ use dtRdr::Config (
     type => 'YAMLConfig'
   },
 );
-sub type {'YAMLConfig';} # needs to go away when plugins work?
+use constant type => 'YAMLConfig'; # needs to go away when plugins work?
 
 use YAML::Syck qw(
   LoadFile
   DumpFile
 );
+
+use Class::Accessor::Classy;
+ls servers => \ (my $set_servers), add => \ (my $add_servers);
+no  Class::Accessor::Classy;
 
 =head1 NAME
 
@@ -27,8 +31,22 @@ dtRdr::Config::YAMLConfig - a config file
 
 =cut
 
+=head1 ConfigData Items
+
+ConfigData::* items (such as the result of libraries() or servers()
+methods) are now persistent and linked to the config.  If the data item
+has a config attribute, it will auto-update on disk when any set_foo()
+methods are called on it.
+
+=head1 Methods
+
+=head2 new
+
+Constructor.
 
 =head2 create
+
+Create a new file.
 
   dtRdr::Config::YAMLConfig->create($filename);
 
@@ -43,11 +61,21 @@ sub create {
     module       => [], # XXX probably not
     book_handler => {}, # XXX doubtful
     library      => [],
+    servers      => [],
   );
   DumpFile($file, \%data);
 } # end subroutine create definition
 ########################################################################
-sub _ylibraries { $_[0]->{yml}{library};}
+
+########################################################################
+# accessors for yaml bits
+foreach my $item (qw(library servers)) {
+  my $subref = eval("sub { \$_[0]->{yml}{$item};}");
+  $@ and die;
+  no strict 'refs';
+  *{'_y' . $item} = $subref;
+}
+########################################################################
 
 
 =head2 read_config
@@ -66,22 +94,19 @@ sub read_config {
 
   $self->{location} = $filename;
   $self->_load;
+
+  # TODO do them all like this?
+  my $S = $self->_yservers;
+  $self->$set_servers(map({
+    my $s = dtRdr::ConfigData::Server->new(
+      %{$S->[$_]},
+      intid  => $_,
+    );
+    $s->set_config($self);
+    $s
+  } 0..$#$S));
+
 } # end subroutine read_config definition
-########################################################################
-
-=head2 _dumpload
-
-Ensure that the on-disk and in-memory data are in sync.
-
-  $self->_dumpload;
-
-=cut
-
-sub _dumpload {
-  my $self = shift;
-  $self->_dump;
-  $self->_load;
-} # end subroutine _dumpload definition
 ########################################################################
 
 =head2 _dump
@@ -110,47 +135,92 @@ sub _load {
 
 =head2 add_library
 
-  my $id = $conf->add_library(type => $type, uri => $uri);
+  my $intid = $conf->add_library($library_info);
 
 =cut
 
 sub add_library {
   my $self = shift;
-  (@_ % 2) and croak('odd number of elements in argument list');
-  my (%data) = @_;
+  my ($lib) = @_;
 
-  my $L = $self->_ylibraries;
-  if(defined(my $id = delete($data{id}))) {
-    ($id == @$L) or croak("cannot use id '$id'");
+  my %data = %$lib;
+
+  my $L = $self->_ylibrary;
+  if(defined(my $intid = delete($data{intid}))) {
+    ($intid == @$L) or croak("cannot use intid '$intid'");
   }
 
   exists($data{$_}) or croak("must have field $_") for(qw(uri type));
   my $v = push(@$L, \%data) - 1;
 
-  $self->_dumpload;
+  # TODO set an update callback in the library
+
+  $self->_dump;
   return($v);
 } # end subroutine add_library definition
 ########################################################################
 
-=head2 library_data
+=head2 libraries
 
-  $conf->library_data;
+  $conf->libraries;
 
 =cut
 
-sub library_data {
+sub libraries {
   my $self = shift;
 
-  my $L = $self->_ylibraries;
-  # TODO make those persistent objects
-  return([map({
-    dtRdr::ConfigData::LibraryInfo->new(%{$L->[$_]}, id => $_)
-  } 0..$#$L)]);
-} # end subroutine library_data definition
+  my $L = $self->_ylibrary;
+  # TODO set config callbacks in those
+  return(map({
+    dtRdr::ConfigData::LibraryInfo->new(%{$L->[$_]}, intid => $_)
+  } 0..$#$L));
+} # end subroutine libraries definition
 ########################################################################
 
+=head2 add_server
 
+  my $intid = $conf->add_server($server_obj);
 
+=cut
+
+sub add_server {
+  my $self = shift;
+  my ($server) = @_;
+
+  my $S = $self->_yservers;
+  my %data = %$server;
+  delete($data{intid});
+  delete($data{config});
+  my $v = push(@$S, \%data) - 1;
+
+  # set config props
+  $server->{intid} = $v;
+  $server->set_config($self);
+
+  $self->_dump;
+  return($v);
+} # end subroutine add_server definition
+########################################################################
+
+=head2 update_server
+
+  $conf->update_server($server_obj);
+
+=cut
+
+sub update_server {
+  my $self = shift;
+  my ($server) = @_;
+
+  my $S = $self->_yservers;
+  my %data = %$server;
+  my $n = delete($data{intid});
+  delete($data{config});
+  $S->[$n]{id} eq $data{id} or die "not the right server";
+  $S->[$n] = \%data;
+  $self->_dump;
+} # end subroutine update_server definition
+########################################################################
 
 =head1 AUTHOR
 

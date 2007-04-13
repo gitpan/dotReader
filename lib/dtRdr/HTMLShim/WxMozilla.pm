@@ -21,7 +21,7 @@ use Wx::Html;
 use Wx::Mozilla;
 use Wx::Mozilla::Event qw(:all);
 
-sub base { 'Wx::MozillaBrowser' };
+  sub base { 'Wx::MozillaBrowser' };
 use base 'dtRdr::HTMLWidget';
 
 # TEMPORARY {{{
@@ -125,8 +125,8 @@ sub new {
 
 sub init {
   my $self = shift;
-  my ($parent) = @_;
-  $self->{parent} = $parent;
+
+  $self->SUPER::init(@_);
 } # end subroutine init definition
 ########################################################################
 
@@ -234,7 +234,7 @@ sub event_right_click {
   };
   my $url = $event->GetLink;
   $url or return; # only because this is a silly way to handle links
-  if($self->{parent}->book_view->load_url($url, $killit)) {
+  if($self->url_handler->load_url($url, $killit)) {
     #$event->Skip;
   }
 
@@ -266,6 +266,12 @@ sub SetPage {
   $self->SUPER::SetPage($html);
 } # end subroutine SetPage definition
 ########################################################################
+
+=head2 load_in_progress
+
+Just IsBusy().  Possibly incorrect, not heavily used?
+
+=cut
 
 sub load_in_progress {
   my $self = shift;
@@ -319,23 +325,23 @@ sub increase_font {
 
 # NOT DONE? {{{
 # XXX I guess all of these just aren't done yet? --Eric
-sub get_cursor_pos {
+ sub get_cursor_pos {
   do('./util/BREAK_THIS') or die;
 }
 
-sub register_get_file {
+ sub register_get_file {
   do('./util/BREAK_THIS') or die;
 }
 
-sub register_url_changed {
+ sub register_url_changed {
   do('./util/BREAK_THIS') or die;
 }
 
-sub register_form_post {
+ sub register_form_post {
   do('./util/BREAK_THIS') or die;
 }
 
-sub register_form_get {
+ sub register_form_get {
   do('./util/BREAK_THIS') or die;
 }
 # NOT DONE? }}}

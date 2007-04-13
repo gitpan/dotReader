@@ -278,7 +278,7 @@ sub AUTOLOAD {
 =head1 internals
 
 # TODO? may need a can()
-sub can {confess "not implemented"}
+  sub can {confess "not implemented"}
 
 =head2 _check_type
 
@@ -287,6 +287,7 @@ croaks unless $var isa $type
   _check_type($var_name, $type, $var);
 
 =cut
+
 sub _check_type {
   my ($var_name, $type, $var) = @_;
   croak("trouble") unless(scalar(@_) == 3);
@@ -314,6 +315,7 @@ sub _check_type {
   _warn_deprecated($var_name);
 
 =cut
+
 sub _warn_deprecated {
   my ($var_name) = @_;
 
@@ -338,6 +340,7 @@ sub _warn_deprecated {
   _type($var);
 
 =cut
+
 sub _type {
   my ($var) = @_;
   defined($var) or return(); # undefined
@@ -353,6 +356,7 @@ sub _type {
   _build_defs();
 
 =cut
+
 sub _build_defs {
   %defs and croak "do not call this twice";
 
@@ -392,6 +396,7 @@ sub _parse_autoload_method {
   _die();
 
 =cut
+
 sub _die ($) {
   my $var = shift;
   confess("undeclared sub $var");
@@ -407,6 +412,8 @@ Eric Wilhelm <ewilhelm at cpan dot org>
 http://scratchcomputing.com/
 
 =head1 BUGS
+
+See L<dtRdr>
 
 =head1 COPYRIGHT
 

@@ -28,13 +28,18 @@ This is quite a bit different than the other plugins.
 Find, plus construct and/or init plugins and pass each one the frame
 object.
 
-  $plugins->init($frame);
+  $plugins = $plugins->init($frame);
 
 =cut
 
 sub init {
   my $self = shift;
   my ($frame) = @_;
+
+  # TODO should we use class data or be a singleton or ___ ?
+  # Our Frame.pm almost definitely doesn't cleanly support multiple
+  # instances right now, but it shouldn't be completely out of the
+  # question.
 
   $self->{plugins} and die "didn't plan for that";
   my $plugins = $self->{plugins} = {};
@@ -60,6 +65,12 @@ sub init {
 
       %details = $self->query_plugin($pclass);
 
+      # let it be class or instance based
+      # TODO a multi-frame situation would imply that class-based
+      # plugins have to install some sort of hook rather than add a
+      # button, etc.  The frame would have a plugin instance, so I guess
+      # that just means class-method init() has to be able to be called
+      # once per frame.
       $plugin = $pclass;
       if($pclass->can('new')) {
         $plugin = $pclass->new(); # XXX args?
@@ -68,7 +79,7 @@ sub init {
         $plugin->init($frame);
       }
       else {
-        warn "cannot init $plugin";
+        warn "'$plugin' cannot init";
       }
     }; # end BIG eval
 
@@ -85,6 +96,7 @@ sub init {
       instance => $plugin,
     };
   }
+  return($self);
 } # end subroutine init definition
 ########################################################################
 
@@ -169,7 +181,7 @@ http://scratchcomputing.com/
 
 =head1 COPYRIGHT
 
-Copyright (C) 2006 Eric L. Wilhelm and OSoft, All Rights Reserved.
+Copyright (C) 2006-2007 Eric L. Wilhelm and OSoft, All Rights Reserved.
 
 =head1 NO WARRANTY
 

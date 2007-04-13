@@ -3,8 +3,22 @@ $VERSION = eval{require version}?version::qv($_):$_ for(0.10.1);
 
 use warnings;
 use strict;
-
 use Carp;
+
+# NOTE we don't strictly need this at the moment because we're loading
+# Time::HiRes is the 0.pm and such, but I don't want to leave it up to
+# coincidence.  Log::Log4perl needs to fix their buggy reimplementation
+# of require and after 3 weeks, I'm tired of waiting.
+BEGIN { # hotpatch
+  require Log::Log4perl::Util;
+  my $fixed = sub {
+    my($mod_name) = @_;
+    $mod_name = join('/', (split /::/, $mod_name)) . '.pm';
+    return(eval { require($mod_name); });
+  };
+  no warnings 'redefine';
+  *Log::Log4perl::Util::module_available = $fixed;
+} # end hotpatch
 use Log::Log4perl ();
 
 

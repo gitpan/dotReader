@@ -1,5 +1,28 @@
 Revision history for dotReader
 
+v0.11.1
+
+  * added new 'middle-odd' meaning to version numbers
+
+  * GUI busy-feedback improvements
+  * _ALPHA_ annotation server support
+  * threaded notes support
+  * fixed toc caches in seventy_five_times.jar and rebel-w-o-car.jar
+
+  * reduced source tarball size, moved larger test books to
+    http://svn.dotreader.com/svn/books/test_packages/
+  * removed unused icons from binary build and source package
+  * --url command-line option for client
+  * config objects rework
+  * util/dot_bot iterator user-agent frontend
+  * UserAgent iterator collection scheme
+  * initial zombie books/bookbag schemes for cache management
+  * manager/minion handling improvements
+  * standalone demo annotation server in util/anno_server
+  * mac appbundle icon
+  * gave BVManager more responsibilities
+  * reworked icon finder code
+
 v0.0.11 Jan 27, 2007
 
   * fixed CSS highlighting for search results

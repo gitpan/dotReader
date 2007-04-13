@@ -13,6 +13,12 @@ library:
     uri: baz1
 module: []
 
+servers: 
+  - 
+    id: the server
+    type: Standard
+    uri: http://example.com/
+    username: bob
 user_info: {}
 
-version: 0.010001
+version: 0.010002

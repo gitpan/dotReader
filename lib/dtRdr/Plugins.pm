@@ -28,6 +28,7 @@ dtRdr::Plugins - plugin system frontend
   dtRdr::Plugins->init(config => $config);
 
 =cut
+
 sub init {
   my $self = shift;
   (@_ % 2) and croak('odd number of elements in argument list');

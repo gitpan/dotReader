@@ -3,8 +3,10 @@
 use warnings;
 use strict;
 
+use inc::testplan(1, 12);
+use test_inc::loginit;
+
 use lib 'inc';
-use Test::More qw(no_plan);
 use dtRdrTestUtil::ABook;
 
 BEGIN { use_ok('dtRdr::Search::Book') };
@@ -33,4 +35,6 @@ set_dosub(sub {
 
 run();
 ok($saw_bv, 'got a view');
+
+done;
 # vim:ts=2:sw=2:et:sta

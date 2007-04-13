@@ -17,14 +17,32 @@ rw qw(
 );
 no  Class::Accessor::Classy;
 
+=begin complain
+
+Alas, Method::Alias eval($string)'s subs in my package, so
+Pod::Coverage claims that I have to document it.  Bah.
+
+=end complain
+
+=for podcoverage_trustme
+a
+start_pos
+b
+end_pos
+node
+book
+get_book
+
+=cut
+
 use Method::Alias (
-  'a'         => 'get_start_pos',
-  'start_pos' => 'get_start_pos',
-  'b'         => 'get_end_pos',
-  'end_pos'   => 'get_end_pos',
-  'node'      => 'get_node',
-  'book'      => 'get_book',
-  'get_book'  => 'get_node',
+  a         => 'get_start_pos',
+  start_pos => 'get_start_pos',
+  b         => 'get_end_pos',
+  end_pos   => 'get_end_pos',
+  node      => 'get_node',
+  book      => 'get_book',
+  get_book  => 'get_node',
   );
 
 =head1 NAME

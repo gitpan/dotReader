@@ -12,9 +12,6 @@ use Test::More (
 BEGIN { use_ok('dtRdr::TOC');   }
 BEGIN { use_ok('dtRdr::Book::ThoutBook_1_0_jar');  }
 BEGIN { use_ok('dtRdr::Range'); }
-local $SIG{__WARN__};
-use inc::loginit;
-
 
 { # load a real book
   my $test_book = 'test_packages/0_jars/thout1_test.jar';

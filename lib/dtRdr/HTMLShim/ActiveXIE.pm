@@ -11,7 +11,7 @@ use constant {
   DEBUG  => 1,  # general
 };
 
-use Wx qw(:everything); #TODO: only import what is needed
+use Wx ();
 use Wx::Event qw(
   EVT_SET_FOCUS
 );
@@ -22,10 +22,9 @@ use Wx::ActiveX::IE;
 # This setting is needed to properly pass unicode.
 use Win32::OLE qw(CP_UTF8);
 Win32::OLE->Option(CP => CP_UTF8);
-
 use Win32;
 
-sub base {'Wx::ActiveX::IE'};
+use constant base => 'Wx::ActiveX::IE';
 use base 'dtRdr::HTMLWidget';
 
 use dtRdr;
@@ -77,42 +76,30 @@ sub new {
 sub init {
   my $self = shift;
   my ($parent) = @_;
+
+  $self->SUPER::init(@_);
+
   ref($self) or die "this is an instance method";
 
   0 and $self->_event_noises($parent);
+  0 and WARN(join("\n  ", 'EVENTS:', $self->ListEvents));
+  0 and WARN(join("\n  ", 'METHODS:', $self->ListMethods));
 
   # focus!
   EVT_SET_FOCUS($self, sub {$self->GetOLE->document->focus;});
 
   # it doesn't generate one of these :-(
   #Wx::Event::EVT_COMMAND_RIGHT_CLICK($self, -1, sub {WARN("right click")});
+  #Wx::Event::EVT_RIGHT_DOWN($self, sub {WARN("right down")});
+  #Wx::Event::EVT_RIGHT_DOWN($parent, sub {WARN("right down")});
 
-  if(0) {
-    $self->GetOLE->Navigate2(
-      'C:/foo.html'
-      #dtRdr->home_page
-      );
-    EVT_ACTIVEX(
-      $parent, $self, "BeforeNavigate2",
-      sub {
-        EVT_ACTIVEX(
-          $parent, $self, "BeforeNavigate2",
-          sub { $self->before_navigate2($parent,$_[1]) }
-        );
-      }
-    );
-  }
-  else {
-    EVT_ACTIVEX(
-      $parent, $self, "BeforeNavigate2",
-      sub { $self->before_navigate2($parent,$_[1]) }
-    );
-  }
-
-  0 and EVT_ACTIVEX(
-    $parent, $self, "BeforeNavigate",
+  # This $parent thing looks stupid, but $self is not a valid event
+  # handler.  Ok, it is stupid, but them's the breaks in qdos land.
+  EVT_ACTIVEX(
+    $parent, $self, "BeforeNavigate2",
     sub { $self->before_navigate2($parent,$_[1]) }
   );
+
   EVT_ACTIVEX( $parent, $self, 'NavigateComplete2',
     sub {
       $self->set_load_in_progress(0);
@@ -227,22 +214,22 @@ sub before_navigate2 {
   }
 
   ######################################################################
-  # this is awkward
-  # TODO: using book_view for this causes problems if we've got a pane
-  # with no book (e.g. just started, etc.)
-  unless($parent->book_view) {
-    use URI;
-    my $uri = URI->new($evt->{URL});
-    # hmm.
-    if(defined(my $anchor = $uri->fragment)) {
-      $evt->{Cancel} = 1;
-      RL('#links')->debug("jump to $anchor");
-      $self->jump_to_anchor($anchor);
-      return;
-    }
-    L->error("I can't do other stuff here yet");
-    return;
-  }
+  ### this is pointless
+  ### TODO: using book_view for this causes problems if we've got a pane
+  ### with no book (e.g. just started, etc.)
+  ##unless($parent->book_view) {
+  ##  use URI;
+  ##  my $uri = URI->new($evt->{URL});
+  ##  # hmm.
+  ##  if(defined(my $anchor = $uri->fragment)) {
+  ##    $evt->{Cancel} = 1;
+  ##    RL('#links')->debug("jump to $anchor");
+  ##    $self->jump_to_anchor($anchor);
+  ##    return;
+  ##  }
+  ##  L->error("I can't do other stuff here yet");
+  ##  return;
+  ##}
   ######################################################################
 
   $self->set_load_in_progress(1);
@@ -251,7 +238,8 @@ sub before_navigate2 {
     $evt->{Cancel}=1;
     $self->set_load_in_progress(0);
   };
-  if($parent->book_view->load_url($evt->{URL}, $killit)) {
+  if($self->url_handler->load_url($evt->{URL}, $killit)) {
+    $self->set_load_in_progress(0);
     $evt->{Cancel} = 1;
   }
 } # end subroutine before_navigate2 definition
@@ -369,6 +357,14 @@ sub SetPage {
   }
   0 and WARN("{{{$html}}}");
   $doc->{defaultCharset} = 'UTF-8';
+
+  # I guess ALPHA means "doesn't work"
+  if(0) {
+    WARN "setup event";
+    Win32::OLE->import('EVENTS');
+    Win32::OLE->WithEvents($self->GetOLE, sub {WARN @_});
+  }
+
   $doc->close();
   #my $css = $doc->createStyleSheet();
 } # end subroutine SetPage definition

@@ -1,5 +1,5 @@
 package dtRdr::Config;
-$VERSION = eval{require version}?version::qv($_):$_ for(0.0.1);
+$VERSION = eval{require version}?version::qv($_):$_ for(0.1.1);
 
 use warnings;
 use strict;
@@ -10,7 +10,7 @@ sub import {}
 
 # TODO should we let the plugins loader do this:
 #use dtRdr::Config::FileConfig;
-use dtRdr::Config::SQLConfig;
+#use dtRdr::Config::SQLConfig;
 use dtRdr::Config::YAMLConfig;
 
 use Class::Accessor::Classy;
@@ -18,61 +18,100 @@ ro 'location';
 rw 'library_data';
 no  Class::Accessor::Classy;
 
+# TODO break these out into a separate loadable module?
+# note:  all the attribs need to be read-only for storage to work unless
+# we use a set() method
 {
   package dtRdr::ConfigData::LibraryInfo;
   use Class::Accessor::Classy;
   with 'new';
-  ro 'id';
+  #ro 'id';
+  ro 'intid';
   ro 'uri';
   ro 'type';
   no  Class::Accessor::Classy;
 }
+{
+  package dtRdr::ConfigData::Server;
+  use Scalar::Util ();
+  use Class::Accessor::Classy;
+  with 'new';
+  ro 'intid';
+  ro 'id';
+  ro 'type';
+  setter {
+    my $self = shift;
+    my ($k, $v) = @_;
+    ($k eq 'config') and Carp::croak("can't SUPER::set_config");
+    $self->{$k} = $v;
+    if(my $config = $self->config) {
+      $config->update_server($self);
+    }
+    $v;
+  };
+  rw 'uri';
+  rw 'username';
+  rw 'password';
+  ro 'config';
+  # TODO last sync?
+  no  Class::Accessor::Classy;
+  sub set_config {
+    my $self = shift;
+    my ($config) = @_;
+    $self->{config} and Carp::confess("I already have a config object");
+    $self->{config} = $config;
+    # the auto-update makes a circular ref
+    Scalar::Util::weaken($self->{config});
+  };
+  #sub DESTROY { warn "bye $_[0] ", join("|", keys(%{$_[0]})), "\n"; }
+} # end package
 
 =head1 NAME
 
-dtRdr::Config - Factory class for configuration system
+dtRdr::Config - configuration storage
 
 =cut
 
-=head1 Factory Methods (er, functions?
+=head1 Factory Methods
 
-=head2 factory_read_config
+=head2 new_from_uri
 
-Constructor function (see new)
-
-  my $obj = factory_read_config($file);
+  my $obj = dtRdr::Config->new_from_uri($file);
 
 =cut
-# TODO: make this a class method new_from_uri()
-sub factory_read_config {
+
+sub new_from_uri {
+  my $package = shift;
   my ($file) = @_;
-  $file =~ /^(\w+):(.*)$/;
-  my ($type, $fname) = ($1, $2);
+
+  # TODO allow uri foo:// scheme?
+  $file =~ m/\.([^\.]*)$/ or croak("bad filename '$file'");
+  my $type = $1;
   $type or croak("type undefined");
 
   # TODO replace with plugins code?
   my %dispatch = (
-    yaml => 'dtRdr::Config::YAMLConfig',
-    file => 'dtRdr::Config::FileConfig',
+    yml  => 'dtRdr::Config::YAMLConfig',
+    conf => 'dtRdr::Config::FileConfig',
     remote => sub {
       die "No remote configurations yet";
     },
-    sql => 'dtRdr::Config::SQLConfig',
+    db   => 'dtRdr::Config::SQLConfig',
   );
 
   if(my $res = $dispatch{$type}) {
     ((ref($res) || '') eq 'CODE') and
-      return($res->($fname));
+      return($res->($file));
 
     $res->can('read_config') or die "incompetent class:  $res";
     my $conf = $res->new();
-    $conf->read_config($fname) or die;
+    $conf->read_config($file);
     return($conf);
   }
   else {
     croak("Invalid configuration type $type");
   }
-} # end subroutine factory_read_config definition
+} # end subroutine new_from_uri definition
 ########################################################################
 
 =head2 new
@@ -80,6 +119,7 @@ sub factory_read_config {
   $conf = dtRdr::Config->new($file);
 
 =cut
+
 sub new {
   my $package = shift;
   my $caller = caller;
@@ -92,32 +132,20 @@ sub new {
   }
   else {
     # being called => be a factory
-    return(factory_read_config(@_));
+    return($package->new_from_uri(@_));
   }
 } # end subroutine new definition
 ########################################################################
 
-=head2 get_library_info
-
-  my @libraries = $conf->get_library_info;
-
-=cut
-
-sub get_library_info {
-  my $self = shift;
-  return(@{$self->library_data});
-} # end subroutine get_library_info definition
-########################################################################
-
 =head1 AUTHOR
 
-Dan Sugalski, <dan@sidhe.org>
+Eric Wilhelm @ <ewilhelm at cpan dot org>
 
-Eric Wilhelm <ewilhelm at cpan dot org>
+Dan Sugalski <dan@sidhe.org>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2006 by Dan Sugalski, Eric L. Wilhelm, and OSoft, All
+Copyright (C) 2006-2007 Eric L. Wilhelm, Dan Sugalski, and OSoft, All
 Rights Reserved.
 
 =head1 NO WARRANTY

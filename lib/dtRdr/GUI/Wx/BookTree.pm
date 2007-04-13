@@ -50,7 +50,7 @@ sub _add_sublevel {
   my ($parent, $book, $toc_root) = @_;
 
   0 and warn 'add_to_sublevel';
-  my @toc = $toc_root->get_children;
+  my @toc = $toc_root->children;
   foreach my $toc_entry (@toc) {
     # XXX the below is a bug (?) on test_packages/ThoutPackageDoc.jar
     if($toc_entry->visible) {

@@ -9,7 +9,21 @@ use dtRdr::Traits::Class qw(claim);
 
 use Class::Accessor::Classy;
 ro 'is_fake'; sub set_is_fake {$_[0]->{is_fake} = 1};
+rw 'revision';
+rw 'create_time';
+rw 'mod_time';
+ro 'public';
 no  Class::Accessor::Classy;
+
+BEGIN {
+  package dtRdr::AnnotationMeta::Public;
+  use Class::Accessor::Classy;
+  with 'new';
+  ro 'server';
+  ro 'owner';
+  rw 'rev';
+  no  Class::Accessor::Classy;
+} # end dtRdr::AnnotationMeta::Public
 
 =head1 NAME
 
@@ -60,6 +74,37 @@ Must be implemented by subclasses.
 
 =cut
 
+
+=head2 make_public
+
+  $anno->make_public(
+    owner  => $owner_id,
+    server => $server_id,
+    rev    => $server_revision
+  );
+
+=cut
+
+sub make_public {
+  my $self = shift;
+  $self->{public} = dtRdr::AnnotationMeta::Public->new(@_);
+} # end subroutine make_public definition
+########################################################################
+
+=head2 is_mine
+
+Returns true if the annotation is owned by you (whether public or local.)
+
+  my $is = $anno->is_mine;
+
+=cut
+
+sub is_mine {
+  my $self = shift;
+  my $p = $self->public;
+  return(not ($p and defined($p->owner)));
+} # end subroutine is_mine definition
+########################################################################
 
 
 =head1 AUTHOR

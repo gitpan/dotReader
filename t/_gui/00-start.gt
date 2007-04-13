@@ -3,7 +3,8 @@
 use strict;
 use warnings;
 
-use Test::More qw(no_plan);
+use inc::testplan(1, 7);
+use test_inc::loginit;
 
 use Wx;
 use Wx::Event qw(
@@ -29,11 +30,6 @@ ok($app, 'application');
 my $idle_ok = 0;
 EVT_IDLE($app, sub {
   0 and warn "\n  idle ", time(), "\n";
-  if(0) { # hacking around on the mac
-    0 and warn "Are we active ? ", $app->IsActive;
-    (0 == $idle_ok) and $app->_main_frame->RequestUserAttention;
-    $app->IsActive or $app->_main_frame->Maximize(1);
-  }
   $idle_ok++;
   # I thought this could be two, but that only occurs if your mouse
   # happens to be over the window at start.
@@ -49,5 +45,7 @@ ok((not $@), "MainLoop done") or
 # MeinLeap does not have a useful return value?
 ok(1, 'MainLoop');
 ok($idle_ok, 'exit');
+
+done;
 
 # vim:ts=2:sw=2:et:sta

@@ -24,7 +24,7 @@ sub ACTION_testall {
 
   my $p = $self->{properties};
   my @test_types = ('t',
-    ($p->{testfile_types} ? keys(%{$p->{testfile_types}}) : ())
+    ($p->{test_types} ? keys(%{$p->{test_types}}) : ())
   ); 
   $self->generic_test(types => \@test_types);
 }
@@ -120,11 +120,11 @@ sub expand_test_dir {
     # old-school
     if($type eq 't') { push(@typelist, 't'); next; }
 
-    defined($p->{testfile_types}) or
-      Carp::confess("cannot have typed testfiles without 'testfile_types' data");
-    defined($p->{testfile_types}{$type}) or
-      croak "no testfile_type '$type' is defined";
-    push(@typelist, $p->{testfile_types}{$type});
+    defined($p->{test_types}) or
+      Carp::confess("cannot have typed testfiles without 'test_types' data");
+    defined($p->{test_types}{$type}) or
+      croak "no test type '$type' is defined";
+    push(@typelist, $p->{test_types}{$type});
   }
   #warn "expand_test_dir($dir, @types) @typelist";
   #do('./util/BREAK_THIS') or die;

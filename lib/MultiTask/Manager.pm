@@ -112,6 +112,7 @@ sub remove {
   #warn "this leaves ", scalar(@$minions), ' minions';
   # delete in case the hash address gets reused
   delete($self->{block}{$minion});
+  $minion->DESTROY;
   $self->$set_has_work(scalar(@$minions));
 } # end subroutine remove definition
 ########################################################################

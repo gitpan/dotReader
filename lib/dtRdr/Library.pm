@@ -23,6 +23,7 @@ use dtRdr::Library::YAMLLibrary; # XXX need plugin loader here
 
 # NOTE I think all of these should be read-only, since the underlying
 # implementation typically needs to save the attributes if they change.
+# TODO use setter sub {shift->_saveval(@_);} # or so
 use Class::Accessor::Classy;
 ro 'id';
 ro 'name';
@@ -35,7 +36,7 @@ no  Class::Accessor::Classy;
   package dtRdr::LibraryData::BookInfo;
   use Class::Accessor::Classy;
   with 'new';
-  ro 'id';
+  ro 'intid';
   ro 'book_id';
   ro 'title';
   ro 'uri';
@@ -91,6 +92,7 @@ use dtRdr::Traits::Class qw(
   dtRdr::Library->class_by_type($type);
 
 =cut
+
 sub class_by_type {
   my $self = shift;
   my ($type) = @_;
@@ -132,7 +134,7 @@ Load the library stored at C<URI> and set the location property.
 
 sub load_uri { my $self = shift; $self->NOT_IMPLEMENTED(@_); }
 
-=head2 books
+=head2 get_books
 
 Return a list of book objects for the books stored in a library object
 
@@ -144,7 +146,8 @@ sub get_books {
     $self->_load_book_objects;
   }
   return @{$self->{books}};
-}
+} # end subroutine get_books definition
+########################################################################
 
 =head2 get_metadata
 
@@ -180,7 +183,7 @@ sub get_book_info {
 
 Return a book object matching a given key/value lookup pair.
 
-  $lib->open_book(id => $id);
+  $lib->open_book(intid => $id);
 
 or
 
@@ -196,9 +199,10 @@ sub open_book {
   my $self = shift;
   (@_ % 2) and croak('odd number of elements in argument list');
   my (%args) = @_;
-  my @valid = qw(id title book_id);
+  my @valid = qw(intid title book_id);
   my ($key) = grep({exists($args{$_})} @valid);
-  $key or croak("no valid key in ", join(keys(%args)));
+  $key or croak('no valid key (',
+    join(', ', @valid), ') in arguments: (', join(',', keys(%args)), ')');
 
   my @books = $self->find_book_by($key, $args{$key});
   @books or die "no books matching $key eq $args{$key}";
@@ -218,6 +222,7 @@ sub open_book {
   # TODO add abstraction somewhere in here
   #      (e.g. it might be http://, absolute, etc)
   my $uri = $self->directory . '/' . $B->uri;
+  # NOTE:  Do not be tempted to (-e $uri) here, let the book die.
   0 and warn "book is $uri";
   $book_object->load_uri($uri);
 
@@ -230,7 +235,7 @@ sub open_book {
 
 =head2 find_book_by
 
-Virtual:  find a book with a for a given $key/$value match.
+Virtual:  find a book for a given $key/$value match.
 
   $info = $lib->find_book_by($key, $value);
 
@@ -273,20 +278,6 @@ All metadata for the book will be deleted from the library.
 
 sub remove_book { my $self = shift; $self->NOT_IMPLEMENTED(@_); }
 
-# XXX kill these {{{
-sub get_info {
-  my ($self, $info) = @_;
-  return $self->{library_info}{$info};
-}
-
-sub get_all_info {
-  my $self = shift;
-  return %{$self->{library_info}};
-}
-
-sub set_info { my $self = shift; $self->NOT_IMPLEMENTED(@_); }
-# XXX kill those }}}
-
 =head1 AUTHOR
 
 Dan Sugalski, <dan@sidhe.org>
@@ -295,7 +286,7 @@ Eric Wilhelm <ewilhelm at cpan dot org>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2006 by Dan Sugalski, Eric L. Wilhelm, and OSoft, All
+Copyright (C) 2006-2007 by Dan Sugalski, Eric L. Wilhelm, and OSoft, All
 Rights Reserved.
 
 =head1 NO WARRANTY

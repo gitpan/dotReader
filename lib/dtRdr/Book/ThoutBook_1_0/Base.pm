@@ -4,15 +4,15 @@ $VERSION = eval{require version}?version::qv($_):$_ for(0.10.1);
 use warnings;
 use strict;
 use Carp;
-use English '-no_match_vars';
 
 use URI::Escape ();
-
 
 use base qw(
   dtRdr::Book
 );
-sub is_nesty {1}; # means this book is capable of silliness
+
+# XXX I think we maybe didn't need this
+use constant is_nesty => 1; # means this book is capable of silliness
 
 use Class::Accessor::Classy;
 rw qw(
@@ -147,7 +147,7 @@ sub find_toc {
   # Handle thout_1 root node bug (which is actually an any-node bug)
   if(! $toc->get_info('render') and ($toc->has_children)) {
     L('content')->debug("render = false on root node issue");
-    $real_toc = $toc->get_child(0);
+    $real_toc = $toc->child(0);
   }
   elsif(defined(my $sp = $toc->get_info('showpage'))) {
     $real_toc = $root->get_by_id($sp);
@@ -176,16 +176,82 @@ sub set_xml_content {
 
 =head2 setup_metadata
 
-  my $meta = $self->setup_metadata;
+  my $meta = $self->setup_metadata(\%propsheet, \%xml_props);
 
 =cut
 
 sub setup_metadata {
   my $self = shift;
+  my ($propsheet, $xml_props) = @_;
 
+  $propsheet or die "need propsheet data";
+  $xml_props or die "need xml_props data";
+
+  # ok, three or so sources of data
+  # 1.  metadata object (possibly from user-defined values in cache)
+  # 2.  propsheet
+  # 3.  xml
+  # TODO deal with #1 once the metadata object can express readonlyness
   my $meta = $self->get_metadata or die 'no metadata here';
 
-  # get metadata from propertysheet
+  # first merge everything together
+  my %props = %$propsheet;
+  foreach my $key (keys(%$xml_props)) {
+    if(exists($props{$key})) {
+      RL('#bookmeta')->info("overriding $key");
+    }
+    $props{$key} = $xml_props->{$key};
+  }
+
+  # TODO deal with legacy we-do-not-actually-have-an-ID issue
+  # like: unless(defined($self->id)) {
+  #        something like: md5(title.publisher.revision)}
+
+  # not everything is meta-data
+  $self->set_title(delete($props{name}));
+  $self->set_id(delete($props{id}) || $self->title);
+  # TODO serial
+
+  # trash some internal meta stuff
+  foreach my $key (qw(toc_data)) {
+    delete($props{$key});
+  }
+
+  my %propmap = (qw(
+      css_stylesheet stylesheet
+      packager       packagedby
+    ),
+    map({$_ => $_} qw(
+      revision
+      copyright
+      author
+      publisher
+      toc_background_color
+    ))
+  );
+  # TODO do we need toc_data anymore?
+  foreach my $key (keys(%propmap)) {
+    $meta->set($key, delete($props{$propmap{$key}}));
+  }
+
+  if(%props) {
+    # TODO figure out what's allowed and list it above
+    #warn "leftovers: ", join(', ', keys(%props));
+  }
+
+  return($meta);
+} # end subroutine setup_metadata definition
+########################################################################
+
+=head2 load_properties
+
+  my %props = $self->load_properties;
+
+=cut
+
+sub load_properties {
+  my $self = shift;
+
   my $prop_content = $self->get_member_string('thout_package.properties');
 
   L('content')->debug("package properties: >>>$prop_content<<<");
@@ -194,23 +260,102 @@ sub setup_metadata {
   my @prop_content = split(/[\r\n]+/, $prop_content);
   for(@prop_content) {
     m/^\s*$/ and next;
-    my ($key, $val) = m/\s*([^\:]+)\s*\:\s*(.+)\s*/ig;
+    my ($key, $val) = m/\s*([^\:]+)\s*\:\s*(.+)\s*/ig; # XXX g?
     defined($key) or L('content')->warn("error in line: '$_' !");
     $props{$key} = $val;
     L('content')->debug("key:[$key] val:[$val]");
   }
-  # XXX we don't actually have an ID?
-  $meta->set("id"             , $props{'name'});
-  $meta->set("title"          , $props{'name'}); # XXX what makes that meta?
-  $meta->set("css_stylesheet" , $props{'stylesheet'});
-  $meta->set("revision"       , $props{'revision'});
-  $meta->set("copyright"      , $props{'copyright'});
-  $meta->set("author"         , $props{'author'});
-  $meta->set("publisher"      , $props{'publisher'});
-  $meta->set("toc_data"      , $props{'toc_data'});
+  return(%props);
+} # end subroutine load_properties definition
+########################################################################
 
-  return($meta);
-} # end subroutine setup_metadata definition
+=head2 propify
+
+Transform parsed info into properties hash.
+
+  my %propinfo = $self->propify(%parse_info);
+
+=cut
+
+sub propify {
+  my $self = shift;
+  my (%info) = @_;
+
+  my %props;
+  if(my $patt = $info{package_attribs}) {
+    foreach my $key (qw(name id revision serial)) {
+      $props{$key} = $patt->{$key} if(exists($patt->{$key}));
+    }
+  }
+
+  ######################################################################
+  # the ad-hoc props-in-content xml bits are not cool
+  # TODO multiple entries of one tag are an error?
+  # first, a cleanup/collect
+  my %adhoc;
+  foreach my $prop (@{$info{props}}) {
+    # I captured the attribs just so I could complain about them here
+    %{$prop->{attribs}} and warn "these are ignored!";
+
+    # cleanup the content string
+    my $content = $prop->{content};
+    $content =~ s/\s+/ /g;
+    $content =~ s/^\s+//;
+    $content =~ s/\s+$//;
+    #$content = undef unless(length($content));
+
+    my $name = $prop->{name} or die "huh?";
+    $name =~ s/^pkg:// or die;
+    my $list = $adhoc{$name} ||= [];
+    push(@$list, $content);
+  }
+  # then, get rid of arrays
+  ######################################################################
+  foreach my $key (keys(%adhoc)) {
+    exists($props{$key}) and # is this getting silly yet?
+      die "book is broken '$key' appears in xml as an attrib and value";
+    #warn "it is $adhoc{$key}";
+    $props{$key} = join(', ', @{$adhoc{$key}})
+  }
+
+  # final pass
+  foreach my $key (keys %props) {
+    # XXX is there a valid use-case for no-length/undef keys?
+    # XXX I hope not, since that would overwrite a defined value and
+    # e.g. our old quickstartguide sets name="" in the XML!
+    unless(defined($props{$key}) and length($props{$key})) {
+      #warn "ugh: deleting null $key";
+      delete($props{$key});
+    }
+  }
+
+  return(%props);
+} # end subroutine propify definition
+########################################################################
+
+=head2 finish_load
+
+  $self->finish_load;
+
+=cut
+
+sub finish_load {
+  my $self = shift;
+
+  my %props = eval { $self->load_properties};
+  if($@) {
+    die $@ unless($self->isa('dtRdr::Book::ThoutBook_1_0'));
+    # more permissive allows authors some flexibility
+    RL('#author')->warn(
+      "you may be missing parts of your book -- error: '$@'");
+  }
+
+  my %info = $self->build_toc(props => \%props);
+  #require YAML::Syck; warn "got: ", YAML::Syck::Dump(\%info);
+  $self->setup_metadata(\%props, {$self->propify(%info)});
+
+  return $self;
+} # end subroutine finish_load definition
 ########################################################################
 
 =head2 reduce_word_scope
@@ -405,17 +550,7 @@ sub descendant_nodes {
 
   # check whether this is the root node
   my $root = $self->toc;
-  #WARN("root: $root\ntoc: $toc");
 
-  # XXX shouldn't do switcharoo here
-  # if($toc == $root and ! $toc->get_info('render')) {
-  #   # the switcharoo node and then recurse into its descendants
-  #   #WARN("found switcharoo node");
-  #   my $child = $toc->get_child(0);
-  #   return($child, $self->descendant_nodes($child));
-  # }
-
-  #WARN("crawling through children for ", $toc->title);
   my @desc;
   my $rsub = sub {
     my ($node, $ctrl) = @_;
@@ -470,9 +605,10 @@ sub ancestor_nodes {
 =head2 build_toc
 
 Run through a sax parse to build-up a TOC tree and memorize some byte
-offsets and character positions.
+offsets and character positions, extract package info, file your taxes,
+etc.
 
-  $self->build_toc or die;
+  my %info = $self->build_toc;
 
 =cut
 
@@ -482,10 +618,13 @@ sub build_toc {
   my %args = @_;
 
   unless($self->toc_cache_dirty) {
-    $self->_load_cached_toc and return(1);
+    # TODO still must fetch properties
+    if(defined(my $tocpath = $args{props}{toc_data})) {
+      $self->_load_cached_toc($tocpath) and return;
+    }
   }
 
-  my $xml = $self->get_xml_content or die "cannot parse with no content";
+  my $xml = $self->xml_content or die "cannot parse without content";
 
   my $parser = XML::Parser::Expat->new(ProtocolEncoding => 'UTF-8');
 
@@ -494,8 +633,8 @@ sub build_toc {
   $parser->setHandlers(%{$data->{handlers}});
 
   $parser->parse($xml);
-  $data->{done} and $data->{done}->();
-  1;
+  $data->{done} and return($data->{done}->());
+  return;
 } # end subroutine build_toc definition
 ########################################################################
 
@@ -503,24 +642,13 @@ sub build_toc {
 
 Gets the SAX parser handler subs.
 
-  my $data = $self->_get_toc_handlers(build_aot => 1);
+  my $data = $self->_get_toc_handlers(%options)
 
   $parser->setHandlers(%{$data->{handlers}});
+  ...
+  return($data->{done}->());
 
-Options:
-
-=over
-
-=item * build_aot BOOL
-
-Build the Annotation Offset Table.  This will end up in the $toc as
-word_start/word_end values if it succeeds.  The parse should die if it
-fails.
-
-TODO This really isn't an option -- if the book needs to place
-annotations it is required.
-
-=back
+Options: none for now
 
 =cut
 
@@ -528,16 +656,28 @@ sub _get_toc_handlers {
   my $self = shift;
   my (%options) = @_;
 
-  my $meta = $self->get_metadata;
-
 # toc spans closure
 my $toc;
+my %parse_info = (props => []); # return value from $done->()
+
+my $capturing_prop; # flag
+
+# setup properties to be grabbed
+my %proptags = map({'pkg:'.$_ => 1} qw(
+  author
+  publisher
+  stylesheet
+));
 
 my $sh = sub {
-  # only look at our tag types
-  return unless($_[1] =~ /^pkg:/g);
   my ($p, $el, %atts) = @_;
 
+  if($capturing_prop) { # check integrity of pkg:$meta bits
+    die "hit start handler on '$el', but already in '$capturing_prop'";
+  }
+
+  # only look at our tag types
+  return unless($el =~ /^pkg:/);
 
   # mostly everything hits the first condition
   if($el eq 'pkg:outlineMarker') {
@@ -595,24 +735,16 @@ my $sh = sub {
 
   } # pkg:outlinemarker
   elsif($el eq 'pkg:package') {
-    if($atts{'name'}) { # XXX this is bad
-      $meta->set('id', $atts{'name'});
-    }
+    # just collect the attributes because this doesn't close until EOF
+    $parse_info{package_attribs} = {%atts};
   }
-  elsif($el eq 'pkg:author') {
-    if($el) {
-      $meta->set('author', $el);
-    }
-  }
-  elsif($el eq 'pkg:publisher') {
-    if($el) {
-      $meta->set('publisher', $el);
-    }
-  }
-  elsif($el eq 'pkg:stylesheet') {
-    if($el) {
-      $meta->set('css_stylesheet', $el);
-    }
+  elsif($proptags{$el}) {
+    $capturing_prop = $el;
+    push(@{$parse_info{props}}, {
+      name    => $el,
+      attribs => {%atts},
+      content => '',
+    });
   }
   return;
 }; # $sh sub
@@ -621,6 +753,7 @@ my $sh = sub {
 # the package so maybe just skip the character counting rather than the
 # entire parse -- or possibly just setup a set of very wee handlers?
 # (e.g. maybe with twig since we can prune the outlineMarker nodes.)
+
 # Note that we can't actually put everything in the cached toc because
 # it couldn't be encrypted there.
 
@@ -629,9 +762,13 @@ my $tr_wsp = 0;
 my $ch = sub {
   my ($p, $string) = @_; # XXX $string is utf8
 
-  $string =~ s/&/&amp;/g;
-  $string =~ s/</&lt;/g;
-  my $word_chars = $string;
+  # process pkg:$meta bits here too
+  if($capturing_prop) {
+    # this will throw-off character counters if we're underway, so bail
+    $toc and die "oops, broken book";
+    $parse_info{props}[-1]{content} .= $string;
+    return;
+  }
 
   # we should have a $toc already -- if we don't it is because we're not
   # started yet, so forget about it
@@ -639,6 +776,10 @@ my $ch = sub {
 
   # NOTE also might bail on the above condition after the end-handler
   # for the root toc.  That's okay too.
+
+  $string =~ s/&/&amp;/g;
+  $string =~ s/</&lt;/g;
+  my $word_chars = $string;
 
   my $id = $toc->id;
   unless(defined($toc->get_word_start)) {
@@ -659,8 +800,13 @@ my $ch = sub {
 }; # $ch sub
 
 my $eh = sub {
-  return unless($_[1] eq 'pkg:outlineMarker');
   my ($p, $el) = @_;
+  if($capturing_prop) { # check integrity of pkg:$meta bits
+    ($capturing_prop eq $el) or
+      die "hit end handler on '$el', but looking for '$capturing_prop'";
+    return $capturing_prop = undef;
+  }
+  return unless($el eq 'pkg:outlineMarker');
 
   # Get a location object for the end of this entry
   use bytes;
@@ -671,11 +817,10 @@ my $eh = sub {
 
   # finish the open range object
   $toc->get_range->set_end($eloc);
-  if($options{build_aot}) {
-    # might have
-    defined($toc->get_word_start) or $toc->set_word_start($w_offset);
-    $toc->set_word_end($w_offset);
-  }
+
+  # might have an empty node?
+  defined($toc->get_word_start) or $toc->set_word_start($w_offset);
+  $toc->set_word_end($w_offset);
 
   DEBUG and L('toc')->debug("-"x(scalar($toc->ancestors)), $toc->id);
 
@@ -687,31 +832,29 @@ my $eh = sub {
 
 my $done = sub {
   0 and dtRdr::Logger->editor( sub { $self->toc->yaml_dump });
+  return(%parse_info);
 };
 
   return({
-    handlers => {
-      Start => $sh, End => $eh,
-      ($options{build_aot} ? (Char => $ch) : ()),
-    },
-    done => $done
+    handlers => { Start => $sh, End => $eh, Char => $ch },
+    done     => $done
   });
 } # end subroutine _get_toc_handlers definition
 ########################################################################
 
 =head2 _load_cached_toc
 
-  $self->_load_cached_toc;
+  $self->_load_cached_toc($filename);
 
 =cut
 
 sub _load_cached_toc {
   my $self = shift;
+  my ($tocpath) = @_;
 
-  my $tocpath = $self->get_metadata->get('toc_data');
-  defined($tocpath) or return;
+  defined($tocpath) or die "need tocpath";
   my $load_method = 'yaml_load';
-  if($OSNAME ne 'darwin') { # TODO check byte order or something
+  if($^O ne 'darwin') { # TODO check byte order or something
     my $altpath = $tocpath . '.stb';
     if($self->member_exists($altpath)) {
       $tocpath = $altpath;
@@ -722,9 +865,9 @@ sub _load_cached_toc {
 
   my $toc_cont = $self->get_member_string($tocpath);
   my $toc = eval { dtRdr::TOC->$load_method(\$toc_cont, $self) };
-  if($@) {
+  if(my $err = $@) {
     # TODO try to rebuild the yaml if failure was in stb?
-    RL('#author')->warn("the book's TOC cache had problems loading >>>$@<<<");
+    RL('#author')->warn("the book's TOC cache had problems loading >>>$err<<<");
     return(0);
   }
 
@@ -802,7 +945,7 @@ sub get_content {
     # XXX I'm just letting you have a terminal node for now
 
     L('content')->debug("render = false");
-    $toc = $toc->get_child(0);
+    $toc = $toc->child(0);
   }
   # should not live here }}}
 
@@ -856,7 +999,7 @@ sub _build_trim_plan {
   $plan ||= [];
 
   my ($start, $end) = ($toc->range->a, $toc->range->b);
-  my @children = $toc->get_children();
+  my @children = $toc->children;
   unless(@children) { # terminal node
     $self->_append_trim_plan($start, $end, $plan);
     return(@$plan);
@@ -950,22 +1093,6 @@ sub get_raw_content {
 } # end subroutine get_raw_content definition
 ########################################################################
 
-=head2 url_for
-
-  $book->url_for($toc);
-
-=cut
-
-sub url_for {
-  my $self = shift;
-  my ($toc) = @_;
-  my $bid = $self->get_metadata('id');
-  my $nid = $toc->id;
-  s/ /%20/ for($bid, $nid);
-  return('pkg://'.$bid.'/'.$nid);
-} # end subroutine url_for definition
-########################################################################
-
 =head1 HTML formatting
 
 TODO rework these
@@ -980,7 +1107,7 @@ sub _fancy_html_lead {
   my $self = shift;
 
   my $css_content = '';
-  my $title = $self->get_metadata("title") || $self->get_metadata("id");
+  my $title = $self->title || $self->id;
   L->debug("title: >>>$title<<<");
   my $base_dir = $self->get_base_dir;
   L->debug("base: '$base_dir'");
@@ -993,9 +1120,10 @@ sub _fancy_html_lead {
   $css_content .=
     "\nspan.dr_highlight {\n    " .
     "background-color: yellow;\n margin:0px;\n}\n" .
-    "a.dr_note img {border: none;}\n" .     # de-uglify
-    "a.dr_bookmark img {border: none;}\n" . # de-uglify
-    "a.dr_copy img {border: none;}\n" .     # de-uglify
+    # de-uglify the link images
+    join("\n", map({"a.dr_$_ img {border: none;}"} qw(
+      note notethread bookmark copy
+    ))) .
     '';
   $css_content .=
     "span.dr_annoselection {\n" .
@@ -1090,7 +1218,7 @@ sub next_node {
     $toc = $self->find_toc($toc->id);
   }
   if($toc->has_children and $toc->get_info('render_children') == 0) {
-    return $toc->get_child(0);
+    return($toc->child(0));
   }
 
   while($toc) {

@@ -13,10 +13,32 @@ it is true, your number of tests is the second argument.
   use inc::testplan(0, 50);
 
 =cut
-
+my $has_plan;
+my $tests;
+my $done = 0;
+my $pid; # to play nice with forks
 sub inc::testplan::import {
   my $who = shift;
-  my ($planned, $tests) = @_;
-  Test::More->import(($planned ? (tests => $tests) : ('no_plan')));
+  ($has_plan, $tests) = @_;
+  Test::More->import(($has_plan ? (tests => $tests) : ('no_plan')));
+  $pid = $$;
+}
+
+sub done () {
+  ($$ == $pid) or return;
+  if($has_plan) {
+    my $self = Test::More->builder;
+    ($self->{Curr_Test} < $tests) and
+      warn "\n\n  called done before plan finished\n\n  ";
+  }
+  $done = 1;
+}
+END {
+  if(defined($pid) and ($$ == $pid)) {
+    unless($has_plan) {
+      $done or die "\n  unplanned exit";
+    }
+  }
 }
 # vim:ts=2:sw=2:et:sta
+1;

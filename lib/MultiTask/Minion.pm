@@ -45,6 +45,8 @@ sub new {
 
 =head2 make
 
+Creates a new minion class, defining work() and other methods inline.
+
   my $worker = MultiTask::Minion->make(sub {
     return(work => sub {...})
   });
@@ -126,20 +128,52 @@ sub quit {
     $on_quit->($self);
   }
   my $class = ref($self);
-  # delete our methods
-  foreach my $att ($self->_standard_attributes) {
-    no strict 'refs';
-    if(defined(&{$class . '::' . $att})) {
-      delete(${$class . '::'}{$att});
+  if($class =~ m/::0x/) { # delete our methods
+    foreach my $att ($self->_standard_attributes) {
+      no strict 'refs';
+      if(defined(&{$class . '::' . $att})) {
+        delete(${$class . '::'}{$att});
+      }
     }
   }
   $self->$set_done(1);
 } # end subroutine quit definition
 ########################################################################
 
+=head2 DESTROY
 
+  $minion->DESTROY;
 
+=cut
 
+sub DESTROY {
+  my $self = shift;
+  #warn "destroy $self\n";
+  delete($self->{$_}) for(keys(%$self));
+  if(1) { # cleanup namespace
+    my $package = ref($self);
+    $package =~ m/^(.*::)([^:]+)$/ or die;
+    my $parent = $1;
+    my $inner = $2 . '::';
+    # don't kill-off permanent packages!
+    # TODO use something that's not pattern-based?
+    ($inner =~ m/^0x/) or return; # warn "not destroying $package";
+    my $pack;
+    {
+      no strict 'refs';
+      $parent = \%{"$parent"};
+      #$innerp = \%{"$inner"};
+      $pack   = \%{"${package}::"};
+    }
+    #warn join(",", keys(%$parent));
+    #warn join(",", keys(%$pack));
+    #warn join(",", keys(%{$parent->{$inner}}));
+    delete($parent->{$inner});
+    #warn join(",", keys(%$parent));
+  }
+  return;
+} # end subroutine DESTROY definition
+########################################################################
 
 =head1 AUTHOR
 

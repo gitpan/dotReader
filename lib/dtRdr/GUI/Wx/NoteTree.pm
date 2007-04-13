@@ -5,10 +5,18 @@ use warnings;
 use strict;
 use Carp;
 
+use Class::Accessor::Classy;
+ro 'menu_item_show';
+ro 'menu_item_edit';
+no  Class::Accessor::Classy;
+
+sub DISABLED_ITEMS { return(shift->SUPER::DISABLED_ITEMS(), 'edit'); }
 
 use base 'dtRdr::GUI::Wx::Tree::AnnoBase';
 
 use constant { anno_type => 'note' };
+
+use dtRdr::Logger;
 
 =head1 NAME
 
@@ -52,7 +60,7 @@ sub item_activated {
   $self->menu_goto($event);
   my $item = $event->GetItem;
   my $anno = $self->get_data($item);
-  $self->bv_manager->book_view->show_note($anno->id);
+  $self->bv_manager->show_note($anno);
 } # end subroutine item_activated definition
 ########################################################################
 
@@ -70,7 +78,7 @@ sub menu_show {
   # TODO need a multi-note viewer
   @items and WARN("cannot show multiple notes yet");
   my $anno = $self->get_data($item);
-  $self->bv_manager->book_view->show_note($anno->id);
+  $self->bv_manager->show_note($anno);
 } # end subroutine menu_show definition
 ########################################################################
 
@@ -87,7 +95,7 @@ sub menu_edit {
   my @items = $self->event_or_selection_items($event);
   foreach my $item (@items) {
     my $anno = $self->get_data($item);
-    $self->bv_manager->book_view->edit_note($anno);
+    $self->bv_manager->edit_note($anno);
   }
 } # end subroutine menu_edit definition
 ########################################################################

@@ -11,7 +11,7 @@ use warnings;
 use strict;
 
 
-use Wx qw(:everything);
+use Wx ();
 use base 'Wx::App';
 
 use Wx::Event qw(
@@ -28,7 +28,7 @@ sub init {
   my $self = shift;
   my ($frame) = @_;
   # must setup exit from here
-  EVT_MENU($frame, wxID_EXIT, sub { warn "exit"; $self->Exit; });
+  EVT_MENU($frame, &Wx::wxID_EXIT, sub { warn "exit"; $self->Exit; });
 }
 ########################################################################
 

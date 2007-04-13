@@ -46,6 +46,11 @@ sub main {
   # XXX should have options to write it elsewhere, for now just smash
   warn "Adding toc to $uri";
   my $zip = Archive::Zip->new($uri);
+  # GRR, existing but faulty toc causes headaches
+  if($zip->removeMember('toc_data.toc')) {
+    warn "GRR, existing toc_data.toc?\n";
+  }
+
   $zip->addString(
     $toc, 'toc_data.toc'
   )->desiredCompressionMethod(COMPRESSION_DEFLATED);
