@@ -1,6 +1,6 @@
 ---
 name: dotReader
-version: v0.11.1
+version: v0.11.2
 author:
   - OSoft Inc.
 abstract: Cross-Platform XML Book Reader
@@ -28,6 +28,7 @@ requires:
   XML::Twig: 3.22
   YAML::Syck: 0.67
   wxPerl::Constructors: 0.000002
+  wxPerl::Styles: 0.000001
 build_requires:
   Module::Build: 0.2807
   Test::More: 0.62
@@ -63,7 +64,7 @@ provides:
     version: v0.10.1
   dtRdr:
     file: lib/dtRdr.pm
-    version: v0.11.1
+    version: v0.11.2
   dtRdr::Accessor:
     file: lib/dtRdr/Accessor.pm
     version: v0.10.1
@@ -106,6 +107,8 @@ provides:
   dtRdr::Book::ThoutBook_1_0::Base:
     file: lib/dtRdr/Book/ThoutBook_1_0/Base.pm
     version: v0.10.1
+  dtRdr::Book::ThoutBook_1_0::Metadata:
+    file: lib/dtRdr/Book/ThoutBook_1_0/Base.pm
   dtRdr::Book::ThoutBook_1_0::Traits:
     file: lib/dtRdr/Book/ThoutBook_1_0/Traits.pm
     version: v0.0.1
@@ -159,9 +162,24 @@ provides:
   dtRdr::GUI::Wx::Dialog::License:
     file: lib/dtRdr/GUI/Wx/Dialog/License.pm
     version: v0.10.1
+  dtRdr::GUI::Wx::Dialog::Password:
+    file: lib/dtRdr/GUI/Wx/Dialog/Password.pm
+    version: v0.0.1
+  dtRdr::GUI::Wx::Dialog::Password0:
+    file: lib/dtRdr/GUI/Wx/Dialog/Password0.pm
+    version: v0.0.1
+  dtRdr::GUI::Wx::Dialog::SyncSettings:
+    file: lib/dtRdr/GUI/Wx/Dialog/SyncSettings.pm
+    version: v0.0.1
+  dtRdr::GUI::Wx::Dialog::SyncSettings0:
+    file: lib/dtRdr/GUI/Wx/Dialog/SyncSettings0.pm
+    version: v0.0.1
   dtRdr::GUI::Wx::Frame:
     file: lib/dtRdr/GUI/Wx/Frame.pm
     version: v0.10.1
+  dtRdr::GUI::Wx::Frame0:
+    file: lib/dtRdr/GUI/Wx/Frame0.pm
+    version: v0.0.1
   dtRdr::GUI::Wx::HighlightTree:
     file: lib/dtRdr/GUI/Wx/HighlightTree.pm
     version: v0.10.1
@@ -171,6 +189,9 @@ provides:
   dtRdr::GUI::Wx::NoteEditor:
     file: lib/dtRdr/GUI/Wx/NoteEditor.pm
     version: v0.10.1
+  dtRdr::GUI::Wx::NoteEditor0:
+    file: lib/dtRdr/GUI/Wx/NoteEditor0.pm
+    version: v0.0.1
   dtRdr::GUI::Wx::NoteTree:
     file: lib/dtRdr/GUI/Wx/NoteTree.pm
     version: v0.10.1
@@ -195,6 +216,9 @@ provides:
   dtRdr::GUI::Wx::TextViewer:
     file: lib/dtRdr/GUI/Wx/TextViewer.pm
     version: v0.10.1
+  dtRdr::GUI::Wx::TextViewer0:
+    file: lib/dtRdr/GUI/Wx/TextViewer0.pm
+    version: v0.0.1
   dtRdr::GUI::Wx::Tree::AnnoBase:
     file: lib/dtRdr/GUI/Wx/Tree/AnnoBase.pm
     version: v0.10.1
@@ -204,15 +228,6 @@ provides:
   dtRdr::GUI::Wx::Utils:
     file: lib/dtRdr/GUI/Wx/Utils.pm
     version: v0.10.1
-  dtRdr::GUI::Wx::layout::Frame:
-    file: lib/dtRdr/GUI/Wx/layout/Frame.pm
-    version: v0.0.1
-  dtRdr::GUI::Wx::layout::NoteEditor:
-    file: lib/dtRdr/GUI/Wx/layout/NoteEditor.pm
-    version: v0.0.1
-  dtRdr::GUI::Wx::layout::TextViewer:
-    file: lib/dtRdr/GUI/Wx/layout/TextViewer.pm
-    version: v0.0.1
   dtRdr::HTMLShim::WxHTML:
     file: lib/dtRdr/HTMLShim/WxHTML.pm
     version: v0.0.1
@@ -248,9 +263,11 @@ provides:
   dtRdr::Logger::Appender::File:
     file: lib/dtRdr/Logger/Appender/File.pm
     version: v0.10.1
-  dtRdr::Metadata:
-    file: lib/dtRdr/Metadata.pm
+  dtRdr::Metadata::Book:
+    file: lib/dtRdr/Metadata/Book.pm
     version: v0.0.1
+  dtRdr::Metadata::Book::annotation_server:
+    file: lib/dtRdr/Metadata/Book.pm
   dtRdr::Note:
     file: lib/dtRdr/Note.pm
     version: v0.10.1

@@ -36,6 +36,7 @@ sub main {
   my $time_shift;
   my $latency;
   my $invalid;
+  my $verbose = 0;
   if(@args and ($args[0] =~ m/^-/)) {
     require Getopt::Helpful;
     my $users;
@@ -49,6 +50,7 @@ sub main {
       ['t|time-shift=f', \$time_shift, '<seconds>', 'shift time'],
       ['l|latency=f', \$latency, '<seconds>', 'latency'],
       ['invalid', \$invalid, '', 'send invalid yaml'],
+      ['v|verbose!', \$verbose, '', 'make noise'],
       '+help',
     );
     $hopt->Get_from(\@args);
@@ -88,6 +90,7 @@ sub main {
       ($auth_type ? (auth_type => $auth_type) : ()),
       ($time_shift ? (time_shift => $time_shift) : ()),
       ($latency ? (latency => $latency) : ()),
+      ($verbose ? (verbose => 1) : ()),
       ($invalid ? (invalid => 1) : ()),
     );
     $server->run;
@@ -280,7 +283,7 @@ sub dispatch {
 
   if($self->auth_required) {
     my $user = $self->authenticate;
-    #warn "user ? ", $user || '~';
+    $self->verbose and warn "user ? ", $user || '~';
     defined($user) or return $self->output(401);
   }
 

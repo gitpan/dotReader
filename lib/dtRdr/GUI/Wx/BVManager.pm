@@ -250,6 +250,8 @@ sub load_url {
 
 =head2 open_book
 
+Opens the book object as the primary view.
+
   $bvm->open_book($book);
 
 =cut
@@ -258,6 +260,8 @@ sub open_book {
   my $self = shift;
   my ($book) = @_;
 
+  # clear and reset a lot of stuff
+  $self->main_frame->set_title($book->title);
   $self->note_viewer->no_note;
   # TODO clear search results?
 
@@ -276,6 +280,7 @@ sub open_book {
     htmlwidget     => $self->htmlwidget
   );
 
+  # BOOKBAG {{{
   my $bag = $self->bookbag;
   # TODO we need DESTROY on tab-close somewhere
   # for now, open one means close another
@@ -289,6 +294,7 @@ sub open_book {
     $self->anno_io->apply_to($book);
   }
   $bag->add($book);
+  # BOOKBAG }}}
   
   { # populate the sidebar trees
     my @trees = qw(

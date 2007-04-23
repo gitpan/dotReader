@@ -8,7 +8,7 @@
   or
     $anno = $anno->localize(node => $node, range => $range, wstart => $ws, wend => $we); # ...
        (does $new_anno->set_is_fake(1);)
-    
+
     if range or location...
     $self->localize_offset($node, $from_node, $offset);
 

@@ -1,6 +1,18 @@
 Revision history for dotReader
 
-v0.11.1
+v0.11.2 2007-04-22
+
+  * added load_url() to make webkit (mostly) work
+  * improved sync password prompt dialog
+  * note viewer bugfix: show server name on owner's public notes
+  * book title in title bar
+
+  * more useful metadata objects
+  * annotation_server property in book metadata
+  * changes to manifest files for plugins
+  * build bugfix: drconfig.yml not writable
+
+v0.11.1 Thu Apr 12, 2007
 
   * added new 'middle-odd' meaning to version numbers
 

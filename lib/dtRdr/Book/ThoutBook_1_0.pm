@@ -149,7 +149,6 @@ sub add_to_library {
   unless($self->toc_is_cached) {
     # TODO how to abstract this
     # also TODO rewrite the entire propsheet
-    # also TODO have a decent metadata object
     my $unhooked = $self->toc->unhooked;
 
     # Ick

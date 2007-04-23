@@ -1,7 +1,9 @@
 use strict;
 use warnings;
 use inc::dtRdrBuilder;
-my $build_class = 'inc::dtRdrBuilder';
+
+our $dotBuilder;
+my $build_class =  $dotBuilder || 'inc::dtRdrBuilder';
 
 my $builder = $build_class->new(
   dist_name         => 'dotReader',
@@ -30,6 +32,7 @@ my $builder = $build_class->new(
     'Module::Finder'           => '0.001001',
     'Module::Pluggable'        => '2.96',
     'wxPerl::Constructors'     => '0.000002',
+    'wxPerl::Styles'           => '0.000001',
     'Wx'                       => '0.26',
     #'Wx::Event'                => 0,
     #'Wx::Html'                 => 0,
@@ -64,19 +67,19 @@ my $builder = $build_class->new(
     'Module::Build'            => 0.2807,
     'Test::More'               => 0.62,
   },
-  # XXX Module::Build doesn't speak test_recommends :-(
+  # XXX Module::Build doesn't speak test_recommends :-/
   test_recommends => {
     'Test::HTTP::Server::Simple' => 0.04,
   },
-  # XXX Module::Build doesn't speak build_recommends :-(
+  # XXX Module::Build doesn't speak build_recommends :-/
   build_recommends => {
     'PAR'             => 0,
     'Devel::TraceUse' => 0,
   },
   add_to_cleanup      => [ qw(
-    META.yml
     binary_build
     )],
+  create_makefile_pl => 'passthrough',
 );
 
 $builder->create_build_script();

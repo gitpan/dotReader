@@ -1,4 +1,4 @@
-package dtRdr::GUI::Wx::layout::NoteEditor;
+package dtRdr::GUI::Wx::NoteEditor0;
 $VERSION = eval{require version}?version::qv($_):$_ for(0.0.1);
 
 use strict;

@@ -49,9 +49,11 @@ no  Class::Accessor::Classy;
     }
     $v;
   };
+  rw 'name';
   rw 'uri';
   rw 'username';
   rw 'password';
+  lw 'books';
   ro 'config';
   # TODO last sync?
   no  Class::Accessor::Classy;
@@ -64,6 +66,20 @@ no  Class::Accessor::Classy;
     Scalar::Util::weaken($self->{config});
   };
   #sub DESTROY { warn "bye $_[0] ", join("|", keys(%{$_[0]})), "\n"; }
+  # XXX TODO XXX Class::Accessor::Classy needs to honor setter() on lists
+  foreach my $method (qw(add_books set_books)) {
+    my $smethod = 'SUPER::' . $method;
+    my $sub = sub {
+      my $self = shift;
+      my @ans = $self->$smethod(@_);
+      if(my $config = $self->config) {
+        $config->update_server($self);
+      }
+      return(@ans);
+    };
+    no strict 'refs';
+    *{__PACKAGE__ . '::' . $method} = $sub;
+  }
 } # end package
 
 =head1 NAME

@@ -19,6 +19,7 @@ rw qw(
   xml_content
   toc_cache_dirty
   toc_is_cached
+  css_stylesheet
 );
 ro qw(
   base_dir
@@ -28,6 +29,28 @@ no  Class::Accessor::Classy;
 
 # set this for Book.pm
 use constant XML_CONTENT_NODE => 'pkg:outlineMarker';
+
+# our custom metadata object {{{
+use constant METADATA_CLASS => 'dtRdr::Book::ThoutBook_1_0::Metadata';
+{
+  package dtRdr::Book::ThoutBook_1_0::Metadata;
+  use base 'dtRdr::Metadata::Book';
+  use Class::Accessor::Classy;
+  rw this->_MYPROPS;
+  use constant _MYPROPS => qw(
+    revision
+    copyright
+    author
+    publisher
+    packager
+    toc_background_color
+  );
+  use constant PROPS => (
+    this->_MYPROPS,
+    this->SUPER::PROPS
+  );
+  no  Class::Accessor::Classy;
+} # end custom metadata object }}}
 
 use dtRdr::Book::ThoutBook_1_0::Traits qw(
   _boolify
@@ -192,7 +215,8 @@ sub setup_metadata {
   # 2.  propsheet
   # 3.  xml
   # TODO deal with #1 once the metadata object can express readonlyness
-  my $meta = $self->get_metadata or die 'no metadata here';
+
+  my $meta = $self->meta or die 'no metadata here';
 
   # first merge everything together
   my %props = %$propsheet;
@@ -203,35 +227,63 @@ sub setup_metadata {
     $props{$key} = $xml_props->{$key};
   }
 
+  # not everything is meta-data
+  my %delmap = (
+    title          => 'name',
+    css_stylesheet => 'stylesheet',
+    map({$_ => $_} qw(
+      id
+    ))
+  );
+  # TODO serial
+
+  foreach my $key (keys(%delmap)) {
+    my $setter = 'set_' . $key;
+    exists($props{$delmap{$key}}) or next;
+    $self->$setter(delete($props{$delmap{$key}}));
+  }
+
   # TODO deal with legacy we-do-not-actually-have-an-ID issue
   # like: unless(defined($self->id)) {
   #        something like: md5(title.publisher.revision)}
-
-  # not everything is meta-data
-  $self->set_title(delete($props{name}));
-  $self->set_id(delete($props{id}) || $self->title);
-  # TODO serial
+  unless(defined($self->id)) {
+    $self->set_id($self->title);
+  }
 
   # trash some internal meta stuff
   foreach my $key (qw(toc_data)) {
     delete($props{$key});
   }
 
-  my %propmap = (qw(
-      css_stylesheet stylesheet
+  # special handling
+  if(exists($props{annotation_server})) {
+    eval {
+    my $string = delete($props{annotation_server});
+    my @v = split(/\|/, $string);
+    (scalar(@v) == 2) or die "bad annotation_server '$string'";
+    $meta->set_annotation_server(
+      dtRdr::Metadata::Book::annotation_server->new(
+        id  => $v[0],
+        uri => $v[1],
+      )
+    );
+    };
+    $@ and RL('#author')->warn($@);
+  }
+
+  my %propmap = (
+    map({$_ => $_}
+      $self->METADATA_CLASS->PROPS
+    ),
+    qw(
       packager       packagedby
     ),
-    map({$_ => $_} qw(
-      revision
-      copyright
-      author
-      publisher
-      toc_background_color
-    ))
   );
-  # TODO do we need toc_data anymore?
   foreach my $key (keys(%propmap)) {
-    $meta->set($key, delete($props{$propmap{$key}}));
+    my $want_prop = $propmap{$key};
+    exists($props{$want_prop}) or next;
+    my $setter = 'set_' . $key;
+    $meta->$setter(delete($props{$want_prop}));
   }
 
   if(%props) {
@@ -610,6 +662,8 @@ etc.
 
   my %info = $self->build_toc;
 
+Returns a hash of properties/metadata.
+
 =cut
 
 sub build_toc {
@@ -618,7 +672,7 @@ sub build_toc {
   my %args = @_;
 
   unless($self->toc_cache_dirty) {
-    # TODO still must fetch properties
+    # TODO still must fetch properties and metadata and return %info
     if(defined(my $tocpath = $args{props}{toc_data})) {
       $self->_load_cached_toc($tocpath) and return;
     }
@@ -1112,7 +1166,7 @@ sub _fancy_html_lead {
   my $base_dir = $self->get_base_dir;
   L->debug("base: '$base_dir'");
 
-  if(my $stylesheet = $self->get_metadata('css_stylesheet')) {
+  if(my $stylesheet = $self->css_stylesheet) {
     RL('#bookcss')->debug("get stylesheet $stylesheet");
     $css_content = $self->get_member_string($stylesheet);
   }
@@ -1355,7 +1409,7 @@ http://scratchcomputing.com/
 
 =head1 COPYRIGHT
 
-Copyright (C) 2006 Eric L. Wilhelm and OSoft, All Rights Reserved.
+Copyright (C) 2006-2007 Eric L. Wilhelm and OSoft, All Rights Reserved.
 
 =head1 NO WARRANTY
 

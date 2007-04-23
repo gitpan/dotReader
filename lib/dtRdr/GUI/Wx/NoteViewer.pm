@@ -127,16 +127,16 @@ sub init {
 
 Acts as a url_handler for the viewer's htmlwidget.
 
-  $self->load_url($url);
+  $self->load_url($url, $killit);
 
 =cut
 
 sub load_url {
   my $self = shift;
   my ($url, $kill) = @_;
-  if($^O eq 'MSWin32') { # now, this is just getting silly
+  #if($^O eq 'MSWin32') { # now, this is just getting silly
     $kill and $kill->(); # because we're loading it in another pane
-  }
+  #}
 
   use URI;
   my $uri = URI->new($url);
@@ -737,9 +737,8 @@ sub render_meta {
 
   my $p = $note->public;
   my $user = ($p ?
-    (defined($p->owner) ?
-      ('<b>' . $p->owner . '</b> on ' . $p->server) :
-      '<b>you</b>'
+    ('<b>' . (defined($p->owner) ? $p->owner : 'you') .
+      '</b> on ' . $p->server # TODO get servername?
     ) :
     '<u>private</u>'
   );

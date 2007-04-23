@@ -15,10 +15,13 @@ module: []
 
 servers: 
   - 
+    books: 
+      - book_about_a_duck
+      - something_in_blue
     id: the server
     type: Standard
     uri: http://example.com/
     username: bob
 user_info: {}
 
-version: 0.010002
+version: v0.10.2

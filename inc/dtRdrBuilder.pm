@@ -10,6 +10,7 @@ use Carp;
 
 use base (
   #'inc::MBwishlist', # 0.2807 got it
+  'inc::MBwishlist::trees',
   qw(
     inc::dtRdrBuilder::PodCoverage
     Module::Build
@@ -51,10 +52,10 @@ dtRdrBuilder -  Custom build methods for dotReader
                                 Build Build Build
   Build Build Build
   Build
-  
+
   Build
-  
-  
+
+
   Build
 
 =head1 General Notes
@@ -75,9 +76,7 @@ to yank-out the code and put it where it should be.
 
 =head1 ACTIONS
 
-=over 4
-
-=cut
+=over
 
 =item testgui
 
@@ -142,7 +141,15 @@ Runs the binary interactively.
 
 sub ACTION_runbinary {
   my $self = shift;
-  $self->run_binary;
+
+  # TODO should we put all of this stuff in the run_binary() method?
+  # disable gui errors
+  local $ENV{JUST_DIE} = 1;
+
+  # XXX hmm, some way to just run it on stderr/stdout?
+  my ($out, $err) = $self->run_binary;
+  $out and print $out;
+  $err and warn $err;
 } # end subroutine ACTION_runbinary definition
 ########################################################################
 
@@ -178,7 +185,7 @@ sub ACTION_par {
       __FILE__, # XXX to thisfile or not to thisfile?
       );
     if($self->up_to_date(\@sources, $parfile)) {
-      warn "$parfile is up to date";
+      $self->log_info("Skip (up-to-date) building $parfile\n");
       return;
     }
   }
@@ -257,7 +264,7 @@ sub ACTION_par {
   # the -I opts into the subprocess which does the compile
   local $ENV{PERL5LIB} =
     (defined($ENV{PERL5LIB}) ? $ENV{PERL5LIB} . $Config{path_sep} : '') .
-      'blib/lib';
+      $self->blib . '/lib';
 
   require File::Spec;
   my @command = (
@@ -276,7 +283,7 @@ sub ACTION_par {
       File::Spec->rel2abs(
         'client/data/gui_default/icons/dotreader.ico'
       ),
-    qw(-I blib/lib),
+    '-I', $self->blib . '/lib',
     map({('-l', $_)} $self->external_libs),
     map({('-M', $_)} @add_mods, @modules),
     'client/app.pl',
@@ -317,6 +324,13 @@ sub ACTION_par_parts {
   # set this so the filename comes out right
   local $self->{args}{mini} = 1;
   my $exe_file = $self->binfilename;
+
+  # TODO any reason to not skip?
+  if($self->up_to_date($par_mini, $exe_file)) {
+    $self->log_info("Skip (up-to-date) building $exe_file\n");
+    return;
+  }
+
   my @command = (
     $self->which_pp,
     '-o', $exe_file,
@@ -357,7 +371,12 @@ sub ACTION_par_mini {
   my $par_mini = $self->par_mini;
   my $par_seed = $self->par_seed;
 
-  warn "zip $par_mini\n";
+  if($self->up_to_date([$par_seed, $self->parmain_pl], $par_mini)) {
+    $self->log_info("Skip (up-to-date) building $par_mini\n");
+    return;
+  }
+
+  $self->log_info("Zip $par_mini...");
   require Archive::Zip;
   my $zip = Archive::Zip->new();
   $zip->read($par_seed) == Archive::Zip::AZ_OK or
@@ -365,7 +384,7 @@ sub ACTION_par_mini {
   $zip->updateMember('script/dotReader.pl', $self->parmain_pl) or
     die "failed to add script";
   $zip->overwriteAs($par_mini) == Archive::Zip::AZ_OK or die 'write error';
-  warn "par_mini done\n";
+  $self->log_info("done\n");
 
   # build the yaml file
   {
@@ -396,8 +415,10 @@ sub ACTION_par_seed {
   my $parfile = $self->par_seed;
   my @our_mods = map({s#^lib/+##; $_} keys(%{$self->find_pm_files}));
 
+  # XXX this should probably check more of the contents of the datadir,
+  # such as release_file
   if($self->up_to_date([map({'lib/' . $_} @our_mods)], $parfile)) {
-    warn "$parfile is up to date\n";
+    $self->log_info("Skip (up-to-date) building $parfile\n");
     return;
   }
 
@@ -419,7 +440,7 @@ sub ACTION_par_seed {
     qw(-z 9),
     '-n', # no scanning, no compiling, no executing
     '-a',  $self->datadir . ';data',
-    qw(-I blib/lib),
+    '-I', $self->blib . '/lib',
     '-B', # need early core stuff in here
     map({('-M', $_)} @deps, @our_mods),
     'client/build_info/dotReader.pl'
@@ -428,7 +449,7 @@ sub ACTION_par_seed {
   warn "pp for $parfile\n";
   0 and warn "# @command\n";
   require Config_m if($^O eq 'MSWin32');
-  local $ENV{PERL5LIB} = join($Config{path_sep}, 'blib/lib',
+  local $ENV{PERL5LIB} = join($Config{path_sep}, $self->blib . '/lib',
     split($Config{path_sep}, $ENV{PERL5LIB} || ''));
   system(@command) and die "$! $^E $?";
   warn "par_seed done\n";
@@ -448,6 +469,17 @@ chicken/egg problem.
 
 sub ACTION_par_pl {
   my $self = shift;
+
+  my $main_pl = $self->parmain_pl;
+
+  my @depfiles = (__FILE__,
+    map({$self->$_} qw(par_deps par_core par_wx)),
+  );
+
+  if($self->up_to_date([@depfiles], $main_pl)) {
+    $self->log_info("Skip (up-to-date) $main_pl\n");
+    return;
+  }
 
   my ($boot, $app_pl) = map(
     { open(my $fh, '<', $_) or die "cannot open $_"; local $/; <$fh> }
@@ -474,7 +506,6 @@ sub ACTION_par_pl {
     }
   ---
 
-  my $main_pl = $self->parmain_pl;
   open(my $fh, '>', $main_pl) or die "cannot write $main_pl";
   print $fh "$prelude\n$app_pl";
   close($fh) or die "write $main_pl failed";
@@ -492,7 +523,7 @@ sub ACTION_par_wx {
 
   my $parfile = $self->par_wx;
   if(-e $parfile) { # if you have it, I'll say that's enough
-    warn "$parfile is up to date\n";
+    $self->log_info("Skip (up-to-date) building $parfile\n");
     return;
   }
 
@@ -568,7 +599,7 @@ sub ACTION_par_deps {
 
   my $parfile = $self->par_deps;
   if(-e $parfile) { # if you have it, I'll say that's enough (for now)
-    warn "$parfile is up to date\n";
+    $self->log_info("Skip (up-to-date) building $parfile\n");
     return;
   }
 
@@ -612,7 +643,7 @@ sub ACTION_par_core {
   $self->depends_on('par_deps');
   my $parfile = $self->par_core;
   if(-e $parfile) { # if you have it, I'll say that's enough (for now)
-    warn "$parfile is up to date\n";
+    $self->log_info("Skip (up-to-date) building $parfile\n");
     return;
   }
 
@@ -635,7 +666,7 @@ sub ACTION_par_core {
     $self->which_pp,
     '-o', $parfile,
     qw(-z 9),
-    '-I', 'blib/lib',
+    '-I', $self->blib . '/lib',
     '-p', # plain par
     #'-n', # allow scanning (for now)
     map({('-M', $_)} @deps),
@@ -648,7 +679,7 @@ sub ACTION_par_core {
   );
   warn "pp for $parfile\n";
   0 and warn "# @command\n";
-  local $ENV{PERL5LIB} = join($Config{path_sep}, 'blib/lib',
+  local $ENV{PERL5LIB} = join($Config{path_sep}, $self->blib . '/lib',
     split($Config{path_sep}, $ENV{PERL5LIB} || ''));
   system(@command) and die "$!";
   warn "par_core done\n";
@@ -737,7 +768,7 @@ sub ACTION_repar {
 
 =item datadir
 
-Build the 'data/' directory that goes inside the par in blib/pardata/.
+Build the embedded par 'data/' directory in blib/pardata/.
 
 =cut
 
@@ -859,47 +890,25 @@ Assemble a default config, library, and some free books in
 
 sub ACTION_starter_data {
   my $self = shift;
-  my %args = $self->_my_args;
+
+  my %args = $self->args;
 
   my $data_dir = $self->starter_data_dir . '/';
 
-  require File::Path;
-  if($args{clean}) {
-    my $dir = $data_dir;
-    $dir =~ s#/+$##; # Win32 nit
-    File::Path::rmtree($dir);
-  }
-  File::Path::mkpath([$data_dir]);
+  $self->want_path($data_dir, clean => $args{clean});
 
   { # touch this
-    warn "touch first_time file\n";
     open(my $fh, '>', $data_dir . 'first_time') or
       die "cannot touch first_time $!";
   }
 
-  $self->copy_if_modified(
-    from    => 'client/setup/default_drconfig.yml',
-    to      => $data_dir . 'drconfig.yml',
+  $self->copy_files(
+    'client/setup/default_drconfig.yml',
+    $data_dir . 'drconfig.yml',
     verbose => 1,
   );
 
-  # TODO have a manifest for shippable books?
-  # actually, need to get this out of the picture
-  my @books = (
-    map({'books/default/' . $_}
-      map({$_ . '.jar'}
-        qw(
-          dotReader_beta_QSG
-          Alienation_Victim
-          publication_556
-          rebel-w-o-car
-          seventy_five_times
-          Reflections
-          dpp_reader
-        )
-      ),
-    ),
-  );
+  my @books = $self->default_booklist;
   foreach my $book (@books) {
     (-e $book) or die "need '$book' to build starter_data";
   }
@@ -911,53 +920,36 @@ sub ACTION_starter_data {
   my @destbooks = map({
     $libdir . '/' . File::Basename::basename($_)
   } @books);
-  unless($self->up_to_date(\@books, \@destbooks)) { # Already fresh
-    warn "create $libfile\n";
-    $self->run_perl_script(
-      'util/mk_library', [],
-      [
-        '-f',
-        $libfile,
-        @books
-      ],
-    );
+  if($self->up_to_date(\@books, \@destbooks)) { # Already fresh
+    $self->log_info("Skip (up-to-date) $libfile\n");
+  }
+  else {
+    $self->log_info("Create $libfile...");
+    {
+      local $self->{properties}{quiet} = 1;
+      $self->run_perl_script(
+        'util/mk_library', [],
+        [
+          '-f',
+          $libfile,
+          @books
+        ],
+      );
+    }
+    $self->log_info("done\n");
   }
 
   # standard plugins
-  my @plugins = qw(example_plugins/InfoButton/);
+  my @plugins = $self->default_plugins;
   require File::Path;
   my $pdir = $data_dir . 'plugins/';
-  if(-e $pdir) {
-    my $dirname = $pdir;
-    $dirname =~ s#/$##; # $%^&* windows!
-    File::Path::rmtree($dirname) or die "$dirname -- $!";
-  }
-  File::Path::mkpath($pdir) or die "$pdir -- $!";
+  $self->want_path($pdir, clean => $args{clean});
   foreach my $dir (@plugins) {
-    $dir =~ s#/*$#/#;
-    my $mfile = $dir . 'MANIFEST';
-    (-e $mfile) or die "cannot add plugin $dir without $mfile";
-    my @manifest = do {
-      open(my $fh, '<', $mfile) or die $!;
-      map({chomp; $_} <$fh>);
-    };
-    foreach my $file (@manifest) {
-      my $src = $dir . '/' . $file;
-      $self->copy_if_modified(
-        from => $src,
-        to => $pdir . '/' . $file,
-        verbose => 1,
-      );
-    }
-    # and ship the manifest file
-    my $mname = $dir;
-    $mname =~ s#/*$##;
-    $mname = $pdir . '/' . File::Basename::basename($mname) . '.MANIFEST';
-    warn "create $mname";
-    $self->copy_if_modified(
-      from => $mfile,
-      to => $mname,
+    $dir =~ s#/+$##;
+    my $mfile = File::Spec->catfile($dir,
+      File::Basename::basename($dir) . '.MANIFEST'
     );
+    $self->copy_from_manifest($mfile, $dir, $pdir);
   }
 
   # TODO add some annotation data, bells, whistles, etc
@@ -1018,7 +1010,7 @@ name (without .extension)
 sub binary_package_name {
   my $self = shift;
 
-  my %args = $self->_my_args;
+  my %args = $self->args;
 
   my %choice = (
     darwin => 'mac',
@@ -1087,7 +1079,7 @@ sub binary_package_linux {
 sub binary_package_darwin {
   my $self = shift;
 
-  my %args = $self->_my_args;
+  my %args = $self->args;
   my $packname = $self->binary_package_name;
 
   warn "package name $packname";
@@ -1192,7 +1184,7 @@ sub copy_package_files {
   my $self = shift;
   my ($dir) = @_;
 
-  my %args = $self->_my_args;
+  my %args = $self->args;
 
   require File::NCopy;
   my $copy = sub {
@@ -1205,7 +1197,7 @@ sub copy_package_files {
   $copy->($self->binfilename);
   if($args{mini}) {
     # don't ship the cache dir
-    my $depdir = "$dir/dotreader-deps";
+    my $depdir = $dir . '/' . $self->par_deps_base;
     mkdir($depdir) or die;
     $depdir .= '/';
     for(map({$self->$_} qw(par_wx par_core par_deps))) {
@@ -1288,12 +1280,13 @@ A filename for the binary.
 sub binfilename {
   my $self = shift;
 
-  my %args = $self->_my_args;
-  return($self->binary_build_dir . '/dotReader.app')
+  my %args = $self->args;
+  return($self->binary_build_dir . '/' . $self->dist_name . '.app')
     if($^O eq 'darwin');
+
   return(
     $self->binary_build_dir .
-      '/dotReader' .
+      '/' . $self->dist_name .
       ($args{mini} ? '-mini' : '') .
       ($^O eq 'MSWin32' ? '.exe' : '')
   );
@@ -1311,7 +1304,7 @@ sub binfilename_sys {
   my $self = shift;
   return( 
     $self->binfilename . 
-    (($^O eq 'darwin') ? '/Contents/MacOS/dotReader' : '')
+    (($^O eq 'darwin') ? ('/Contents/MacOS/' . $self->dist_name) : '')
   );
 } # end subroutine binfilename_sys definition
 ########################################################################
@@ -1368,25 +1361,41 @@ sub distfile_extension {
 
 sub starter_data_dir {
   my $self = shift;
-  return($self->binary_build_dir . '/dotreader-data');
+  return($self->binary_build_dir . '/' . lc($self->dist_name) . '-data');
 }
+
 use constant {
-  datadir => 'blib/pardata',
-  clientdata => 'client/data',
+  clientdata       => 'client/data',
   binary_build_dir => 'binary_build',
-  parmanifest   => 'blib/parmanifest',
-  parmain_pl    => 'blib/dotReader.pl',
 };
+{ # some 'constants' conditional on blib()
+  my %blibdefs = (
+    datadir          => 'pardata',
+    parmanifest      => 'parmanifest',
+    parmain_pl       => 'dotReader.pl',
+  );
+  foreach my $key (keys(%blibdefs)) {
+    my $sub = sub {
+      my $self = shift;
+      return $self->blib . '/' . $blibdefs{$key};
+    };
+    no strict 'refs';
+    *{$key} = $sub;
+  }
+}
+
 sub par_deps_dir {
   my $self = shift;
-  return($self->binary_build_dir . '/dotreader-deps');
+  return($self->binary_build_dir . '/' . $self->par_deps_base);
 }
+sub par_deps_base { return lc(shift->dist_name) . '-deps'; }
+
 sub par_seed { shift->binary_build_dir . '/seed.par', };
 sub par_mini {
   my $self = shift;
   return($self->binary_build_dir . '/' .
     join('-',
-      'dotReader-mini',
+      $self->dist_name . '-mini',
       $self->bin_version,
       $self->short_archname,
       $Config{version}
@@ -1580,6 +1589,7 @@ sub get_options {
     #'bar' => {type => '=s'}
     mini    => {},
     bare    => {},
+    clean   => {},
     release => {type => '=s', default => 'p'},
     preview => {type => '=s', default => 'A'},
     nolink  => {}, # not really sure whether that should even exist
@@ -1761,17 +1771,17 @@ sub write_release_file {
 
   # let this get a different value from somewhere
   my %args = $self->args;
-  my $release = $args{'release'};
+  my $release = uc($args{'release'});
   if($release) {
     if($release eq 'T') { # don't know if I'll use this, but here
       $release = svn_tag() or die "not in a tag";
     }
     elsif($release eq 'V') {
-      $release = $self->dist_version;
+      $release = $self->bin_version;
     }
-  }
-  else {
-    $release = 'pre-release';
+    elsif($release eq 'P') {
+      $release = 'pre-release ' . $self->bin_version . '';
+    }
   }
 
   $release .= ' (' . svn_rev() . ') built ' . scalar(localtime);
@@ -1851,7 +1861,7 @@ sub scan_deps {
   print $fh "} # close begin\n1;\n";
   close($fh) or die "out of space?";
 
-  local $ENV{PERL5LIB} = join($Config{path_sep}, 'blib/lib',
+  local $ENV{PERL5LIB} = join($Config{path_sep}, $self->blib . '/lib',
     split($Config{path_sep}, $ENV{PERL5LIB} || ''));
   my $hash_ref = Module::ScanDeps::scan_deps_runtime(
     files => [$tmpfile], compile => 1, recurse => 0,
@@ -1865,6 +1875,55 @@ sub scan_deps {
   return(@files);
 } # end subroutine scan_deps definition
 ########################################################################
+
+=head2 copy_from_manifest
+
+  $self->copy_from_manifest($mfile, $srcdir, $destdir);
+
+=cut
+
+sub copy_from_manifest {
+  my $self = shift;
+  my ($mfile, $srcdir, $dstdir) = @_;
+
+  (-e $mfile) or die "cannot copy_from_manifest without $mfile";
+
+  # hmm, should we be able to do this?
+  #my ($mfile, @and) = glob("$srcdir/*MANIFEST");
+  #$mfile or die "no *MANIFEST found";
+  #@and and die "too many *MANIFEST files in $srcdir";
+
+  # XXX it's not really a manifest without comments, but I doubt that we
+  # want a cannot-have-spaces ExtUtils::Manifest either
+  my @manifest = do {
+    open(my $fh, '<', $mfile) or die $!;
+    map({chomp; $_} <$fh>);
+  };
+
+  foreach my $file (@manifest) {
+    $self->copy_files(
+      File::Spec->catfile($srcdir, $file),
+      File::Spec->catfile($dstdir, $file),
+      verbose => 1
+    );
+  }
+} # end subroutine copy_from_manifest definition
+########################################################################
+
+# TODO have a manifest for shippable books?
+use constant default_booklist => map({"books/default/$_.jar"} qw(
+  dotReader_beta_QSG
+  Alienation_Victim
+  publication_556
+  rebel-w-o-car
+  seventy_five_times
+  Reflections
+  dpp_reader
+));
+
+use constant default_plugins => qw(
+  example_plugins/InfoButton/
+);
 
 =head1 Overridden Methods
 

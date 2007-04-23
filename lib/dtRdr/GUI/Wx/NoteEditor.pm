@@ -7,7 +7,7 @@ use Carp;
 
 
 use Wx;
-use base 'dtRdr::GUI::Wx::layout::NoteEditor';
+use base 'dtRdr::GUI::Wx::NoteEditor0';
 
 use dtRdr::Logger;
 

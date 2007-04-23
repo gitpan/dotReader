@@ -261,12 +261,6 @@ sub load_url {
       return(1);
     }
   }
-  #else{
-  #  warn "attempting to get file from pkg";
-  #  if ($book->get_filedata($url)){
-  #    return $book->get_filedata($url);
-  #  }
-  #}
 
   my $hw = $self->hw;
 

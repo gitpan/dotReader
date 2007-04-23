@@ -1,5 +1,5 @@
 package dtRdr;
-$VERSION = eval{require version}?version::qv($_):$_ for(0.11.1);
+$VERSION = eval{require version}?version::qv($_):$_ for(0.11.2);
 
 use dtRdr::0; # the rest of this package
 
@@ -164,11 +164,15 @@ sub set_user_dir {
 
 =head2 _init_user_dir
 
-Uses $0 and the rest of the environment to determine where
-dtRdr->user_dir is.  Currently, the answer is './' or next to the
-application.
+Uses program_base() to determine where dtRdr->user_dir is.  Currently,
+the answer is './' or next to the application.
 
   dtRdr->_init_user_dir;
+
+The environment variable C<DOTREADER_USER_DIR> can be used to override
+this iff it is set at init() time.
+
+Eventually, we'll support the ~/.dotreader/ directory.
 
 =cut
 
@@ -181,6 +185,10 @@ sub _init_user_dir {
   # only DWIM once
   $did_init_user_dir and return;
   $did_init_user_dir = 1;
+
+  if(my $dir = $ENV{DOTREADER_USER_DIR}) {
+    return $package->set_user_dir($dir);
+  }
 
   # TODO check ~/.dotreader and such
 

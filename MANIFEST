@@ -58,7 +58,7 @@ example_plugins/dotreader_button/dtRdr/GUI/Wx/Plugins/dtRdrButton.pm.DATA/dotrea
 example_plugins/InfoButton/dotplug-Wx/InfoButton.pm
 example_plugins/InfoButton/dotplug-Wx/InfoButton.pm.DATA/dotreader.png
 example_plugins/InfoButton/dotplug-Wx/InfoButton.pm.DATA/dotreader.yml
-example_plugins/InfoButton/MANIFEST
+example_plugins/InfoButton/InfoButton.MANIFEST
 example_plugins/twb_button/dtRdr/GUI/Wx/Plugins/TWBButton.pm
 example_plugins/twb_button/dtRdr/GUI/Wx/Plugins/TWBButton.pm.DATA/twb_logo.png
 HACKING.pod
@@ -74,6 +74,7 @@ inc/dtRdrTestUtil/ABook.pm
 inc/dtRdrTestUtil/Expect.pm
 inc/dtRdrTestUtil/GUI.pm
 inc/MBwishlist.pm
+inc/MBwishlist/trees.pm
 inc/testplan.pm
 lib/dtRdr.pm
 lib/dtRdr/0.pm
@@ -100,6 +101,7 @@ lib/dtRdr/Callbacks/Book.pm
 lib/dtRdr/Config.pm
 lib/dtRdr/Config/YAMLConfig.pm
 lib/dtRdr/doc.pod
+lib/dtRdr/doc/AnnotationServers.pod
 lib/dtRdr/doc/Book/annotree.pod
 lib/dtRdr/doc/Book/whitespace.pod
 lib/dtRdr/GUI.pm
@@ -109,13 +111,16 @@ lib/dtRdr/GUI/Wx/BookTree.pm
 lib/dtRdr/GUI/Wx/BookView.pm
 lib/dtRdr/GUI/Wx/BVManager.pm
 lib/dtRdr/GUI/Wx/Dialog/License.pm
+lib/dtRdr/GUI/Wx/Dialog/Password.pm
+lib/dtRdr/GUI/Wx/Dialog/Password0.pm
+lib/dtRdr/GUI/Wx/Dialog/SyncSettings.pm
+lib/dtRdr/GUI/Wx/Dialog/SyncSettings0.pm
 lib/dtRdr/GUI/Wx/Frame.pm
+lib/dtRdr/GUI/Wx/Frame0.pm
 lib/dtRdr/GUI/Wx/HighlightTree.pm
-lib/dtRdr/GUI/Wx/layout/Frame.pm
-lib/dtRdr/GUI/Wx/layout/NoteEditor.pm
-lib/dtRdr/GUI/Wx/layout/TextViewer.pm
 lib/dtRdr/GUI/Wx/LibraryTree.pm
 lib/dtRdr/GUI/Wx/NoteEditor.pm
+lib/dtRdr/GUI/Wx/NoteEditor0.pm
 lib/dtRdr/GUI/Wx/NoteTree.pm
 lib/dtRdr/GUI/Wx/NoteViewer.pm
 lib/dtRdr/GUI/Wx/Plugins.pm
@@ -124,6 +129,7 @@ lib/dtRdr/GUI/Wx/SearchTree.pm
 lib/dtRdr/GUI/Wx/Sidebar.pm
 lib/dtRdr/GUI/Wx/State.pm
 lib/dtRdr/GUI/Wx/TextViewer.pm
+lib/dtRdr/GUI/Wx/TextViewer0.pm
 lib/dtRdr/GUI/Wx/Tree/AnnoBase.pm
 lib/dtRdr/GUI/Wx/Tree/Base.pm
 lib/dtRdr/GUI/Wx/Utils.pm
@@ -140,7 +146,7 @@ lib/dtRdr/Library/YAMLLibrary.pm
 lib/dtRdr/Location.pm
 lib/dtRdr/Logger.pm
 lib/dtRdr/Logger/Appender/File.pm
-lib/dtRdr/Metadata.pm
+lib/dtRdr/Metadata/Book.pm
 lib/dtRdr/Note.pm
 lib/dtRdr/NoteThread.pm
 lib/dtRdr/PluginHelpers/Data.pm
@@ -167,6 +173,7 @@ lib/WxPerl/MenuMap.pm
 lib/WxPerl/ShortCuts.pm
 lib/WxPerl/TreeCtrlMapped.pm
 LICENSE
+Makefile.PL
 MANIFEST			This list of files
 MANIFEST.add
 META.yml
@@ -234,6 +241,7 @@ t/book/qs_chars.yml
 t/book/qs_offsets.yml
 t/book/standard_callbacks.t
 t/book/thout_1_0.t
+t/book/thout_1_0_basic.t
 t/book/thout_1_0_jar_bsd_dev_hbook.t
 t/book/thout_1_0_jar_perl5.8en.t
 t/book/zombie.t
@@ -293,6 +301,11 @@ test_data/annotations.server.01/xCFC0AD66C14E11DB884BD901C9B462D6.yml
 test_data/annotations.server.01/xD535649CC15011DB884BD901C9B462D6.yml
 test_data/annotations.server.01/xD66E731CC15011DB884BD901C9B462D6.yml
 test_data/annotations.server.01/xEFDAF34AC14E11DB884BD901C9B462D6.yml
+test_data/html/postpage.html
+test_data/user.blankslate/also.drconfig.yml
+test_data/user.blankslate/drconfig.yml
+test_data/user.blankslate/drlib.yml
+test_data/user.blankslate/hi
 test_inc/anno_copy.pm
 test_inc/anno_io_verify.pm
 test_inc/log.conf

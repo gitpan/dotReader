@@ -15,6 +15,10 @@ local $Test::Builder::Level = $Test::Builder::Level + 1;
 my $book;
 my %node;
 
+=head1 Functions
+
+These are in package main.
+
 =head2 open_book
 
   $book = open_book($package, $file);

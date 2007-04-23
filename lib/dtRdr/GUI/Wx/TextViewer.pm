@@ -14,7 +14,7 @@ use Wx qw(
   wxTheClipboard
 );
 
-use base 'dtRdr::GUI::Wx::layout::TextViewer';
+use base 'dtRdr::GUI::Wx::TextViewer0';
 
 use Wx::Event ();
 

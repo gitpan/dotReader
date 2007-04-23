@@ -50,6 +50,10 @@ set_dosub(sub {
 
   # TODO work on the situations where there is no root, etc
   $book->add_note(my $note1 = note($node, qw(A)));
+  $note1->make_public(
+    owner  => undef,
+    server => 'server_id',
+  );
   $note1->set_content("Got to try this with much much longer content
     and see if that changes the layout.");
 

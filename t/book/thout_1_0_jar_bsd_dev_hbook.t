@@ -27,12 +27,20 @@ my $book = dtRdr::Book::ThoutBook_1_0_jar->new();
 isa_ok($book, 'dtRdr::Book');
 ok($book->load_uri($uri), 'load');
 
-my $metadata = $book->get_metadata();
-isa_ok($metadata, 'dtRdr::Metadata');
-
-# XXX Gary, why was this printing? --Eric
-# XXX get_filedata() is otherwise unused
-#my $fdata = $book->get_filedata('FreeBSDDevelopersHandbook_files/docbook.css');
+{ # check the metadata
+  my $meta = $book->meta;
+  isa_ok($meta, 'dtRdr::Metadata::Book');
+  my %expect = (
+    packager       => 'BSDsingleXHTMLconverter.pl',
+    author         => 'The FreeBSD Documentation Project',
+  );
+  foreach my $key (keys(%expect)) {
+    ok($meta->can($key), "can $key()");
+    is($meta->$key, $expect{$key}, $key);
+  }
+  like($meta->copyright, qr/^Copyright/, 'copyright');
+}
+is($book->css_stylesheet, 'bsd.css', 'check stylesheet');
 
 # root item
 my $toc = $book->toc;

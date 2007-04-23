@@ -2,6 +2,9 @@ package dtRdr;
 
 use warnings;
 use strict;
+
+use Carp;
+
 use File::Spec ();
 use File::Basename ();
 use Time::HiRes ();
@@ -104,6 +107,7 @@ first non-word character.
 =cut
 
 my $program_base;
+my $app_name;
 sub program_base {
   my $package = shift;
 
@@ -113,14 +117,42 @@ sub program_base {
   my $dir = File::Basename::dirname($loc);
   $loc = File::Basename::basename($loc);
 
+  $app_name = $loc;
+
   # remove extension and anything else odd
   $loc =~ s/^(\w+).*$/$1/;
+
+  # setup the application name
+  if($app_name =~ m/\.pl/) {
+    $app_name = 'dotReader';
+  }
+  else {
+    $app_name = $loc;
+    $app_name =~ s/_+/ /g;
+  }
+
   #warn "loc is $loc\n";
   $dir =~ s#\\#/#g if($^O eq 'MSWin32');
   $dir =~ s#/*$#/#;
   $loc = $dir . lc($loc);
   return($program_base = $loc);
 } # end subroutine program_base definition
+########################################################################
+
+=head2 app_name
+
+  $self->app_name;
+
+=cut
+
+sub app_name {
+  my $self = shift;
+
+  defined($app_name) and return($app_name);
+  $self->program_base; # seed it
+  $app_name or croak "could not determine application name";
+  return($app_name);
+} # end subroutine app_name definition
 ########################################################################
 
 =head1 AUTHOR

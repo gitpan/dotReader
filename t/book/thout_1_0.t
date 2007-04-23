@@ -24,12 +24,12 @@ isa_ok($book, 'dtRdr::Book');
 ok(eval {$book->load_uri($uri)}, 'load');
 ok((not $@), 'whee') or die;
 
-my ($metadata) = $book->get_metadata();
-isa_ok($metadata, 'dtRdr::Metadata');
+my ($metadata) = $book->meta();
+isa_ok($metadata, 'dtRdr::Metadata::Book');
 
 TODO: {
   local $TODO = "test a whole book and check the metadata/css";
-  ok($metadata->get('css'), 'css');
+  ok($metadata->css_stylesheet, 'css');
 }
 
 my $toc = $book->toc;

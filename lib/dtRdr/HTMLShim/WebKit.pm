@@ -87,11 +87,11 @@ sub init {
     sub {$_[0]->before_load($parent, $_[1])});
 
   # meddle
-  1 and Wx::Event::EVT_KEY_UP($self, sub {my ($s, $evt) = @_;
+  0 and Wx::Event::EVT_KEY_UP($self, sub {my ($s, $evt) = @_;
     WARN "got event $evt";
     #$evt->Skip;
   });
-  EVT_WEBKIT_STATE_CHANGED($self, $self, sub {my ($s, $evt) = @_;
+  0 and EVT_WEBKIT_STATE_CHANGED($self, $self, sub {my ($s, $evt) = @_;
     WARN "STATE_CHANGED $evt";
   });
 
@@ -113,25 +113,24 @@ sub before_load {
   my $url = $evt->GetURL;
   # get rid of the weirdos
   return if($url =~ m#^applewebdata://#);
+  return if($url =~ m#^about:blank#);
 
-  RL('#links')->debug("IN...", $url);
+  RL('#links')->debug("IN...($self)", $url);
 
-  #if($self->load_in_progress) {
-  #  #$self->set_load_in_progress(0);
-  #  return;
-  #}
-
-  #unless($parent->book_view) { # TODO we're stuck as a bookview for now
-  #  return;
-  #}
+  if($self->load_in_progress) {
+    WARN "bye";
+    $self->set_load_in_progress(0);
+    return;
+  }
 
   # it appears that we don't have to deal with this circularity issue
-  # $self->set_load_in_progress(1);
+  # TODO though I'm sort of guessing here -- need an acceptance test
+  #$self->set_load_in_progress(1);
 
   RL('#links')->debug("FOLLOW");
   my $killit = sub {
     $evt->Cancel;
-    # $self->set_load_in_progress(0);
+    $self->set_load_in_progress(0);
   };
   if($self->url_handler->load_url($url, $killit)) {
     $evt->Cancel;
@@ -214,6 +213,21 @@ sub get_selection_context {
 # XXX this should be in the XS code
 sub SetPage { my $self = shift; $self->SetPageSource(@_); }
 
+
+=head2 load_url
+
+  $hw->load_url($url);
+
+=cut
+
+sub load_url {
+  my $self = shift;
+  WARN "hey ($self)"; # XXX trouble where the dispatch switches widgets?
+  $self->set_load_in_progress(1);
+  $self->LoadURL(@_);
+} # end subroutine load_url definition
+########################################################################
+
 =head1 AUTHOR
 
 Dan Sugalski <dan@sidhe.org>
@@ -222,7 +236,7 @@ Eric Wilhelm <ewilhelm at cpan dot org>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2006 by Dan Sugalski, Eric L. Wilhelm, and OSoft, All
+Copyright (C) 2006-2007 by Dan Sugalski, Eric L. Wilhelm, and OSoft, All
 Rights Reserved.
 
 =head1 NO WARRANTY

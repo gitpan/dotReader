@@ -11,7 +11,7 @@ use URI;
 
 use dtRdr::Plugins::Book;
 use dtRdr::TOC;
-use dtRdr::Metadata;
+use dtRdr::Metadata::Book;
 use dtRdr::String::Splicer;
 use dtRdr::Logger;
 # the callback object is magic class data
@@ -30,6 +30,7 @@ ro qw(
   highlights
   selections
   toc
+  meta
 );
 ri qw(
   id
@@ -214,17 +215,21 @@ sub new {
 	my $class = ref($package) || $package;
 	my $self = {};
   my %defaults = (
-    metadata    => dtRdr::Metadata->new,
     cache_chars => {},
     highlights  => {},
     bookmarks   => {},
     notes       => {},
     selections  => {},
   );
-  # TODO if($self->can('METADATA_CLASS') {...}
-  # else {$self->{meta} = dtRdr::BookMetadata->new;}
+
   foreach my $k (keys(%defaults)) { $self->{$k} = $defaults{$k}; }
 	bless($self, $class);
+
+  $self->{meta} ||=
+    $self->can('METADATA_CLASS') ?
+      $self->METADATA_CLASS->new :
+      dtRdr::Metadata::Book->new;
+
 	return($self);
 } # end subroutine new definition
 ########################################################################
@@ -355,58 +360,6 @@ sub mk_fingerprint {
   }
   $self->$set_fingerprint( $digest->hexdigest );
 } # end subroutine mk_fingerprint definition
-########################################################################
-
-=head2 add_metadata UNUSED?
-
-  $book->add_metadata($metadata)
-
-Add the metadata element to the book. This will insert the metadata
-item into the metadata cache for the library this book object came
-from.
-
-=cut
-
-sub add_metadata {
-  my ($self, $metadata) = @_;
-
-  do('./util/BREAK_THIS') or die;
-  # XXX cache of what where?
-  my $library = $self->{library};
-  $metadata->set_library($library);
-  $metadata->set('book', $self);
-  $library->add_metadata($metadata);
-} # end subroutine add_metadata definition
-########################################################################
-
-=head2 get_metadata
-
-Returns the metadata object or the value for a given key.
-
-  $book->get_metadata;
-
-This second form is actually equivalent to
-$book->get_metadata->get($key) and should maybe just be dropped.
-
-  $book->get_metadata($key);
-
-=cut
-
-sub get_metadata {
-  my $self = shift;
-  exists $self->{metadata} or die "metadata doesn't exist";
-  @_ or return $self->{metadata};
-
-  # TODO this functionality should not be here
-  #do('./util/BREAK_THIS') or die;
-  my ($key) = @_;
-
-  # return the value for the given key
-  my $metadata = $self->{metadata};
-  $metadata->has_item($key) ||
-    L->debug("key:'$key' doesn't exist in metadata");
-  return $metadata->get($key);
-} # end subroutine get_metadata definition
 ########################################################################
 
 =head2 set_id
@@ -1718,7 +1671,7 @@ Eric Wilhelm <ewilhelm at cpan dot org>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2006 Eric L. Wilhelm and OSoft, All Rights Reserved.
+Copyright (C) 2006-2007 Eric L. Wilhelm and OSoft, All Rights Reserved.
 
 =head1 NO WARRANTY
 

@@ -7,20 +7,25 @@ use strict;
 
 =head1 NAME
 
-dev_fetch_books - emulate svn:externals
+dev_fetch_books - emulate svn:externals, sans annoying bits
 
 =head1 Synopsis
 
-Run this only if you have the tarball or svk and want to get the
-secondary books for extra testing, etc.
+The svn:externals functionality would be great if it could somehow not
+be consistently slow and noisy.  This reinvention means you have to
+manually update it, but means you get to manually update it.
 
 =cut
 
 package bin::dev_fetch_books;
 
 use File::Basename ();
+use YAML::Syck ();
 
-my $svn = `which svn` or die "you have no svn"; chomp($svn);
+`which svn` or die "you have no svn";
+# no point is using what which said if it only causes problems.
+my $svn = 'svn';
+
 my $start_url = 'http://svn.dotreader.com/svn/dotreader/trunk/books';
 my $book_dir = 'books/';
 
@@ -30,24 +35,24 @@ sub main {
   unless(-e $book_dir) {
     print "checkout to $book_dir\n";
     system($svn, 'checkout', $start_url) and die "oops $?";
-    return;
   }
 
   # otherwise, go into update mode
 
-  my %defs = map({split(/\s+/, $_, 2)}
-    split(/\n/, `svn propget svn:externals $start_url`)
-  );
-  %defs or die "something wrong";
-  foreach my $dir (keys(%defs)) {
+  my $defs = YAML::Syck::LoadFile($book_dir . 'externals.yml');
+  ref($defs) or die "something wrong";
+
+  foreach my $dir (keys(%$defs)) {
     local $| = 1;
     print "$dir ... ";
     my $dest_dir = $book_dir.$dir;
+    # TODO we could probably cut this time to 1/n by remembering the
+    # current HEAD rev for a given repository.
     if(-e $dest_dir) {
       system($svn, 'update', $dest_dir) and die "update $dir failed";
     }
     else {
-      system($svn, 'checkout', $defs{$dir}, $dest_dir) and
+      system($svn, 'checkout', $defs->{$dir}, $dest_dir) and
         die "checkout $dir failed";
     }
   }

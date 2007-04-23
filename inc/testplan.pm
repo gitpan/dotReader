@@ -13,6 +13,7 @@ it is true, your number of tests is the second argument.
   use inc::testplan(0, 50);
 
 =cut
+
 my $has_plan;
 my $tests;
 my $done = 0;

@@ -86,6 +86,21 @@ sub populate {
 } # end subroutine populate definition
 ########################################################################
 
+=head2 repopulate
+
+  $tree->repopulate;
+
+=cut
+
+sub repopulate {
+  my $self = shift;
+
+  # TODO this may need to be a bit more careful
+  $self->DeleteAllItems;
+  $self->populate;
+} # end subroutine repopulate definition
+########################################################################
+
 =head1 Events
 
 =head2 item_activated

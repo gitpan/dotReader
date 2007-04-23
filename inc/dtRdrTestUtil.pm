@@ -12,10 +12,19 @@ our @EXPORT = qw(
 
 use File::Basename;
 
+=head1 Functions
+
+All are exported by default.
+
+=head2 error_catch
+
 # XXX seems like there's a module for this
 # runs subroutine reference and catches STDERR
 #   ($errs, @ans) = error_catch(sub {$this->test()});
 #
+
+=cut
+
 sub error_catch {
   my ($sub) = @_;
   my $TO_ERR;
@@ -37,6 +46,7 @@ Looks for $filename *in the directory of $0* and slurps it in.
   @lines = slurp_data($filename);
 
 =cut
+
 sub slurp_data {
   my ($filename) = @_;
   my $dir = File::Basename::dirname($0);

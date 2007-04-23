@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use inc::testplan(1, 18);
+use inc::testplan(1, 21);
 
 BEGIN {use_ok('dtRdr::Config::YAMLConfig')};
 
@@ -37,6 +37,7 @@ my $dbfile = dirname($0) . '/' . 'testconfig.yml';
     id  => 'the server',
     uri => 'http://example.com/',
     type => 'Standard',
+    books => [],
   );
   is($conf->add_server($server), 0);
   is($server->intid, 0);
@@ -52,6 +53,10 @@ my $dbfile = dirname($0) . '/' . 'testconfig.yml';
   is($server->id, 'the server');
   $server->set_username('bob'); # auto-update
   is($server->username, 'bob', 'go bob');
+  is_deeply([$server->books], [], 'no books');
+  $server->add_books('book_about_a_duck', 'something_in_blue');
+  is_deeply([$server->books], [qw(book_about_a_duck something_in_blue)],
+    'nice books');
 }
 { # try the server again
   my $conf = dtRdr::Config::YAMLConfig->new($dbfile);
@@ -59,6 +64,8 @@ my $dbfile = dirname($0) . '/' . 'testconfig.yml';
   is(scalar(@else), 0, 'no strays');
   is($server->id, 'the server');
   is($server->username, 'bob', 'hooray bob');
+  is_deeply([$server->books], [qw(book_about_a_duck something_in_blue)],
+    'nice books');
 }
 
 done;

@@ -15,6 +15,8 @@ my $LOAD = sub {my $v = YAML::Syck::Load(@_);
   return(defined($v) ? $v : {})};
 my $DUMP = sub {YAML::Syck::Dump(@_)};
 
+use dtRdr::Logger;
+
 use constant NOISE => 0;
 
 use base 'MultiTask::Minion';
@@ -138,21 +140,69 @@ callback.
 
   ($user, $pass) = $self->authenticate($realm, $uri);
 
+That's an oversimplification.  The user agent hits this on every new
+request (possibly multiple times in one request if the server rejects
+the header.)
+
+Also, maybe a bug in LWP:  it only tries it twice per request.  So, if
+you typo the password twice, we're dead.
+
 =cut
 
 sub authenticate {
   my $self = shift;
   my ($realm, $uri) = @_;
 
-  my $s = $self->server;
-  my ($u, $p) = ($s->username, $s->password);
+  # The credential cache will look like [$token, [$u,$p], [$u,$p]].
+  # The second $u,$p is to make the cache logic quicker and disallow the
+  # same server wanting a different password for different pages.
+  my $c = $self->{_auth_cache} ||= [];
 
-  # XXX needs to update config and re-get the server object or what?
-  unless(defined($u) and defined($p)) {
-    my $cb = $self->auth_sub or die "no auth_sub callback";
-    return $cb->($s, $realm, $uri);
+  # hmm, should we allow one $server object to have different realms?
+  # Probably too silly, and the config would have to support that.
+
+  # return the cached credential unless we're stuck on the same page
+  if(scalar(@$c) == 3) {
+    return(@{$c->[2]});
   }
-  return($u, $p);
+
+  my $s = $self->server;
+
+  # make a token (those shouldn't be undef, but ...)
+  my $token = join("|", map({defined($_) ? $_ : '~'} $uri, $realm));
+
+  # more cache logic
+  if(@$c and ($c->[0] ne $token)) { # must have worked last time, we moved on
+    push(@$c, $c->[1]); # mark it as golden
+    return(@{$c->[2]});
+  }
+
+  # now we're either at the first try or some failed auth
+
+  my $callback = sub {
+    my $cb = $self->auth_sub or die "no auth_sub callback";
+    my @ans = $cb->($s, $realm, $uri);
+    $self->quit unless(@ans);
+    return(@ans);
+  };
+
+  unless(@$c) { # first try
+    # try the user's input if we have it
+    my ($u, $p) = ($s->username, $s->password);
+    unless(defined($u) and defined($p)) {
+      ($u, $p) = $callback->();
+    }
+    @$c = ($token, [$u, $p]);
+    return($u,$p);
+  }
+
+  # TODO If we fix LWP, we have to configurably limit the number of
+  # times we nag to support non-gui usage.
+
+  # now we were just plain wrong
+  my ($u, $p) = $callback->();
+
+  return(@{$c->[1]} = ($u, $p));
 } # end subroutine authenticate definition
 ########################################################################
 

@@ -22,8 +22,8 @@ my $book = dtRdr::Book::ThoutBook_1_0_jar->new();
 isa_ok($book, 'dtRdr::Book');
 ok($book->load_uri($uri), 'load');
 
-my $metadata = $book->get_metadata();
-isa_ok($metadata, 'dtRdr::Metadata', "check metadata");
+my $metadata = $book->meta;
+isa_ok($metadata, 'dtRdr::Metadata::Book', "check metadata");
 
 my $toc = $book->toc;
 isa_ok($toc, 'dtRdr::TOC');

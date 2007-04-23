@@ -19,7 +19,7 @@ use YAML::Syck;
 use Scope::Guard;
 
 use Wx ();
-use base 'dtRdr::GUI::Wx::layout::Frame';
+use base 'dtRdr::GUI::Wx::Frame0';
 
 use constant {
   SIDEBAR_MINSIZE => 1,
@@ -95,7 +95,7 @@ This gives finer-grained control than inheriting Wx::Frame directly.
 
 =head1 Widget Construction
 
-See L<dtRdr::GUI::Wx::layout::Frame>
+See L<dtRdr::GUI::Wx::Frame0>
 
 =head2 _create_children
 
@@ -135,6 +135,8 @@ sub init {
     notebar_open     => 0,
     notebar_position => 280,
   );
+
+  $self->set_title;
 
   # don't allow splitter window to unsplit at all
   $self->window_1->SetMinimumPaneSize(SIDEBAR_MINSIZE);
@@ -255,15 +257,6 @@ sub setup {
     sub { $self->sidebar_toggle() }
   );
 
-  # Hacky stuff {{{
-  if(1 and my $name = $ENV{PAR_ARGV_0}) {
-    $name =~ s/\.[^\.]+$//;
-    $name =~ s#\\+#/#g;
-    $name =~ s#.*/##g;
-    $self->SetTitle($name);
-  }
-  # end Hacky stuff }}}
-
   # NOTE please use menu_<foo> methods here wherever possible
   my $acc_table = Wx::AcceleratorTable->new(
     map({$self->_accel(@$_)}
@@ -332,6 +325,21 @@ sub setup {
 
   unless($self->plugins) { # TODO some way to re-init these
     $self->set_plugins(dtRdr::GUI::Wx::Plugins->new->init($self));
+  }
+
+  if(
+    $self->IsShown and
+    ($ENV{DOTREADER_DO} and (-e $ENV{DOTREADER_DO}))
+  ) {
+    my $file = $ENV{DOTREADER_DO};
+    my $code = do {
+      open(my $fh, '<', $file) or die "cannot read file '$file'";
+      local $/;
+      <$fh>;
+    };
+    local $SIG{__WARN__};
+    eval($code);
+    $@ and die $@;
   }
 
 } # end subroutine setup definition
@@ -631,10 +639,43 @@ sub menu_file_add_book {
 
   $book->add_to_library($libraries[0]);
 
-  # TODO this is silly
-  my $tr = $self->sidebar->libraries;
-  $tr->DeleteAllItems;
-  $tr->populate;
+  $self->sidebar->libraries->repopulate;
+
+  if(my $s = $book->meta->annotation_server) {
+    # TODO could do a silly yes|no here, but probably get it all in one
+    # options dialog with the library, etc.
+    my $conf = dtRdr->user->config;
+    my $server = dtRdr::ConfigData::Server->new(
+      id    => ($s->id  || die 'no id'),
+      uri   => ($s->uri || die 'no uri'),
+      type  => 'Standard', # XXX!!!
+      books => [$book->id],
+    );
+    if(my @servers = $conf->servers) {
+      # lots of fun here, do we have it, does it have this book, etc
+      my $sid = $server->id;
+      my @found = grep({$_->id eq $sid} @servers);
+      (@found > 1) and die "bad server list";
+      if(my ($got) = @found) { # got this server already
+        my $bid = $book->id;
+        unless($got->books) { # init the booklist
+          $got->set_books($bid);
+        }
+        else { # check the booklist
+          unless(grep({$_ eq $bid} $got->books)) {
+            $got->add_books($bid);
+          }
+        }
+      }
+      else { # no servers yet
+        $conf->add_server($server);
+      }
+    }
+    else {
+      $conf->add_server($server);
+    }
+  }
+
   $self->disable('file_add_book');
 } # end subroutine menu_file_add_book definition
 ########################################################################
@@ -790,14 +831,24 @@ sub menu_connect_anno_sync {
   my $self = shift;
 
   my ($server, @plus) = dtRdr->user->config->servers;
-  @plus and die "ok, time to fix this bit";
+  @plus and
+    die "need to finish this -- cannot sync multiple servers yet";
 
   # XXX this is a bad hack
   use URI::Escape (); # TODO eliminate the need for that?
   my @book_list = map({URI::Escape::uri_escape($_)}
-    map({$_->book_id} map({$_->get_book_info} dtRdr->user->libraries)));
+    $server->books
+  );
+
+  # TODO the lack of book list wouldn't be an error if the server could
+  # hold that for us.
+  @book_list or return($self->error('The server ' .
+    (defined($server->name) ? '"'. $server->name . '"' : $server->id) .
+    ' has no associated books.'));
 
   use dtRdr::Annotation::Sync::Standard;
+  use dtRdr::GUI::Wx::Dialog::Password;
+
   my $sync = dtRdr::Annotation::Sync::Standard->new($server->uri,
     anno_io => $self->bv_manager->anno_io,
     server  => $server,
@@ -805,20 +856,11 @@ sub menu_connect_anno_sync {
     books   => [@book_list],
     auth_sub => sub {
       my ($s, $uri, $realm) = @_;
-      # TODO a better password dialog
-      defined(my $user = $s->username) or
-        die "TODO: support server config";
-      my $p = $s->password;
-      # TODO if there was a $p, we had a problem
-      my $prompt = Wx::TextEntryDialog->new($self,
-        "Enter password for $uri",
-        'Authentication Required',
-        undef,
-        &Wx::wxOK|&Wx::wxTE_PASSWORD
+      return dtRdr::GUI::Wx::Dialog::Password->get_credentials($self,
+        config => $s,
+        realm => $realm,
+        uri => $uri,
       );
-      $prompt->ShowModal;
-      my $v = $prompt->GetValue;
-      return($user, $v);
     },
   );
 
@@ -994,6 +1036,30 @@ sub Show {
   dtRdr->_init_reloader;
   return($ret);
 } # end subroutine Show definition
+########################################################################
+
+=head1 Frame Properties
+
+
+=head2 set_title
+
+Set the frame title (with app name) according to preferences.
+
+  $self->set_title($string);
+
+Use this instead of calling SetTitle() directly.
+
+=cut
+
+sub set_title {
+  my $self = shift;
+  my ($string) = @_;
+  $string = '' unless(defined($string));
+
+  $self->SetTitle(
+    (length($string) ? ($string . ' - ' ) : '') . dtRdr->app_name
+  );
+} # end subroutine set_title definition
 ########################################################################
 
 =head1 Feedback and User Alerts
@@ -1243,7 +1309,7 @@ sub make_splash {
 sub kill_splash {
   my $self = shift;
   # destroy the splash after the Show() succeeds
-  exists($self->{splash_screen}) or die "splash screen is already gone";
+  exists($self->{splash_screen}) or return;
   my $sp = delete($self->{splash_screen});
   return($sp->Destroy);
 } # end subroutine kill_splash definition

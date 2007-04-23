@@ -12,7 +12,11 @@ BEGIN {
   Test::More::use_ok('dtRdr::Book::ThoutBook_1_0');
 }
 
-=head2 new_1_0
+=head1 Functions
+
+In package main.
+
+=head2 ABook_new_1_0
 
   ABook_new_1_0($uri);
 

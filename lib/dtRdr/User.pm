@@ -9,6 +9,9 @@ use dtRdr;
 use dtRdr::Config;
 use dtRdr::Library;
 
+use File::Basename ();
+use File::Spec;
+
 use Class::Accessor::Classy;
 ro 'config';
 ro 'username';
@@ -73,6 +76,7 @@ sub init_config {
   # dtRdr::Plugins->init($config); # ?
 
   my $config = $self->{config} = dtRdr::Config->new($filename);
+  my $basedir = File::Basename::dirname($filename);
 
   my @libraries = $config->libraries;
 
@@ -82,7 +86,15 @@ sub init_config {
     # lookup the type
     my $library_class = dtRdr::Library->class_by_type($info->type);
     my $library = $library_class->new();
-    $library->load_uri(dtRdr->user_dir . $info->uri);
+
+    # let that be absolute or relative to dirname
+    my $uri = $info->uri;
+    unless(File::Spec->file_name_is_absolute($uri)) {
+      $uri = File::Spec->catfile($basedir, $uri);
+    }
+
+    $library->load_uri($uri);
+
     $self->$add_libraries($library);
   }
   1;

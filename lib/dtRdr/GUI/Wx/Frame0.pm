@@ -1,4 +1,4 @@
-package dtRdr::GUI::Wx::layout::Frame;
+package dtRdr::GUI::Wx::Frame0;
 $VERSION = eval{require version}?version::qv($_):$_ for(0.0.1);
 
 use strict;
@@ -14,7 +14,7 @@ use base 'wxPerl::Frame';
 
 =head1 NAME
 
-dtRdr::GUI::Wx::layout::Frame - layout for toplevel frame
+dtRdr::GUI::Wx::Frame0 - layout for toplevel frame
 
 =head1 SYNOPSIS
 

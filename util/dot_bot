@@ -139,13 +139,20 @@ sub main {
     ) : ()
   );
 
+  my @passes = qw(e e e e e q q);
   my $ua = dtRdr::UserAgent->new(
     cookie_jar => $cookies,
     #progress_sub => sub {warn "hey"},
     complete_sub => $comp_sub,
     auth_sub => sub {
+      if(1) {
       warn "silly auth sub";
       return('bob', 'e');
+      }
+      else {
+      warn "silly auth sub ($_[1]) $passes[0]";
+      return('bob', shift(@passes));
+      }
     },
   );
   if($seq) {
@@ -155,7 +162,7 @@ sub main {
     $ua->add_request(@$_) for(@requests);
   }
 
-  until($ua->pester) {}
+  until($ua->pester) {0 and warn "pester\n";}
 
   # requests that didn't finish
   if(my %left = $ua->leftovers) {

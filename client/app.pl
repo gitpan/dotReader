@@ -17,18 +17,18 @@ BEGIN {
 
   dtRdr->program_dir(__FILE__); # seed for data_dir
 
-  if(1) { # TODO something different in test mode?
-  Wx::Image::AddHandler(Wx::PNGHandler->new);
-  $splash = Wx::SplashScreen->new(
-    Wx::Bitmap->new(
-      dtRdr->data_dir . 'gui_default/images/splash.png',
-      &Wx::wxBITMAP_TYPE_PNG
-    ),
-    Wx::wxSPLASH_CENTRE_ON_SCREEN(), 0, undef , -1
-  );
-  #Wx::Yield();
-  my $now = Time::HiRes::time();
-  #warn "splash is out in ", $now - dtRdr->start_time, " seconds\n";
+  unless($ENV{DOTREADER_NOSPLASH}) {
+    Wx::Image::AddHandler(Wx::PNGHandler->new);
+    $splash = Wx::SplashScreen->new(
+      Wx::Bitmap->new(
+        dtRdr->data_dir . 'gui_default/images/splash.png',
+        &Wx::wxBITMAP_TYPE_PNG
+      ),
+      Wx::wxSPLASH_CENTRE_ON_SCREEN(), 0, undef , -1
+    );
+    #Wx::Yield();
+    my $now = Time::HiRes::time();
+    #warn "splash is out in ", $now - dtRdr->start_time, " seconds\n";
   }
 }
 
@@ -81,9 +81,15 @@ sub OnInit {
       $on_first_idle->();
       $self->Disconnect(-1, -1, &Wx::wxEVT_IDLE);
       if($ENV{DOTREADER_TEST}) {
+        my $exit = 1;
         eval($ENV{DOTREADER_TEST});
         $@ and die;
-        $frame_main->Close; $self->ExitMainLoop;
+        if($exit) {
+          $frame_main->Close; $self->ExitMainLoop;
+        }
+        else {
+          warn "skipped exit";
+        }
       }
     });
   }
